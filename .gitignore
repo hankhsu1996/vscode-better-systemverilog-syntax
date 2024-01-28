@@ -1,0 +1,33 @@
+# Node.js dependencies
+node_modules
+npm-debug.log
+
+# VS Code
+*.vsix
+.settings/
+.vscode/
+
+# Build output
+out/
+
+# Syntax highlighting
+syntaxes/*.json
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
+*.log
+
+# Yarn
+yarn-debug.log*
+.yarn-integrity
+
+# Environment Files
+.env
+
+# Test output
+coverage/
+.nyc_output/
+
+# TypeScript
+**/*.tsbuildinfo

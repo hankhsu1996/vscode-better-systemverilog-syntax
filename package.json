@@ -1,0 +1,49 @@
+{
+  "name": "better-systemverilog-syntax",
+  "displayName": "Better SystenVerilog Syntax",
+  "description": "Better syntax highlighting for SystemVerilog",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "node src/main.js",
+    "test": "npm run build && vscode-tmgrammar-test -g syntaxes/systemverilog.tmLanguage.json \"tests/chapter-5/*.sv\"",
+    "test-watch": "nodemon --watch src --watch syntaxes --watch tests -e js,yaml,sv --exec \"npm run test\""
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "systemverilog",
+        "aliases": [
+          "SystemVerilog",
+          "systemverilog",
+          "sv"
+        ],
+        "extensions": [
+          ".sv",
+          ".svh",
+          ".v",
+          ".vh"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "systemverilog",
+        "scopeName": "source-text.sv",
+        "path": "./syntaxes/systemverilog.tmLanguage.json"
+      }
+    ]
+  },
+  "devDependencies": {
+    "js-yaml": "^4.1.0",
+    "nodemon": "^3.0.3",
+    "vscode-tmgrammar-test": "^0.1.2"
+  }
+}

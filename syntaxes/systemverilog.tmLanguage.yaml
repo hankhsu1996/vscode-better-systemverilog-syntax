@@ -1,0 +1,787 @@
+name: SystemVerilog
+scopeName: source-text.sv
+variables:
+  simpleIdentifier: \b[a-zA-Z_][a-zA-Z0-9_\$]*\b
+  identifier: (?:(?<!\\|\$)\b[a-zA-Z_][a-zA-Z0-9_\$]*\b|\\\S+(?=\s|$)|`[a-zA-Z_][a-zA-Z0-9_\$]*\b(?:\(.*?\))?)(?<!\b(?:accept_on|alias|always|always_comb|always_ff|always_latch|and|assert|assign|assume|automatic|before|begin|bind|bins|binsof|bit|break|buf|bufif0|bufif1|byte|case|casex|casez|cell|chandle|checker|class|clocking|cmos|config|const|constraint|context|continue|cover|covergroup|coverpoint|cross|deassign|default|defparam|design|disable|dist|do|edge|else|end|endcase|endchecker|endclass|endclocking|endconfig|endfunction|endgenerate|endgroup|endinterface|endmodule|endpackage|endprimitive|endprogram|endproperty|endspecify|endsequence|endtable|endtask|enum|event|eventually|expect|export|extends|extern|final|first_match|for|force|foreach|forever|fork|forkjoin|function|generate|genvar|global|highz0|highz1|if|iff|ifnone|ignore_bins|illegal_bins|implements|implies|import|incdir|include|initial|inout|input|inside|instance|int|integer|interconnect|interface|intersect|join|join_any|join_none|large|let|liblist|library|local|localparam|logic|longint|macromodule|matches|medium|modport|module|nand|negedge|nettype|new|nexttime|nmos|nor|noshowcancelled|not|notif0|notif1|null|or|output|package|packed|parameter|pmos|posedge|primitive|priority|program|property|protected|pull0|pull1|pulldown|pullup|pulsestyle_ondetect|pulsestyle_onevent|pure|rand|randc|randcase|randsequence|rcmos|real|realtime|ref|reg|reject_on|release|repeat|restrict|return|rnmos|rpmos|rtran|rtranif0|rtranif1|s_always|s_eventually|s_nexttime|s_until|s_until_with|scalared|sequence|shortint|shortreal|showcancelled|signed|small|soft|solve|specify|specparam|static|string|strong|strong0|strong1|struct|super|supply0|supply1|sync_accept_on|sync_reject_on|table|tagged|task|this|throughout|time|timeprecision|timeunit|tran|tranif0|tranif1|tri|tri0|tri1|triand|trior|trireg|type|typedef|union|unique|unique0|unsigned|until|until_with|untyped|use|uwire|var|vectored|virtual|void|wait|wait_order|wand|weak|weak0|weak1|while|wildcard|wire|with|within|wor|xnor|xor)\b|`(?:__FILE__|__LINE__|begin_keywords|celldefine|default_nettype|define|else|elsif|end_keywords|endcelldefine|endif|ifdef|ifndef|include|line|nounconnected_drive|pragma|resetall|timescale|unconnected_drive|undef|undefineall)\b)
+  macro: (?:`[a-zA-Z_][a-zA-Z0-9_\$]*\b(?:\(.*?\))?)(?<!`(?:__FILE__|__LINE__|begin_keywords|celldefine|default_nettype|define|else|elsif|end_keywords|endcelldefine|endif|ifdef|ifndef|include|line|nounconnected_drive|pragma|resetall|timescale|unconnected_drive|undef|undefineall)\b)
+  # Remove array method name: unique, and, or, xor
+  funcIdentifier: (?:(?<!\\|\$)(?:\b[a-zA-Z_]|\$)[a-zA-Z0-9_\$]*\b|\\\S+(?=\s|$))(?<!\b(?:accept_on|alias|always|always_comb|always_ff|always_latch|assert|assign|assume|automatic|before|begin|bind|bins|binsof|bit|break|buf|bufif0|bufif1|byte|case|casex|casez|cell|chandle|checker|class|clocking|cmos|config|const|constraint|context|continue|cover|covergroup|coverpoint|cross|deassign|default|defparam|design|disable|dist|do|edge|else|end|endcase|endchecker|endclass|endclocking|endconfig|endfunction|endgenerate|endgroup|endinterface|endmodule|endpackage|endprimitive|endprogram|endproperty|endspecify|endsequence|endtable|endtask|enum|event|eventually|expect|export|extends|extern|final|first_match|for|force|foreach|forever|fork|forkjoin|function|generate|genvar|global|highz0|highz1|if|iff|ifnone|ignore_bins|illegal_bins|implements|implies|import|incdir|include|initial|inout|input|inside|instance|int|integer|interconnect|interface|intersect|join|join_any|join_none|large|let|liblist|library|local|localparam|logic|longint|macromodule|matches|medium|modport|module|nand|negedge|nettype|new|nexttime|nmos|nor|noshowcancelled|not|notif0|notif1|null|output|package|packed|parameter|pmos|posedge|primitive|priority|program|property|protected|pull0|pull1|pulldown|pullup|pulsestyle_ondetect|pulsestyle_onevent|pure|rand|randc|randcase|randsequence|rcmos|real|realtime|ref|reg|reject_on|release|repeat|restrict|return|rnmos|rpmos|rtran|rtranif0|rtranif1|s_always|s_eventually|s_nexttime|s_until|s_until_with|scalared|sequence|shortint|shortreal|showcancelled|signed|small|soft|solve|specify|specparam|static|string|strong|strong0|strong1|struct|super|supply0|supply1|sync_accept_on|sync_reject_on|table|tagged|task|this|throughout|time|timeprecision|timeunit|tran|tranif0|tranif1|tri|tri0|tri1|triand|trior|trireg|type|typedef|union|unique0|unsigned|until|until_with|untyped|use|uwire|var|vectored|virtual|void|wait|wait_order|wand|weak|weak0|weak1|while|wildcard|wire|with|within|wor|xnor)\b)
+patterns:
+  - include: "#comments"
+  - include: "#compiler-directive"
+  - include: "#description"
+repository:
+  # A.1.2 SystemVerilog source text
+  description:
+    patterns:
+      - include: "#module-declaration"
+      - include: "#end-module"
+  module-declaration:
+    patterns:
+      - name: meta.module-declaration.sv
+        begin: \b(module|macromodule)\s+(?:(static|automatic)\s+)?(${identifier})\s*
+        end: (;)\s*
+        beginCaptures:
+          "1": { name: storage.type.$1.sv }
+          "2": { name: storage.modifier.$2.sv }
+          "3": { name: entity.name.type.module.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+      - name: meta.module-declaration.sv
+        match: \b(endmodule)\b\s*(?:(\:)\s*(${identifier})\s*)?
+        captures:
+          "1": { name: storage.type.module.sv }
+          "2": { name: punctuation.separator.colon.sv }
+          "3": { name: entity.name.type.module.sv }
+      - include: "#module-item"
+  # A.1.4 Module items
+  module-common-item:
+    patterns:
+      - include: "#initial-construct"
+      - include: "#always-construct"
+      - include: "#final-construct"
+      - include: "#statement"
+      - include: "#module-or-generate-item-declaration"
+  module-item:
+    patterns:
+      - include: "#non-port-module-item"
+  module-or-generate-item:
+    patterns:
+      - include: "attribute-instance"
+      - include: "#module-common-item"
+  module-or-generate-item-declaration:
+    patterns:
+      - include: "#package-or-generate-item-declaration"
+  non-port-module-item:
+    patterns:
+      - include: "#module-or-generate-item"
+  # A.1.11 Package items
+  package-item:
+    patterns:
+      - include: "#package-or-generate-item-declaration"
+  package-or-generate-item-declaration:
+    patterns:
+      - include: "#data-declaration"
+  # A.2.1.3 Type declarations
+  data-declaration:
+    patterns:
+      - match: \b(const)\b\s*
+        captures:
+          "1": { name: storage.modifier.const.sv }
+      - match: \b(var)\b\s*
+        captures:
+          "1": { name: storage.modifier.var.sv }
+      - include: "#lifetime"
+      - include: "#data-type-or-implicit"
+  # A.2.2 Declaration data types
+  # A.2.2.1 Net and variable types
+  data-type:
+    patterns:
+      - include: "#integer-vector-type"
+      - include: "#signing"
+      - include: "#packed-dimension"
+      - include: "#integer-atom-type"
+      - include: "#non-integer-type"
+  data-type-or-implicit:
+    patterns:
+      - include: "#data-type"
+      - include: "#implicit-data-type"
+  integer-type:
+    patterns:
+      - include: "#integer-atom-type"
+      - include: "#integer-vector-type"
+  integer-atom-type:
+    match: \b(byte|shortint|int|longint|integer|time)\b
+    name: entity.name.type.$1.sv
+  integer-vector-type:
+    match: \b(bit|logic|reg)\b
+    name: entity.name.type.$1.sv
+  non-integer-type:
+    match: \b(shortreal|real|realtime)\b
+    name: entity.name.type.$1.sv
+  net-type:
+    match: \b(supply0|supply1|tri|triand|trior|trireg|tri0|tri1|uwire|wire|wand|wor)\b
+    name: storage.type.$1.sv
+  # A.6.2 Procedural blocks and assignments
+  initial-construct:
+    match: \b(initial)\b\s*
+    captures:
+      "1": { name: keyword.control.initial.sv }
+  always-construct:
+    match: \b(always|always_comb|always_latch|always_ff)\b\s*
+    captures:
+      "1": { name: keyword.control.$1.sv }
+  final-construct:
+    match: \b(final)\b\s*
+    captures:
+      "1": { name: keyword.control.final.sv }
+  blocking-assignment:
+    patterns:
+      - include: "#equals"
+      - match: (=|\+=|-=|\*=|/=|%=|&=|\|=|\^=|<<=|>>=|<<<=|>>>=)\s*
+        captures:
+          "1": { name: keyword.operator.assignment.sv }
+  nonblocking-assignment:
+    patterns:
+      - match: (\<=)\s*
+        captures:
+          "1": { name: keyword.operator.assignment.sv }
+  # A.6.4 Statements
+  statement:
+    patterns:
+      - include: "#statement-item"
+  statement-item:
+    patterns:
+      - include: "#blocking-assignment"
+      - include: "#nonblocking-assignment"
+      - include: "#subroutine-call-statement"
+      - include: "#expression"
+  # A.6.7.1 Patterns
+  pattern:
+    patterns:
+      - match: (\.)\s*([a-zA-Z_][a-zA-Z0-9_$]*)
+        captures:
+          "1": { name: punctuation.definition.pattern.sv }
+          "2": { name: variable.other.patterns.sv }
+      - match: (\.\*)
+        captures:
+          "1": { name: punctuation.definition.wildcard.sv }
+      - include: "#constant-expression"
+      - match: \b(tagged)\s+([a-zA-Z_][a-zA-Z0-9_$]*)
+        captures:
+          "1": { name: keyword.other.tagged.sv }
+          "2": { name: variable.other.patterns.sv }
+      - begin: \'\{
+        end: \}
+        name: meta.pattern.sv
+        beginCaptures:
+          "0": { name: punctuation.section.braces.begin.sv }
+        endCaptures:
+          "0": { name: punctuation.section.braces.end.sv }
+        patterns:
+          - include: "#pattern"
+          - match: ","
+            name: punctuation.separator.comma.sv
+          - include: "#comment"
+          - include: "#compiler-directive"
+          - include: "#member-identifier"
+          - include: "#colon"
+  assignment-pattern:
+    begin: \'\{
+    end: \}
+    name: meta.assignment-pattern.sv
+    beginCaptures:
+      "0": { name: punctuation.section.braces.begin.sv }
+    endCaptures:
+      "0": { name: punctuation.section.braces.end.sv }
+    patterns:
+      # Replication case
+      - begin: (?<=[^{,'\s])\s*\{
+        end: \}
+        beginCaptures:
+          "0": { name: punctuation.section.braces.begin.sv }
+        endCaptures:
+          "0": { name: punctuation.section.braces.end.sv }
+        patterns:
+          - include: "#comma"
+          - include: "#expression"
+          - include: "#comment"
+          - include: "#compiler-directive"
+      - begin: (\:)\s*
+        end: (?=\}|,)
+        beginCaptures:
+          "1": { name: punctuation.separator.colon.sv }
+        patterns:
+          - include: "#expression"
+          - include: "#comment"
+          - include: "#compiler-directive"
+      # Special case for member identifier
+      - match: (${identifier})\s*(?=\:)
+        captures:
+          "1": { name: variable.other.member.sv }
+      - include: "#comma"
+      - include: "#expression"
+      - include: "#structure-pattern-key"
+      - include: "#array-pattern-key"
+      - include: "#comment"
+      - include: "#compiler-directive"
+  structure-pattern-key:
+    patterns:
+      - include: "#member-identifier"
+      - include: "#assignment-pattern-key"
+  array-pattern-key:
+    patterns:
+      - include: "#constant-expression"
+      - include: "#assignment-pattern-key"
+  assignment-pattern-key:
+    patterns:
+      - match: \b(default)\b
+        name: keyword.other.default.sv
+      - include: "#simple-type"
+  assignment-pattern-expression:
+    patterns:
+      - include: "#assignment-pattern-expression-type"
+      - include: "#assignment-pattern"
+  assignment-pattern-expression-type:
+    patterns:
+      - include: "#ps-type-identifier"
+      - include: "#ps-parameter-identifier"
+      - include: "#integer-atom-type"
+      - include: "#type-reference"
+  constant-assignment-pattern-expression:
+    patterns:
+      - include: "#assignment-pattern-expression"
+  assignment-pattern-net-lvalue:
+    patterns:
+      - begin: \'\{
+        end: \}
+        name: meta.assignment-pattern-net-lvalue.sv
+        beginCaptures:
+          "0": { name: punctuation.section.braces.begin.sv }
+        endCaptures:
+          "0": { name: punctuation.section.braces.end.sv }
+        patterns:
+          - include: "#net-lvalue"
+          - include: "#comma"
+  assignment-pattern-variable-lvalue:
+    patterns:
+      - begin: \'\{
+        end: \}
+        name: meta.assignment-pattern-variable-lvalue.sv
+        beginCaptures:
+          "0": { name: punctuation.section.braces.begin.sv }
+        endCaptures:
+          "0": { name: punctuation.section.braces.end.sv }
+        patterns:
+          - include: "#variable-lvalue"
+          - include: "#comma"
+  # A.6.9 Subroutine call statements
+  subroutine-call-statement:
+    patterns:
+      - include: "#subroutine-call"
+  # A.8.2 Subroutine calls
+  constant-function-call:
+    patterns:
+      - include: "#function-subroutine-call"
+  tf-call:
+    patterns:
+      - begin: (${funcIdentifier})\s*(\()\s*
+        end: (\))\s*
+        name: meta.tf-call.sv
+        beginCaptures:
+          "1": { name: entity.name.function.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#let-list-of-arguments"
+          - include: "#list-of-arguments"
+          - include: "#comment"
+          - include: "#compiler-directive"
+  system-tf-call:
+    patterns:
+      - name: meta.system-tf-call.sv
+        begin: (\$[a-zA-Z0-9_\$]+)\b(\()\s*
+        beginCaptures:
+          "1": { name: entity.name.function.sv }
+          "2": { name: punctuation.definition.parameters.sv }
+        end: (\))
+        endCaptures:
+          "1": { name: punctuation.definition.parameters.sv }
+        patterns:
+          - include: "#list-of-arguments"
+      - match: (\$[a-zA-Z0-9_\$]+)\b
+        captures:
+          "1": { name: entity.name.function.sv }
+  subroutine-call:
+    patterns:
+      - include: "#system-tf-call"
+      - include: "#tf-call"
+  function-subroutine-call:
+    patterns:
+      - include: "#subroutine-call"
+  list-of-arguments:
+    patterns:
+      - include: "#compiler-directive"
+      - include: "#comma"
+      - include: "#expression"
+  # A.8.3 Expressions
+  constant-expression:
+    name: meta.expression.sv
+    patterns:
+      - include: "#binary-operator"
+      - include: "#unary-operator"
+      - include: "#attribute-instance"
+      - include: "#constant-primary"
+      - include: "#hierarchical-identifier"
+  expression:
+    name: meta.expression.sv
+    patterns:
+      - include: "#inc-or-dec-expression"
+      - include: "#binary-operator"
+      - include: "#unary-operator"
+      - include: "#attribute-instance"
+      - include: "#primary"
+      - include: "#hierarchical-identifier"
+  # A.8.4 Primaries
+  constant-primary:
+    patterns:
+      - include: "#primary-literal"
+      - include: "#constant-assignment-pattern-expression"
+  primary:
+    patterns:
+      - include: "#primary-literal"
+      - include: "#assignment-pattern-expression"
+      - include: "#function-subroutine-call"
+  primary-literal:
+    patterns:
+      - include: "#string-literal"
+      - include: "#time-literal"
+      - include: "#unbased-unsized-literal"
+      - include: "#number"
+  time-literal:
+    patterns:
+      - match: \b([0-9][0-9_]*)\s*(s|ms|us|ns|ps|fs)\b
+        captures:
+          "1": { name: constant.numeric.integer.sv }
+          "2": { name: constant.numeric.time-unit.sv }
+      - match: \b([0-9_]+\.[0-9_]+)\s*(s|ms|us|ns|ps|fs)\b
+        captures:
+          "1": { name: constant.numeric.real.sv }
+          "2": { name: constant.numeric.time-unit.sv }
+      - include: "#number"
+  time-unit:
+    name: constant.numeric.time-unit.sv
+    match: (?<=[0-9][0-9_]*\s*)(s|ms|us|ns|ps|fs)\b
+  # A.8.6 Operators
+  unary-operator:
+    match: (~\^|\^~|~&|~\||\+|\-|!|~|&|\||\^)\s*
+    captures:
+      "1": { name: keyword.operator.unary.sv }
+  binary-operator:
+    match: (?<!^|(?:\(|\:|=)\s*)(===|!==|==\?|==|!=\?|!=|&&|\|\||\*\*|<=|>=|\^~|~\^|\^~|>>>|<<<|>>|<<|->|<->|\+|\-|\*|\/|%|<|>|&|\||\^)\s*
+    captures:
+      "1": { name: keyword.operator.binary.sv }
+  inc-or-dec-operator:
+    match: (\+\+|--)\s*
+    captures:
+      "1": { name: keyword.operator.incdec.sv }
+  unary-module-path-operator:
+    match: (~&|~\||~\^|\^~|!|~|&|\||\^)\s*
+    captures:
+      "1": { name: keyword.operator.unary.sv }
+  binary-module-path-operator:
+    match: (==|!=|&&|\|\||\^~|~\^|&|\||\^)\s*
+    captures:
+      "1": { name: keyword.operator.binary.sv }
+  # A.8.7 Numbers
+  number:
+    name: meta.number.sv
+    patterns:
+      - include: "#integral-number"
+      - include: "#real-number"
+      - include: "#comment"
+      - include: "#compiler-directive"
+  integral-number:
+    name: meta.integral-number.sv
+    patterns:
+      - include: "#octal-number"
+      - include: "#binary-number"
+      - include: "#hex-number"
+      - include: "#decimal-number"
+      - include: "#comment"
+      - include: "#compiler-directive"
+  decimal-number:
+    patterns:
+      - match: (\b[1-9][0-9_]*)?\s*(\')[sS]?[dD]\s*([0-9_xXzZ\?]+)
+        name: constant.numeric.decimal.sv
+      - match: (?<!\.)\b([0-9_]+)\b(?!\.)
+        name: constant.numeric.integer.sv
+  binary-number:
+    match: (\b[1-9][0-9_]*)?\s*(\')[sS]?[bB]\s*([0-1_xXzZ\?]+)
+    name: constant.numeric.binary.sv
+  octal-number:
+    match: (\b[1-9][0-9_]*)?\s*(\')[sS]?[oO]\s*([0-7_xXzZ\?]+)
+    name: constant.numeric.octal.sv
+  hex-number:
+    match: (\b[1-9][0-9_]*)?\s*(\')[sS]?[hH]\s*([0-9a-fA-F_xXzZ\?]+)
+    name: constant.numeric.hex.sv
+  real-number:
+    name: meta.real-number.sv
+    patterns:
+      - include: "#fixed-point-number"
+      - match: (?<!\.)\b[0-9_]+(\.[0-9_]+)?[eE][+-]?[0-9_]+
+        name: constant.numeric.real.sv
+  fixed-point-number:
+    match: \b[0-9_]+\.[0-9_]+\b
+    name: constant.numeric.real.sv
+  unbased-unsized-literal:
+    match: (\'[01xXzZ])\b
+    name: constant.numeric.unbased-unsized.sv
+  # A.9 General
+  # A.9.1 Attributes
+  attribute-instance:
+    name: meta.attribute-instance.sv
+    begin: \(\*
+    end: \*\)
+    beginCaptures:
+      "0": { name: punctuation.definition.attribute.begin.sv }
+    endCaptures:
+      "0": { name: punctuation.definition.attribute.end.sv }
+    patterns:
+      - include: "#att-spec"
+      - include: "#comma"
+      - include: "#comment"
+      - include: "#compiler-directive"
+  att-spec:
+    name: meta.att-spec.sv
+    begin: \b([a-zA-Z_][a-zA-Z0-9_]*)\s*(\=)?
+    end: (?=(\*\))|\,)\s*
+    beginCaptures:
+      "1": { name: entity.other.attribute-name.sv }
+      "2": { name: keyword.operator.assignment.sv }
+    patterns:
+      - include: "#constant-expression"
+      - include: "#comment"
+      - include: "#compiler-directive"
+  # A.8.8 Strings
+  string-literal:
+    begin: \"
+    end: \"
+    beginCaptures:
+      "0": { name: punctuation.definition.string.begin.sv }
+    endCaptures:
+      "0": { name: punctuation.definition.string.end.sv }
+    name: string.quoted.double.sv
+    patterns:
+      - match: (?:\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
+        name: constant.character.escape.sv
+      - match: (?:\\[abfnrtv\\\"\'\?])
+        name: constant.character.escape.sv
+      - match: (?:\\[0-7]{1,3})
+        name: constant.character.escape.sv
+      - match: (?:\\x[0-9a-fA-F]{1,2})
+        name: constant.character.escape.sv
+      - match: \%(\d+\$)?[#0\- +']*[,;:_]?((-?\d+)|\*(-?\d+\$)?)?(\.((-?\d+)|\*(-?\d+\$)?)?)?(hh|h|ll|l|j|t|z|q|L|vh|vl|v|hv|hl)?[hHxXdDoObBcClLvVmMpPsStTuUzZieEfFgGaAn%]
+        name: constant.other.placeholder.sv
+      - match: \\\n
+        name: punctuation.separator.continuation.sv
+  # A.9.2 Comments
+  comments:
+    patterns:
+      - include: "#line-comment"
+      - include: "#block-comment"
+  line-comment:
+    name: comment.line.sv
+    match: (//)(.*)
+    captures:
+      "1": { name: punctuation.definition.comment.sv }
+  block-comment:
+    name: comment.block.sv
+    begin: /\*
+    end: \*/
+    beginCaptures:
+      "0": { name: punctuation.definition.comment.sv }
+    endCaptures:
+      "0": { name: punctuation.definition.comment.sv }
+  # A.9.3 Identifiers
+  hierarchical-identifier:
+    patterns:
+      - match: (\$root)\s*(\.)\s*
+        captures:
+          "1": { name: variable.other.root.sv }
+          "2": { name: punctuation.accessor.dot.sv }
+      - match: (\.)\s*
+        captures:
+          "1": { name: punctuation.accessor.dot.sv }
+      - include: "#identifier"
+  identifier:
+    match: (${identifier})\s*(?!\()
+    captures:
+      "1": { name: variable.other.sv }
+  simple-identifier:
+    name: variable.other.sv
+    match: ${simpleIdentifier}
+  system-tf-identifier:
+    match: (\$[a-zA-Z0-9_\$]+)\b
+    name: entity.name.function.sv
+  # Compiler directives
+  compiler-directive:
+    patterns:
+      - include: "#macro-resetall"
+      - include: "#macro-include"
+      - include: "#macro-define"
+      - include: "#macro-undefineall"
+      - include: "#macro-undef"
+      - include: "#macro-ifdef"
+      - include: "#macro-elsif"
+      - include: "#macro-else"
+      - include: "#macro-ifndef"
+      - include: "#macro-endif"
+      - include: "#macro-timescale"
+      - include: "#macro-default-nettype"
+      - include: "#macro-unconnected-drive"
+      - include: "#macro-nounconnected-drive"
+      - include: "#macro-celldefine"
+      - include: "#macro-endcelldefine"
+      - include: "#macro-pragma"
+      - include: "#macro-line"
+      - include: "#macro-begin-keywords"
+      - include: "#macro-end-keywords"
+      - include: "#macro-__line__"
+      - include: "#macro-__file__"
+      - include: "#text-macro-usage"
+  macro-resetall:
+    match: (`resetall)\b
+    name: keyword.control.resetall.sv
+  macro-include:
+    begin: (`include)\s*
+    end: $
+    name: meta.preprocessor.include.sv
+    beginCaptures:
+      "1": { name: keyword.control.include.sv }
+    patterns:
+      - match: ("[^"]*")
+        name: string.quoted.double.include.sv
+      - match: (<[^>]*>)
+        name: string.quoted.angle.include.sv
+      - include: "#text-macro-usage"
+  macro-define:
+    name: meta.macro-definition.sv
+    patterns:
+      # Oneline
+      - match: (`define)\s*([a-zA-Z_][a-zA-Z0-9_\$]*)\s*(.*)$
+        captures:
+          "1": { name: keyword.control.define.sv }
+          "2": { name: meta.preprocessor.macro-name.sv }
+          "3":
+            patterns:
+              - begin: \(
+                end: \)
+                beginCaptures:
+                  "0": { name: punctuation.section.group.begin.sv }
+                endCaptures:
+                  "0": { name: punctuation.section.group.end.sv }
+                patterns:
+                  - include: "#formal-argument"
+                  - include: "#comma"
+              - include: "#macro-text"
+      # Multiline
+      - begin: (`define)\s*([a-zA-Z_][a-zA-Z0-9_\$]*)
+        end: (?<!\\)$
+        beginCaptures:
+          "1": { name: keyword.control.define.sv }
+          "2": { name: meta.preprocessor.macro-name.sv }
+        patterns:
+          - begin: \(
+            end: \)
+            beginCaptures:
+              "0": { name: punctuation.section.group.begin.sv }
+            endCaptures:
+              "0": { name: punctuation.section.group.end.sv }
+            patterns:
+              - include: "#formal-argument"
+              - include: "#comma"
+          - include: "#macro-continuation"
+          - include: "#macro-text"
+  macro-continuation:
+    match: \\
+    name: punctuation.separator.continuation.sv
+  macro-text:
+    patterns:
+      # Escaped quotation mark
+      - begin: \`\"
+        end: \`\"
+        beginCaptures:
+          "0": { name: constant.character.escape.sv }
+        endCaptures:
+          "0": { name: constant.character.escape.sv }
+        name: string.quoted.macro.sv
+        patterns:
+          - match: \`\`
+            name: constant.character.escape.sv
+          - match: \`\\\`\"
+            name: constant.character.escape.sv
+          - match: (?:\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
+            name: constant.character.escape.sv
+          - match: (?:\\[abfnrtv\\\"\'\?])
+            name: constant.character.escape.sv
+          - match: (?:\\[0-7]{1,3})
+            name: constant.character.escape.sv
+          - match: (?:\\x[0-9a-fA-F]{1,2})
+            name: constant.character.escape.sv
+          - match: \%(\d+\$)?[#0\- +']*[,;:_]?((-?\d+)|\*(-?\d+\$)?)?(\.((-?\d+)|\*(-?\d+\$)?)?)?(hh|h|ll|l|j|t|z|q|L|vh|vl|v|hv|hl)?[hHxXdDoObBcClLvVmMpPsStTuUzZieEfFgGaAn%]
+            name: constant.other.placeholder.sv
+          - match: \\\n
+            name: punctuation.separator.continuation.sv
+      - match: ((?<!\\|\$)\b[a-zA-Z_][`a-zA-Z0-9_\$]*\b|\\\S+(?=\s|$))(?<!\b(?:accept_on|alias|always|always_comb|always_ff|always_latch|and|assert|assign|assume|automatic|before|begin|bind|bins|binsof|bit|break|buf|bufif0|bufif1|byte|case|casex|casez|cell|chandle|checker|class|clocking|cmos|config|const|constraint|context|continue|cover|covergroup|coverpoint|cross|deassign|default|defparam|design|disable|dist|do|edge|else|end|endcase|endchecker|endclass|endclocking|endconfig|endfunction|endgenerate|endgroup|endinterface|endmodule|endpackage|endprimitive|endprogram|endproperty|endspecify|endsequence|endtable|endtask|enum|event|eventually|expect|export|extends|extern|final|first_match|for|force|foreach|forever|fork|forkjoin|function|generate|genvar|global|highz0|highz1|if|iff|ifnone|ignore_bins|illegal_bins|implements|implies|import|incdir|include|initial|inout|input|inside|instance|int|integer|interconnect|interface|intersect|join|join_any|join_none|large|let|liblist|library|local|localparam|logic|longint|macromodule|matches|medium|modport|module|nand|negedge|nettype|new|nexttime|nmos|nor|noshowcancelled|not|notif0|notif1|null|or|output|package|packed|parameter|pmos|posedge|primitive|priority|program|property|protected|pull0|pull1|pulldown|pullup|pulsestyle_ondetect|pulsestyle_onevent|pure|rand|randc|randcase|randsequence|rcmos|real|realtime|ref|reg|reject_on|release|repeat|restrict|return|rnmos|rpmos|rtran|rtranif0|rtranif1|s_always|s_eventually|s_nexttime|s_until|s_until_with|scalared|sequence|shortint|shortreal|showcancelled|signed|small|soft|solve|specify|specparam|static|string|strong|strong0|strong1|struct|super|supply0|supply1|sync_accept_on|sync_reject_on|table|tagged|task|this|throughout|time|timeprecision|timeunit|tran|tranif0|tranif1|tri|tri0|tri1|triand|trior|trireg|type|typedef|union|unique|unique0|unsigned|until|until_with|untyped|use|uwire|var|vectored|virtual|void|wait|wait_order|wand|weak|weak0|weak1|while|wildcard|wire|with|within|wor|xnor|xor)\b)
+        captures:
+          "1":
+            name: variable.other.sv
+            patterns:
+              - match: \`\`
+                name: constant.character.escape.sv
+      - include: "#module-item"
+      - include: "#expression"
+  formal-argument:
+    patterns:
+      - match: \b([a-zA-Z_][a-zA-Z0-9_\$]*)\b
+        name: variable.other.sv
+      - include: "#equals"
+      - include: "#expression"
+  text-macro-usage:
+    patterns:
+      # Macro function
+      - begin: (${macro})\s*(\()\s*
+        end: (\))\s*
+        name: meta.preprocessor.text-macro-usage.sv meta.preprocessor.macro-function.sv
+        beginCaptures:
+          "1": { name: meta.preprocessor.macro-name.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#expression"
+          - include: "#comma"
+      # Macro variable
+      - match: (${macro})\s*(?!\s*[a-zA-Z_(])
+        name: meta.preprocessor.text-macro-usage.sv meta.preprocessor.macro-name.sv
+  macro-undef:
+    match: (`undef)\s*([a-zA-Z_][a-zA-Z0-9_\$]*)
+    captures:
+      "1": { name: keyword.control.undef.sv }
+      "2": { name: meta.preprocessor.macro-name.sv }
+  macro-undefineall:
+    match: (`undefineall)\b
+    name: keyword.control.undefineall.sv
+  macro-ifdef:
+    match: (`ifdef)\s*([a-zA-Z_][a-zA-Z0-9_\$]*)
+    captures:
+      "1": { name: keyword.control.ifdef.sv }
+      "2": { name: meta.preprocessor.macro-name.sv }
+  macro-elsif:
+    match: (`elsif)\s*([a-zA-Z_][a-zA-Z0-9_\$]*)
+    captures:
+      "1": { name: keyword.control.elsif.sv }
+      "2": { name: meta.preprocessor.macro-name.sv }
+  macro-else:
+    match: (`else)\b
+    name: keyword.control.else.sv
+  macro-ifndef:
+    match: (`ifndef)\s*([a-zA-Z_][a-zA-Z0-9_\$]*)
+    captures:
+      "1": { name: keyword.control.ifndef.sv }
+      "2": { name: meta.preprocessor.macro-name.sv }
+  macro-endif:
+    match: (`endif)\b
+    name: keyword.control.endif.sv
+  macro-timescale:
+    # `timescale time_unit / time_precision
+    begin: (`timescale)\s*
+    end: $
+    beginCaptures:
+      "1": { name: keyword.control.timescale.sv }
+    patterns:
+      - match: \/
+        name: punctuation.separator.slash.sv
+      - include: "#time-literal"
+  macro-default-nettype:
+    # `default_nettype net_type
+    match: (`default_nettype)\s+(wire|tri|tri0|tri1|wand|triand|wor|trior|trireg|uwire|none)\b
+    captures:
+      "1": { name: keyword.control.default-nettype.sv }
+      "2": { name: storage.type.$2.sv }
+  macro-nounconnected-drive:
+    # `nounconnected_drive drive_strength
+    match: (`nounconnected_drive)\s*
+    captures:
+      "1": { name: keyword.control.nounconnected-drive.sv }
+  macro-unconnected-drive:
+    # `unconnected_drive drive_strength
+    match: (`unconnected_drive)\s+(pull0|pull1)\b
+    captures:
+      "1": { name: keyword.control.unconnected-drive.sv }
+      "2": { name: storage.modifier.$2.sv }
+  macro-celldefine:
+    # `celldefine
+    match: (`celldefine)\b
+    name: keyword.control.celldefine.sv
+  macro-endcelldefine:
+    # `endcelldefine
+    match: (`endcelldefine)\b
+    name: keyword.control.endcelldefine.sv
+  macro-pragma:
+    # `pragma
+    begin: (`pragma)\s+([a-zA-Z_][a-zA-Z0-9_$]*)\b\s*
+    beginCaptures:
+      "1": { name: keyword.control.pragma.sv }
+      "2": { name: entity.other.attribute-name.sv }
+    end: $
+    patterns:
+      - include: "#comma"
+      - include: "#pragma-expression"
+  pragma-expression:
+    patterns:
+      # pragma_keyword = pragma_value
+      - begin: (${simpleIdentifier})\s*(\=)\s*
+        beginCaptures:
+          "1": { name: entity.other.attribute-name.sv }
+          "2": { name: keyword.operator.assignment.sv }
+        end: (?=\,|\)|$)
+        patterns:
+          - include: "#pragma-value"
+      # pragma_value
+      - include: "#pragma-value"
+  pragma-value:
+    patterns:
+      - begin: \(
+        end: \)
+        beginCaptures:
+          "0": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "0": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#comma"
+          - include: "#pragma-expression"
+      - include: "#number"
+      - include: "#unary-operator"
+      - include: "#string-literal"
+      - include: "#simple-identifier"
+  macro-line:
+    match: (`line)\s+([0-9]+)\s+(\"[^"]+\")\s+([0-9]+)
+    captures:
+      "1": { name: keyword.control.line.sv }
+      "2": { name: constant.numeric.integer.sv }
+      "3": { name: string.quoted.double.sv }
+      "4": { name: constant.numeric.integer.sv }
+  macro-begin-keywords:
+    match: (`begin_keywords)\s+(\"[^"]+\")
+    captures:
+      "1": { name: keyword.control.begin-keywords.sv }
+      "2": { name: string.quoted.double.sv }
+  macro-end-keywords:
+    match: (`end_keywords)\b
+    name: keyword.control.end-keywords.sv
+  macro-__line__:
+    match: (`__LINE__)\b
+    name: meta.preprocessor.macro-name.sv
+  macro-__file__:
+    match: (`__FILE__)\b
+    name: meta.preprocessor.macro-name.sv
+  # Misc
+  semicolon:
+    match: (\;)[ \t]*
+    captures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+  comma:
+    match: (\,)\s*
+    captures:
+      "1": { name: punctuation.separator.comma.sv }
+  equals:
+    match: (\=)\s*
+    captures:
+      "1": { name: keyword.operator.assignment.sv }
+  colon:
+    match: (\:)\s*
+    captures:
+      "1": { name: punctuation.separator.colon.sv }
