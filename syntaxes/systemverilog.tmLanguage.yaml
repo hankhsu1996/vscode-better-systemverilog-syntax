@@ -6,62 +6,398 @@ variables:
   macro: (?:`[a-zA-Z_][a-zA-Z0-9_\$]*\b(?:\(.*?\))?)(?<!`(?:__FILE__|__LINE__|begin_keywords|celldefine|default_nettype|define|else|elsif|end_keywords|endcelldefine|endif|ifdef|ifndef|include|line|nounconnected_drive|pragma|resetall|timescale|unconnected_drive|undef|undefineall)\b)
   # Remove array method name: unique, and, or, xor
   funcIdentifier: (?:(?<!\\|\$)(?:\b[a-zA-Z_]|\$)[a-zA-Z0-9_\$]*\b|\\\S+(?=\s|$))(?<!\b(?:accept_on|alias|always|always_comb|always_ff|always_latch|assert|assign|assume|automatic|before|begin|bind|bins|binsof|bit|break|buf|bufif0|bufif1|byte|case|casex|casez|cell|chandle|checker|class|clocking|cmos|config|const|constraint|context|continue|cover|covergroup|coverpoint|cross|deassign|default|defparam|design|disable|dist|do|edge|else|end|endcase|endchecker|endclass|endclocking|endconfig|endfunction|endgenerate|endgroup|endinterface|endmodule|endpackage|endprimitive|endprogram|endproperty|endspecify|endsequence|endtable|endtask|enum|event|eventually|expect|export|extends|extern|final|first_match|for|force|foreach|forever|fork|forkjoin|function|generate|genvar|global|highz0|highz1|if|iff|ifnone|ignore_bins|illegal_bins|implements|implies|import|incdir|include|initial|inout|input|inside|instance|int|integer|interconnect|interface|intersect|join|join_any|join_none|large|let|liblist|library|local|localparam|logic|longint|macromodule|matches|medium|modport|module|nand|negedge|nettype|new|nexttime|nmos|nor|noshowcancelled|not|notif0|notif1|null|output|package|packed|parameter|pmos|posedge|primitive|priority|program|property|protected|pull0|pull1|pulldown|pullup|pulsestyle_ondetect|pulsestyle_onevent|pure|rand|randc|randcase|randsequence|rcmos|real|realtime|ref|reg|reject_on|release|repeat|restrict|return|rnmos|rpmos|rtran|rtranif0|rtranif1|s_always|s_eventually|s_nexttime|s_until|s_until_with|scalared|sequence|shortint|shortreal|showcancelled|signed|small|soft|solve|specify|specparam|static|string|strong|strong0|strong1|struct|super|supply0|supply1|sync_accept_on|sync_reject_on|table|tagged|task|this|throughout|time|timeprecision|timeunit|tran|tranif0|tranif1|tri|tri0|tri1|triand|trior|trireg|type|typedef|union|unique0|unsigned|until|until_with|untyped|use|uwire|var|vectored|virtual|void|wait|wait_order|wand|weak|weak0|weak1|while|wildcard|wire|with|within|wor|xnor)\b)
+  classScope: (?:${identifier}\s*(?:\#\(.*?\)\s*)?::\s*)+
+  typeIdentifierEnd: (?!\s*(\[|\(|\.|\#|\=))
+  assignmentEnd: (?=\,|\)|\;)
+  psIdentifier: (?:(?:${identifier})\s*(?:::)\s*)?(?:${identifier})
 patterns:
-  - include: "#comments"
+  - include: "#comment"
   - include: "#compiler-directive"
   - include: "#description"
 repository:
   # A.1.2 SystemVerilog source text
   description:
     patterns:
+      - include: "#attribute-instance"
       - include: "#module-declaration"
-      - include: "#end-module"
+      - include: "#udp-declaration"
+      - include: "#interface-declaration"
+      - include: "#program-declaration"
+      - include: "#package-declaration"
+      - include: "#package-item"
+      - include: "#bind-directive"
+      - include: "#config-declaration"
   module-declaration:
+    name: meta.module-declaration.sv
+    begin: (?=\b(module|macromodule)\b)
+    end: \b(endmodule)\b\s*(?:(\:)\s*(${identifier})\s*)?
+    endCaptures:
+      "1": { name: storage.type.module.sv }
+      "2": { name: punctuation.separator.colon.sv }
+      "3": { name: entity.name.type.module.sv }
     patterns:
-      - name: meta.module-declaration.sv
+      - name: meta.module-header.sv
         begin: \b(module|macromodule)\s+(?:(static|automatic)\s+)?(${identifier})\s*
-        end: (;)\s*
+        end: (\;)\s*
         beginCaptures:
           "1": { name: storage.type.$1.sv }
           "2": { name: storage.modifier.$2.sv }
           "3": { name: entity.name.type.module.sv }
         endCaptures:
           "1": { name: punctuation.terminator.semicolon.sv }
-      - name: meta.module-declaration.sv
-        match: \b(endmodule)\b\s*(?:(\:)\s*(${identifier})\s*)?
+        patterns:
+          - include: "#comment"
+          - include: "#compiler-directive"
+          - include: "#parameter-import-declaration"
+          - include: "#parameter-port-list"
+          - include: "#list-of-port-declarations"
+      - name: meta.module-body.sv
+        begin: (?<=\;\s*)
+        end: (?=\b(endmodule)\b)
+        patterns:
+          - include: "#comment"
+          - include: "#compiler-directive"
+          - include: "#timeunits-declaration"
+          - include: "#module-item"
+          - include: "#non-port-module-item"
+  # A.1.3 Module parameters and ports
+  parameter-port-list:
+    name: meta.parameter-port-list.sv
+    begin: (\#\s*\()\s*
+    end: (\))\s*
+    beginCaptures:
+      "1": { name: punctuation.section.group.begin.sv }
+    endCaptures:
+      "1": { name: punctuation.section.group.end.sv }
+    patterns:
+      - include: "#list-of-param-assignments"
+      - include: "#parameter-port-declaration"
+      - include: "#comma"
+      - include: "#comment"
+      - include: "#compiler-directive"
+  parameter-port-declaration:
+    patterns:
+      - begin: \b(type)\b\s*
+        end: (?=\;|\,|\))
+        name: meta.parameter-port-declaration.sv
+        beginCaptures:
+          "1": { name: storage.type.type.sv }
+        patterns:
+          - include: "#list-of-type-assignments"
+          - include: "#comment"
+          - include: "#compiler-directive"
+      - include: "#list-of-param-assignments"
+      - include: "#parameter-declaration"
+      - include: "#local-parameter-declaration"
+      - include: "#data-type"
+  list-of-port-declarations:
+    name: meta.list-of-port-declarations.sv
+    begin: (\()\s*(?!\*)
+    end: (\))\s*
+    beginCaptures:
+      "1": { name: punctuation.section.group.begin.sv }
+    endCaptures:
+      "1": { name: punctuation.section.group.end.sv }
+    patterns:
+      - include: "#comment"
+      - include: "#compiler-directive"
+      - include: "#comma"
+      - include: "#attribute-instance"
+      - include: "#port"
+      - include: "#ansi-port-declaration"
+  port-declaration:
+    patterns:
+      - include: "#attribute-instance"
+      - include: "#inout-declaration"
+      - include: "#input-declaration"
+      - include: "#output-declaration"
+      - include: "#ref-declaration"
+      - include: "#interface-port-declaration"
+  port:
+    patterns:
+      - name: meta.port.sv
+        begin: (\.)(${identifier})\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.definition.named-port.sv }
+          "2": { name: variable.other.sv }
+          "3": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#port-expression"
+      - include: "#port-expression"
+  port-expression:
+    patterns:
+      - include: "#port-reference"
+      - name: meta.port-expression.sv
+        begin: \{
+        end: \}
+        beginCaptures:
+          "0": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "0": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#port-reference"
+          - include: "#comma"
+          - include: "#comment"
+          - include: "#compiler-directive"
+  port-reference:
+    name: meta.port-reference.sv
+    begin: (?<=(?:\{|\,|\()\s*|^)(${identifier})\s*(?=\[|\,|\}|\))
+    beginCaptures:
+      "1": { name: variable.other.sv }
+    end: (?=,|\}|\))
+    patterns:
+      - include: "#port-identifier"
+      - include: "#constant-select"
+  port-direction:
+    patterns:
+      - match: \b(input|output|inout|ref)\b
         captures:
-          "1": { name: storage.type.module.sv }
-          "2": { name: punctuation.separator.colon.sv }
-          "3": { name: entity.name.type.module.sv }
-      - include: "#module-item"
+          "1": { name: storage.modifier.$1.sv }
+  net-port-header:
+    patterns:
+      - include: "#port-direction"
+      - include: "#net-port-type"
+  variable-port-header:
+    patterns:
+      - include: "#port-direction"
+      - include: "#variable-port-type"
+  interface-port-header:
+    patterns:
+      - match: \b(interface)\b
+        captures:
+          "1": { name: storage.type.interface.sv }
+      - match: \.
+        captures:
+          "0": { name: punctuation.accessor.dot.sv }
+      - match: (${identifier})
+        captures:
+          "1": { name: entity.name.type.interface.sv }
+  ansi-port-declaration:
+    patterns:
+      - include: "#port-identifier"
+      - include: "#net-port-header"
+      - include: "#interface-port-header"
+      - include: "#variable-port-header"
+      - include: "#dimension"
+      - name: meta.ansi-port-declaration.sv
+        begin: (\=)\s*
+        end: ${assignmentEnd}
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#constant-expression"
+      - include: "#comma"
+      - include: "#comment"
+      - include: "#compiler-directive"
   # A.1.4 Module items
   module-common-item:
     patterns:
-      - include: "#initial-construct"
-      - include: "#always-construct"
-      - include: "#final-construct"
-      - include: "#statement"
       - include: "#module-or-generate-item-declaration"
+      - include: "#interface-instantiation"
+      - include: "#program-instantiation"
+      - include: "#assertion-item"
+      - include: "#bind-directive"
+      - include: "#continuous-assign"
+      - include: "#net-alias"
+      - include: "#initial-construct"
+      - include: "#final-construct"
+      - include: "#always-construct"
+      - include: "#loop-generate-construct"
+      - include: "#conditional-generate-construct"
+      - include: "#elaboration-system-task"
   module-item:
     patterns:
+      - include: "#port-declaration"
       - include: "#non-port-module-item"
   module-or-generate-item:
     patterns:
-      - include: "attribute-instance"
+      - include: "#attribute-instance"
+      - include: "#parameter-override"
+      - include: "#gate-instantiation"
+      - include: "#udp-instantiation"
+      - include: "#module-instantiation"
       - include: "#module-common-item"
   module-or-generate-item-declaration:
     patterns:
       - include: "#package-or-generate-item-declaration"
+      - include: "#genvar-declaration"
+      - include: "#clocking-declaration"
+      - match: \b(default)\s+(clocking)\s+(${identifier})\s*\;
+        captures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: storage.type.$2.sv }
+          "3":
+            patterns:
+              - include: "#clocking-identifier"
+      - name: meta.default-disable.sv
+        begin: \b(default)\s+(disable)\s+(iff)\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: keyword.control.$2.sv }
+          "3": { name: keyword.control.$3.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
   non-port-module-item:
     patterns:
       - include: "#module-or-generate-item"
+      - include: "#specify-block"
+      - include: "#specparam-declaration"
+      - include: "#program-declaration"
+      - include: "#module-declaration"
+      - include: "#interface-declaration"
+      - include: "#timeunits-declaration"
   # A.1.11 Package items
   package-item:
     patterns:
       - include: "#package-or-generate-item-declaration"
+      - include: "#anonymous-program"
+      - include: "#package-export-declaration"
+      - include: "#timeunits-declaration"
   package-or-generate-item-declaration:
     patterns:
+      - name: meta.assignments.sv
+        begin: (\=)\s*
+        end: ${assignmentEnd}
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#expression"
+          - include: "#dynamic-array-new"
+          - include: "#class-new"
+      - include: "#net-declaration"
       - include: "#data-declaration"
+      - include: "#task-declaration"
+      - include: "#function-declaration"
+      - include: "#checker-declaration"
+      - include: "#dpi-import-export"
+      - include: "#extern-constraint-declaration"
+      - include: "#class-declaration"
+      - include: "#class-constructor-declaration"
+      - include: "#local-parameter-declaration"
+      - include: "#parameter-declaration"
+      - include: "#covergroup-declaration"
+      - include: "#assertion-item-declaration"
+      - include: "#semicolon"
+  anonymous-program:
+    name: meta.anonymous-program.sv
+    begin: \b(program)\s*
+    end: \b(endprogram)\b\s*
+    beginCaptures:
+      "1": { name: storage.type.$1.sv }
+    endCaptures:
+      "1": { name: storage.type.$1.sv }
+    patterns:
+      - include: "#semicolon"
+      - include: "#anonymous-program-item"
+  anonymous-program-item:
+    patterns:
+      - include: "#task-declaration"
+      - include: "#function-declaration"
+      - include: "#class-declaration"
+      - include: "#covergroup-declaration"
+      - include: "#class-constructor-declaration"
+      - include: "#semicolon"
+  # A.2 Declarations
+  # A.2.1 Declaration types
+  # A.2.1.1 Module parameter declarations
+  local-parameter-declaration:
+    patterns:
+      - name: meta.local-parameter-declaration.sv
+        begin: \b(localparam)\s+(type)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: storage.modifier.localparam.sv }
+          "2": { name: storage.modifier.type.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#list-of-type-assignments"
+      - name: meta.local-parameter-declaration.sv
+        begin: \b(localparam)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: storage.modifier.localparam.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#list-of-param-assignments"
+          - include: "#data-type-or-implicit"
+  parameter-declaration:
+    patterns:
+      - name: meta.parameter-declaration.sv
+        begin: \b(parameter)\s+(type)\b\s*
+        end: (?=[,);])
+        beginCaptures:
+          "1": { name: storage.modifier.parameter.sv }
+          "2": { name: storage.modifier.type.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#list-of-type-assignments"
+      - name: meta.parameter-declaration.sv
+        begin: \b(parameter)\b\s*
+        end: (?=[,);])
+        beginCaptures:
+          "1": { name: storage.modifier.parameter.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#list-of-param-assignments"
+          - include: "#data-type-or-implicit"
+  specparam-declaration:
+    name: meta.specparam-declaration.sv
+    begin: \b(specparam)\s*
+    end: (\;)\s*
+    beginCaptures:
+      "1": { name: storage.modifier.specparam.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - include: "#packed-dimension"
+      - include: "#list-of-specparam-assignments"
+  # A.2.1.2 Port declarations
+  inout-declaration:
+    patterns:
+      - match: \b(inout)\b\s*
+        captures:
+          "1": { name: storage.modifier.$1.sv }
+      - include: "#list-of-port-identifiers"
+      - include: "#net-port-type"
+  input-declaration:
+    patterns:
+      - match: \b(input)\b\s*
+        captures:
+          "1": { name: storage.modifier.$1.sv }
+      - include: "#net-port-type"
+      - include: "#list-of-port-identifiers"
+      - include: "#list-of-variable-identifiers"
+      - include: "#variable-port-type"
+  output-declaration:
+    patterns:
+      - match: \b(output)\b\s*
+        captures:
+          "1": { name: storage.modifier.$1.sv }
+      - include: "#net-port-type"
+      - include: "#list-of-port-identifiers"
+      - include: "#list-of-variable-identifiers"
+      - include: "#variable-port-type"
+  interface-port-declaration:
+    patterns:
+      - include: "#interface-identifier"
+      - include: "#list-of-interface-identifiers"
+      - include: "#modport-identifier"
+      - include: "#period"
+  ref-declaration:
+    patterns:
+      - match: \b(ref)\b\s*
+        captures:
+          "1": { name: storage.modifier.$1.sv }
+      - include: "#list-of-variable-identifiers"
+      - include: "#variable-port-type"
   # A.2.1.3 Type declarations
   data-declaration:
     patterns:
@@ -72,49 +408,870 @@ repository:
         captures:
           "1": { name: storage.modifier.var.sv }
       - include: "#lifetime"
+      - include: "#list-of-variable-decl-assignments"
+      - include: "#semicolon"
+      - include: "#type-declaration"
+      - include: "#package-import-declaration"
+      - include: "#net-type-declaration"
       - include: "#data-type-or-implicit"
+  net-declaration:
+    patterns:
+      - match: \b(interconnect)\b\s*
+        captures:
+          "1": { name: entity.name.type.$1.sv }
+      - include: "#net-type"
+      - include: "#drive-strength"
+      - include: "#charge-strength"
+      - match: \b(vectored|scalared)\b\s*
+        captures:
+          "1": { name: storage.modifier.$1.sv }
+      - include: "#list-of-net-decl-assignments"
+      - include: "#delay3"
+      - include: "#data-type-or-implicit"
+  type-declaration:
+    name: meta.type-declaration.sv
+    begin: \b(typedef)\b\s*
+    end: (;)\s*
+    beginCaptures:
+      "1": { name: keyword.control.typedef.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - include: "#type-identifier"
+      - include: "#variable-dimension"
+      - include: "#semicolon"
+      - include: "#interface-instance-identifier"
+      - include: "#constant-bit-select"
+      - include: "#period"
+      - match: \b(enum|struct|union|class|interface\s+class)\b\s*(?=${identifier})
+        captures:
+          "1": { name: storage.type.$1.sv }
+      - include: "#data-type"
+  net-type-declaration:
+    name: meta.net-type-declaration.sv
+    begin: \b(nettype)\b\s*
+    beginCaptures:
+      "1": { name: keyword.control.nettype.sv }
+    end: \;
+    endCaptures:
+      "0": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - name: meta.net-type-declaration-with.sv
+        begin: \b(with)\b\s*
+        beginCaptures:
+          "1": { name: keyword.control.with.sv }
+        end: (?=\;)
+        patterns:
+          - include: "#tf-identifier"
+          - include: "#package-scope"
+          - include: "#class-scope"
+      - include: "#net-type-identifier"
+      - include: "#data-type"
+  lifetime:
+    patterns:
+      - match: \b(static|automatic)\b\s*
+        captures:
+          "1": { name: storage.modifier.$1.sv }
   # A.2.2 Declaration data types
-  # A.2.2.1 Net and variable types
+  cast-type:
+    patterns:
+      - include: "#simple-type"
+      - include: "#constant-primary"
+      - include: "#signing"
+      - include: \b(string)\b\s*
+        captures:
+          "1": { name: entity.name.type.$1.sv }
+      - match: \b(const)\b\s*
+        captures:
+          "1": { name: storage.modifier.$1.sv }
   data-type:
     patterns:
-      - include: "#integer-vector-type"
       - include: "#signing"
-      - include: "#packed-dimension"
+      - include: "#dimension"
+      - include: "#integer-vector-type"
       - include: "#integer-atom-type"
       - include: "#non-integer-type"
+      - begin: \b(struct|union(?:\s+tagged)?)\b\s*(?:(?:(packed)\b(?:\s+(signed|unsigned))?)\b\s*)?
+        end: (?<=\})\s*((?:\[.*?\])*)\s*
+        name: meta.struct.sv
+        beginCaptures:
+          "1":
+            patterns:
+              - include: "#struct-union"
+          "2": { name: storage.modifier.packed.sv }
+          "3":
+            patterns:
+              - include: "#signing"
+        endCaptures:
+          "1":
+            patterns:
+              - include: "#dimension"
+        patterns:
+          - begin: \{
+            end: \}
+            name: meta.struct.body.sv
+            beginCaptures:
+              "0": { name: punctuation.section.braces.begin.sv }
+            endCaptures:
+              "0": { name: punctuation.section.braces.end.sv }
+            patterns:
+              - include: "#struct-union-member"
+              - include: "#comment"
+              - include: "#compiler-directive"
+          - include: "#comment"
+          - include: "#compiler-directive"
+      - begin: (?=\benum\b)
+        end: (\})\s*
+        name: meta.enum.sv
+        endCaptures:
+          "1": { name: punctuation.section.braces.end.sv }
+        patterns:
+          - name: meta.enum-header.sv
+            begin: \b(enum)\b\s*
+            end: (?=\{)
+            beginCaptures:
+              "1": { name: storage.type.enum.sv }
+            patterns:
+              - include: "#comment"
+              - include: "#compiler-directive"
+              - include: "#enum-base-type"
+          # enum to beginning of '{'
+          # '{' to beginning of '}'
+          - name: meta.enum-body.sv
+            begin: (\{)\s*
+            end: (?=\})
+            beginCaptures:
+              "1": { name: punctuation.section.braces.begin.sv }
+            patterns:
+              - include: "#comment"
+              - include: "#compiler-directive"
+              - include: "#enum-name-declaration"
+              - include: "#comma"
+      - match: \b(string)\b\s*
+        captures:
+          "1": { name: entity.name.type.$1.sv }
+      - match: \b(chandle)\b\s*
+        captures:
+          "1": { name: entity.name.type.$1.sv }
+      - match: \b(virtual)\b\s*
+        captures:
+          "1": { name: storage.modifier.$1.sv }
+      - match: \b(interface)\b\s*
+        captures:
+          "1": { name: storage.type.$1.sv }
+      - include: "#parameter-value-assignment"
+      - include: "#period"
+      - include: "#type-identifier"
+      - include: "#class-scope"
+      - include: "#package-scope"
+      - include: "#class-type"
+      - match: \b(event)\b\s*
+        captures:
+          "1": { name: entity.name.type.$1.sv }
+      - include: "#ps-covergroup-identifier"
+      - include: "#type-reference"
   data-type-or-implicit:
     patterns:
       - include: "#data-type"
       - include: "#implicit-data-type"
+  implicit-data-type:
+    patterns:
+      - include: "#signing"
+      - include: "#dimension"
+  enum-base-type:
+    patterns:
+      - include: "#integer-atom-type"
+      - include: "#integer-vector-type"
+      - include: "#signing"
+      - include: "#dimension"
+      - include: "#type-identifier"
+  enum-name-declaration:
+    begin: (${identifier})
+    end: (?=\,|\})
+    beginCaptures:
+      "1": { name: variable.other.enummember.sv }
+    patterns:
+      - name: meta.enum-range.sv
+        begin: (\[)\s*
+        end: (\])\s*
+        beginCaptures:
+          "1": { name: punctuation.section.brackets.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.brackets.end.sv }
+        patterns:
+          - include: "#integral-number"
+          - include: "#colon"
+      - name: meta.enum-assignment.sv
+        begin: (\=)\s*
+        end: (?=\,|\})
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#constant-expression"
+  class-scope:
+    # [ package-scope ]
+    # { class-iden [ param-value-assign ] :: }
+    patterns:
+      - include: "#package-scope"
+      - match: (${identifier})\s*(\#\s*\(.*?\)\s*)?(::)\s*
+        name: meta.class-scope.sv
+        captures:
+          "1": { name: entity.name.type.sv }
+          "2":
+            patterns:
+              - include: "#parameter-value-assignment"
+          "3": { name: punctuation.accessor.double-colon.sv }
+  class-type:
+    patterns:
+      # with parameter_value_assignment
+      - match: (${psIdentifier})\s*(?=\#\()
+        captures:
+          "1":
+            patterns:
+              - include: "#ps-class-identifier"
+      - include: "#parameter-value-assignment"
+      # without parameter_value_assignment
+      - match: (${psIdentifier})(?!\()
+        captures:
+          "1":
+            patterns:
+              - include: "#ps-class-identifier"
+      - match: (::)\s*
+        captures:
+          "1": { name: punctuation.accessor.double-colon.sv }
   integer-type:
     patterns:
       - include: "#integer-atom-type"
       - include: "#integer-vector-type"
   integer-atom-type:
-    match: \b(byte|shortint|int|longint|integer|time)\b
-    name: entity.name.type.$1.sv
+    match: \b(byte|shortint|int|longint|integer|time)\b\s*
+    captures:
+      "1": { name: entity.name.type.$1.sv }
   integer-vector-type:
-    match: \b(bit|logic|reg)\b
-    name: entity.name.type.$1.sv
+    match: \b(bit|logic|reg)\b\s*
+    captures:
+      "1": { name: entity.name.type.$1.sv }
   non-integer-type:
-    match: \b(shortreal|real|realtime)\b
-    name: entity.name.type.$1.sv
+    match: \b(shortreal|real|realtime)\b\s*
+    captures:
+      "1": { name: entity.name.type.$1.sv }
   net-type:
-    match: \b(supply0|supply1|tri|triand|trior|trireg|tri0|tri1|uwire|wire|wand|wor)\b
-    name: storage.type.$1.sv
+    match: \b(supply0|supply1|tri|triand|trior|trireg|tri0|tri1|uwire|wire|wand|wor)\b\s*
+    captures:
+      "1": { name: entity.name.type.$1.sv }
+  net-port-type:
+    patterns:
+      - match: \b(interconnect)\b\s*
+        captures:
+          "1": { name: entity.name.type.$1.sv }
+      - include: "#net-type"
+      - include: "#data-type-or-implicit"
+      - include: "#net-type-identifier"
+      - include: "#implicit-data-type"
+  variable-port-type:
+    patterns:
+      - include: "#var-data-type"
+  var-data-type:
+    patterns:
+      - match: \b(var)\b\s*
+        captures:
+          "1": { name: storage.modifier.var.sv }
+      - include: "#data-type"
+      - include: "#data-type-or-implicit"
+  signing:
+    match: \b(signed|unsigned)\b\s*
+    captures:
+      "1": { name: storage.modifier.$1.sv }
+  simple-type:
+    patterns:
+      - include: "#integer-type"
+      - include: "#non-integer-type"
+      - include: "#ps-type-identifier"
+      - include: "#ps-parameter-identifier"
+  struct-union-member:
+    patterns:
+      - include: "#attribute-instance"
+      - include: "#random-qualifier"
+      - include: "#list-of-variable-decl-assignments"
+      - include: "#semicolon"
+      - include: "#data-type-or-void"
+  data-type-or-void:
+    patterns:
+      - match: \b(void)\b\s*
+        captures:
+          "1": { name: entity.name.type.$1.sv }
+      - include: "#data-type"
+  struct-union:
+    patterns:
+      - match: \b(struct)\b\s*
+        captures:
+          "1": { name: storage.type.$1.sv }
+      - match: \b(union)\b\s+(tagged)\s*
+        captures:
+          "1": { name: storage.type.$1.sv }
+          "2": { name: storage.modifier.$2.sv }
+      - match: \b(union)\b\s*
+        captures:
+          "1": { name: storage.type.$1.sv }
+  type-reference:
+    name: meta.type-reference.sv
+    begin: \b(type)\s*(\()\s*
+    end: (\))\s*
+    beginCaptures:
+      "1": { name: entity.name.function.$1.sv }
+      "2": { name: punctuation.section.group.begin.sv }
+    endCaptures:
+      "1": { name: punctuation.section.group.end.sv }
+    patterns:
+      - include: "#expression"
+      - include: "#data-type"
+  # A.2.2.2 Strengths
+  drive-strength:
+    name: meta.drive-strength.sv
+    match: (\()\s*(supply0|strong0|pull0|weak0|supply1|strong1|pull1|weak1|highz0|highz1)\s*(\,)\s*(supply0|strong0|pull0|weak0|supply1|strong1|pull1|weak1|highz0|highz1)\s*(\))
+    captures:
+      "1": { name: punctuation.section.group.begin.sv }
+      "2": { name: storage.modifier.$2.sv }
+      "3": { name: punctuation.separator.comma.sv }
+      "4": { name: storage.modifier.$4.sv }
+      "5": { name: punctuation.section.group.end.sv }
+  strength0:
+    match: \b(supply0|strong0|pull0|weak0)\b
+    name: storage.modifier.$1.sv
+  strength1:
+    match: \b(supply1|strong1|pull1|weak1)\b
+    name: storage.modifier.$1.sv
+  charge-strength:
+    match: (\()\s*(small|medium|large)\s*(\))
+    captures:
+      "1": { name: punctuation.section.group.begin.sv }
+      "2": { name: storage.modifier.$2.sv }
+      "3": { name: punctuation.section.group.end.sv }
+  # A.2.2.3 Delays
+  delay3:
+    patterns:
+      - name: meta.delay3.sv
+        begin: (\#)\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.definition.delay.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#comma"
+          - include: "#mintypmax-expression"
+      - match: (\#)\s*
+        captures:
+          "1": { name: punctuation.definition.delay.sv }
+      - include: "#delay-value"
+  delay2:
+    patterns:
+      - name: meta.delay2.sv
+        begin: (\#)\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.definition.delay.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#comma"
+          - include: "#mintypmax-expression"
+      - match: (\#)\s*
+        captures:
+          "1": { name: punctuation.definition.delay.sv }
+      - include: "#delay-value"
+  delay-value:
+    patterns:
+      - match: \b(1step)\b\s*
+        captures:
+          "1": { name: constant.numeric.$1.sv }
+      - include: "#unsigned-number"
+      - include: "#real-number"
+      - include: "#ps-identifier"
+      - include: "#time-literal"
+  # A.2.3 Declaration lists
+  list-of-defparam-assignments:
+    patterns:
+      - include: "#comma"
+      - include: "#defparam-assignment"
+  list-of-genvar-identifiers:
+    patterns:
+      - include: "#comma"
+      - include: "#genvar-identifier"
+  list-of-interface-identifiers:
+    patterns:
+      - include: "#comma"
+      - include: "#dimension"
+      - include: "#interface-identifier"
+  list-of-net-decl-assignments:
+    patterns:
+      - include: "#comma"
+      - include: "#net-decl-assignment"
+  list-of-param-assignments:
+    patterns:
+      - include: "#comma"
+      - include: "#param-assignment"
+  list-of-port-identifiers:
+    patterns:
+      - include: "#comma"
+      - include: "#dimension"
+      - include: "#port-identifier"
+  list-of-udp-port-identifiers:
+    patterns:
+      - include: "#comma"
+      - include: "#port-identifier"
+  list-of-specparam-assignments:
+    patterns:
+      - include: "#comma"
+      - include: "#specparam-assignment"
+  list-of-tf-variable-identifiers:
+    patterns:
+      - include: "#comma"
+      - include: "#variable-identifier"
+      - include: "#dimension"
+      - name: meta.tf-variable-identifier.sv
+        begin: (\=)\s*
+        end: ${assignmentEnd}
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#expression"
+  list-of-type-assignments:
+    patterns:
+      - include: "#comma"
+      - include: "#type-assignment"
+  list-of-variable-decl-assignments:
+    patterns:
+      - include: "#comma"
+      - include: "#variable-decl-assignment"
+  list-of-variable-identifiers:
+    patterns:
+      - include: "#comma"
+      - include: "#variable-identifier"
+      - include: "#variable-dimension"
+  list-of-variable-port-identifiers:
+    patterns:
+      - include: "#comma"
+      - include: "#variable-identifier"
+      - include: "#variable-dimension"
+      - name: meta.variable-port-identifier.sv
+        begin: (\=)\s*
+        end: ${assignmentEnd}
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#constant-expression"
+  # A.2.4 Declaration assignments
+  defparam-assignment:
+    patterns:
+      - name: meta.defparam-assignment.sv
+        begin: (\=)\s*
+        end: ${assignmentEnd}
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#constant-mintypmax-expression"
+      - include: "#hierarchical-parameter-identifier"
+  net-decl-assignment:
+    patterns:
+      - include: "#net-identifier"
+      - include: "#dimension"
+  param-assignment:
+    patterns:
+      - name: meta.param-assignment.sv
+        begin: (\=)\s*
+        end: ${assignmentEnd}
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#constant-param-expression"
+      - include: "#parameter-identifier"
+      - include: "#dimension"
+  specparam-assignment:
+    patterns:
+      - name: meta.specparam-assignment.sv
+        begin: (\=)\s*
+        end: ${assignmentEnd}
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#constant-mintypmax-expression"
+      - include: "#specparam-identifier"
+      - include: "#pulse-control-specparam"
+  type-assignment:
+    patterns:
+      - name: meta.type-assignment.sv
+        begin: (\=)\s*
+        end: ${assignmentEnd}
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#data-type"
+      - match: (${identifier})\s*
+        captures:
+          "1": { name: entity.name.type.sv }
+  # pulse_control_specparam: too complicated, not implemented
+  error-limit-value:
+    patterns:
+      - include: "#limit-value"
+  reject-limit-value:
+    patterns:
+      - include: "#limit-value"
+  limit-value:
+    patterns:
+      - include: "#constant-mintypmax-expression"
+  variable-decl-assignment:
+    patterns:
+      - include: "#dimension"
+      - include: "#variable-identifier"
+      - include: "#dynamic-array-variable-identifier"
+      - include: "#class-variable-identifier"
+  class-new:
+    patterns:
+      - include: "#class-scope"
+      - match: \b(new)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+      - name: meta.class-new.sv
+        begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#list-of-arguments"
+      - include: "#expression"
+  dynamic-array-new:
+    patterns:
+      - match: \b(new)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+      - include: "#dimension"
+      - name: meta.dynamic-array-new.sv
+        begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#expression"
+  # A.2.5 Declaration ranges
+  dimension:
+    name: meta.dimension.sv
+    begin: (\[)\s*
+    beginCaptures:
+      "1": { name: punctuation.section.brackets.begin.sv }
+    end: (\])\s*
+    endCaptures:
+      "1": { name: punctuation.section.brackets.end.sv }
+    patterns:
+      - match: \*\s*
+        name: keyword.operator.star.sv
+      - match: \$\s*
+        name: keyword.operator.dollar.sv
+      - include: "#constant-range"
+      - include: "#constant-expression"
+      - include: "#data-type"
+  # A.2.6 Function declarations
+  function-data-type-or-implicit:
+    patterns:
+      - include: "#data-type-or-void"
+      - include: "#implicit-data-type"
+  function-declaration:
+    name: meta.function-declaration.sv
+    begin: (?=\b(function)\s*)
+    end: \b(endfunction)\b\s*(?:(\:)\s*(${identifier})\s*)?
+    endCaptures:
+      "1": { name: storage.type.$1.sv }
+      "2": { name: punctuation.separator.colon.sv }
+      "3": { name: entity.name.type.function.sv }
+    patterns:
+      - name: meta.function-declaration-header.sv
+        begin: \b(function)\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: storage.type.$1.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#comment"
+          - include: "#compiler-directive"
+          - include: "#lifetime"
+          - include: "#function-identifier"
+          - include: "#interface-identifier"
+          - include: "#class-scope"
+          - begin: (\()\s*
+            end: (\))\s*
+            beginCaptures:
+              "1": { name: punctuation.section.group.begin.sv }
+            endCaptures:
+              "1": { name: punctuation.section.group.end.sv }
+            patterns:
+              - include: "#tf-port-list"
+          - include: "#function-data-type-or-implicit"
+      - name: meta.function-declaration-body.sv
+        begin: (?<=\;\s*)
+        end: (?=\b(endfunction)\s*)
+        patterns:
+          - include: "#comment"
+          - include: "#compiler-directive"
+          - include: "#tf-item-declaration"
+          - include: "#block-item-declaration"
+          - include: "#function-statement-or-null"
+  function-prototype:
+    begin: \b(function)\s*
+    end: (?=\;|\(|\)|\{)
+    beginCaptures:
+      "1": { name: storage.type.$1.sv }
+    patterns:
+      - include: "#function-data-type-or-implicit"
+      - include: "#function-identifier"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#tf-port-list"
+  dpi-import-export:
+    begin: \b(import|export)\s*
+    end: (\;)\s*
+    beginCaptures:
+      "1": { name: keyword.control.$1.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - include: "#dpi-spec-string"
+      - include: "#dpi-function-import-property"
+      - include: "#dpi-task-import-property"
+      - include: "#c-identifier"
+      - include: "#dpi-function-proto"
+      - include: "#dpi-task-proto"
+      - include: "#function-identifier"
+      - include: "#task-identifier"
+  dpi-spec-string:
+    patterns:
+      - include: "#string"
+  dpi-function-import-property:
+    patterns:
+      - match: \b(context|pure)\b\s*
+        captures:
+          "1": { name: storage.modifier.$1.sv }
+  dpi-task-import-property:
+    patterns:
+      - match: \b(context)\b\s*
+        captures:
+          "1": { name: storage.modifier.$1.sv }
+  dpi-function-proto:
+    patterns:
+      - include: "#function-prototype"
+  dpi-task-proto:
+    patterns:
+      - include: "#task-prototype"
+  # A.2.7 Task declarations
+  task-declaration:
+    name: meta.task-declaration.sv
+    begin: \b(task)\s*
+    end: \b(endtask)\b\s*(?:(\:)\s*(${identifier})\s*)?
+    beginCaptures:
+      "1": { name: storage.type.$1.sv }
+    endCaptures:
+      "1": { name: storage.type.$1.sv }
+      "2": { name: punctuation.separator.colon.sv }
+      "3": { name: entity.name.type.task.sv }
+    patterns:
+      - include: "#comment"
+      - include: "#compiler-directive"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#tf-port-list"
+      - include: "#lifetime"
+      - include: "#period"
+      - include: "#semicolon"
+      - include: "#task-identifier"
+      - include: "#interface-identifier"
+      - include: "#class-scope"
+      - include: "#tf-item-declaration"
+      - include: "#statement-or-null"
+      - include: "#block-item-declaration"
+  tf-item-declaration:
+    patterns:
+      - include: "#block-item-declaration"
+      - include: "#tf-port-declaration"
+  tf-port-list:
+    patterns:
+      - include: "#comma"
+      - include: "#tf-port-item"
+  tf-port-item:
+    patterns:
+      - include: "#attribute-instance"
+      - match: \b(var)\b\s*
+        captures:
+          "1": { name: storage.modifier.var.sv }
+      - include: "#tf-port-direction"
+      - include: "#data-type-or-implicit"
+      - include: "#port-identifier"
+      - include: "#variable-dimension"
+      - include: "#equals"
+      - include: "#expression"
+  tf-port-direction:
+    patterns:
+      - match: \b(const)\b\s*
+        captures:
+          "1": { name: storage.modifier.$1.sv }
+      - match: \b(ref)\b\s*
+        captures:
+          "1": { name: storage.modifier.$1.sv }
+      - include: "#port-direction"
+  tf-port-declaration:
+    patterns:
+      - include: "#attribute-instance"
+      - include: "#tf-port-direction"
+      - match: \b(var)\b\s*
+        captures:
+          "1": { name: storage.modifier.var.sv }
+      - include: "#list-of-tf-variable-identifiers"
+      - include: "#data-type-or-implicit"
+      - include: "#semicolon"
+  task-prototype:
+    begin: \b(task)\s*
+    end: (?=\;|\(|\)|\{)
+    beginCaptures:
+      "1": { name: storage.type.$1.sv }
+    patterns:
+      - include: "#task-identifier"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#tf-port-list"
+  # A.4 Instantiations
+  # A.4.1 Instantiation
+  # A.4.1.1 Module instantiation
+  module-instantiation:
+    patterns:
+      - include: "#module-identifier"
+      - include: "#parameter-value-assignment"
+      - include: "#hierarchical-instance"
+      - include: "#comma"
+      - include: "#semicolon"
+  parameter-value-assignment:
+    begin: (\#)\s*(\()
+    end: (\))\s*
+    beginCaptures:
+      "1": { name: punctuation.definition.parameter-value-assignment.sv }
+      "2": { name: punctuation.section.group.begin.sv }
+    endCaptures:
+      "1": { name: punctuation.section.group.end.sv }
+    patterns:
+      - include: "#list-of-parameter-assignments"
+  list-of-parameter-assignments:
+    patterns:
+      - include: "#ordered-parameter-assignment"
+      - include: "#named-parameter-assignment"
+      - include: "#comma"
+  ordered-parameter-assignment:
+    patterns:
+      - include: "#param-expression"
+  named-parameter-assignment:
+    begin: (\.)\s*
+    end: (?=\)|,)
+    beginCaptures:
+      "1": { name: punctuation.definition.named-parameter-assignment.sv }
+    patterns:
+      - include: "#parameter-identifier"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#param-expression"
+  hierarchical-instance:
+    begin: (?<=\b\w+\b\s+)(${identifier})\s*(\()
+    end: (\))\s*
+    beginCaptures:
+      "1": { name: variable.other.sv }
+      "2": { name: punctuation.section.group.begin.sv }
+    endCaptures:
+      "1": { name: punctuation.section.group.end.sv }
+    patterns:
+      - match: fun
+        name: fun
+      - include: "#list-of-port-connections"
+  name-of-instance:
+    patterns:
+      - include: "#instance-identifier"
+      - include: "#dimension"
+  list-of-port-connections:
+    patterns:
+      - include: "#ordered-port-connection"
+      - include: "#named-port-connection"
+      - include: "#comma"
+  ordered-port-connection:
+    patterns:
+      - include: "#attribute-instance"
+      - include: "#expression"
+  named-port-connection:
+    begin: (\.)\s*
+    end: (?=\)|,)
+    beginCaptures:
+      "1": { name: punctuation.definition.named-port-connection.sv }
+    patterns:
+      - include: "#port-identifier"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#expression"
+  # A.6 Behavioral statements
+  # A.6.1 Continuous assignment and net alias statements
+  continuous-assign:
+    patterns:
+      - match: \b(assign)\b\s*
+        captures:
+          "1": { name: keyword.control.assign.sv }
+      - include: "#drive-strength"
+      - include: "#delay3"
+      - include: "#delay-control"
+      - include: "#list-of-net-assignments"
+      - include: "#list-of-variable-assignments"
   # A.6.2 Procedural blocks and assignments
   initial-construct:
-    match: \b(initial)\b\s*
-    captures:
-      "1": { name: keyword.control.initial.sv }
+    patterns:
+      - match: \b(initial)\b\s*
+        captures:
+          "1": { name: keyword.control.initial.sv }
+      - include: "#statement-or-null"
   always-construct:
-    match: \b(always|always_comb|always_latch|always_ff)\b\s*
-    captures:
-      "1": { name: keyword.control.$1.sv }
+    patterns:
+      - match: \b(always|always_comb|always_latch|always_ff)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+      - include: "#statement"
   final-construct:
-    match: \b(final)\b\s*
-    captures:
-      "1": { name: keyword.control.final.sv }
+    patterns:
+      - match: \b(final)\b\s*
+        captures:
+          "1": { name: keyword.control.final.sv }
+      - include: "#function_statement"
   blocking-assignment:
     patterns:
       - include: "#equals"
@@ -126,16 +1283,368 @@ repository:
       - match: (\<=)\s*
         captures:
           "1": { name: keyword.operator.assignment.sv }
+  # A.6.3 Parallel and sequential blocks
+  action-block:
+    patterns:
+      - match: \b(else)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+  seq-block:
+    begin: \b(begin)\s*(?:(\:)\s*(${identifier})\s*)?
+    end: \b(end)\s*(?:(\:)\s*(${identifier})\s*)?
+    beginCaptures:
+      "1": { name: keyword.control.begin.sv }
+      "2": { name: punctuation.separator.colon.sv }
+      "3": { name: entity.name.type.block.sv }
+    endCaptures:
+      "1": { name: keyword.control.end.sv }
+      "2": { name: punctuation.separator.colon.sv }
+      "3": { name: entity.name.type.block.sv }
+    patterns:
+      - include: "#block-item-declaration"
+      - include: "#statement-or-null"
+  par-block:
+    begin: \b(fork)\s*(?:(\:)\s*(${identifier})\s*)?
+    end: \b(join|join_any|join_none)\s*(?:(\:)\s*(${identifier})\s*)?
+    beginCaptures:
+      "1": { name: keyword.control.fork.sv }
+      "2": { name: punctuation.separator.colon.sv }
+      "3": { name: entity.name.type.block.sv }
+    endCaptures:
+      "1": { name: keyword.control.$1.sv }
+      "2": { name: punctuation.separator.colon.sv }
+      "3": { name: entity.name.type.block.sv }
+    patterns:
+      - include: "#block-item-declaration"
+      - include: "#statement-or-null"
   # A.6.4 Statements
+  statement-or-null:
+    patterns:
+      - include: "#statement"
+      - include: "#attribute-instance"
+      - match: \;
+        name: punctuation.terminator.semicolon.sv
   statement:
     patterns:
+      - match: (?<!\.)(${identifier})\s*(\:)\s*
+        captures:
+          "1":
+            patterns:
+              - include: "#block-identifier"
+          "2": { name: punctuation.separator.colon.sv }
+      - include: "#attribute-instance"
       - include: "#statement-item"
   statement-item:
     patterns:
+      - include: "#comment"
+      - include: "#compiler-directive"
+      - include: "#semicolon"
       - include: "#blocking-assignment"
       - include: "#nonblocking-assignment"
+      - include: "#procedural-continuous-assignment"
+      - include: "#case-statement"
+      - include: "#conditional-statement"
+      - include: "#inc-or-dec-expression"
       - include: "#subroutine-call-statement"
+      - include: "#disable-statement"
+      - include: "#event-trigger"
+      - include: "#loop-statement"
+      - include: "#jump-statement"
+      - include: "#par-block"
+      - include: "#procedural-timing-control-statement"
+      - include: "#seq-block"
+      - include: "#wait-statement"
+      - include: "#procedural-assertion-statement"
+      - include: "#clocking-drive"
+      - include: "#randsequence-statement"
+      - include: "#randcase-statement"
+      - include: "#expect-property-statement"
       - include: "#expression"
+  function-statement:
+    patterns:
+      - include: "#statement"
+  function-statement-or-null:
+    patterns:
+      - include: "#function-statement"
+      - include: "#attribute-instance"
+      - include: "#semicolon"
+  variable-identifier-list:
+    patterns:
+      - include: "#variable-identifier"
+      - include: "#comma"
+  # A.6.5 Timing control statements
+  procedural-timing-control-statement:
+    patterns:
+      - include: "#delay-or-event-control"
+  delay-or-event-control:
+    patterns:
+      - include: "#delay-control"
+      - include: "#event-control"
+      - begin: \b(repeat)\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#expression"
+  delay-control:
+    patterns:
+      - begin: \#\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#mintypmax-expression"
+      - match: (\#)\s*
+        captures:
+          "1": { name: punctuation.definition.delay.sv }
+      - include: "#delay-value"
+  event-control:
+    patterns:
+      - name: meta.event-control.sv
+        begin: (\@)\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.definition.event.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#event-expression"
+      - match: (\@)\s*(\*)\s*
+        captures:
+          "1": { name: punctuation.definition.event.sv }
+          "2": { name: keyword.operator.wildcard.sv }
+      - match: (\@)\s*(\()\s*(\*)\s*(\))\s*
+        captures:
+          "1": { name: punctuation.definition.event.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+          "3": { name: keyword.operator.wildcard.sv }
+          "4": { name: punctuation.section.group.end.sv }
+      - match: (\@)\s*
+        captures:
+          "1": { name: punctuation.definition.event.sv }
+      - include: "#hierarchical-event-identifier"
+      - include: "#ps-or-hierarchical-sequence-identifier"
+  event-expression:
+    patterns:
+      - include: "#edge-identifier"
+      - include: "#expression"
+      - match: \b(iff)\b\s*
+        captures:
+          "1": { name: keyword.control.iff.sv }
+      - include: "#sequence-instance"
+      - match: \b(or)\b\s*
+        captures:
+          "1": { name: keyword.operator.or.sv }
+      - include: "#comma"
+      - begin: \(\s*
+        end: \)\s*
+        beginCaptures:
+          "0": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "0": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#event-expression"
+  procedural-timing-control:
+    patterns:
+      - include: "#delay-control"
+      - include: "#event-control"
+      - include: "#cycle-delay"
+  jump-statement:
+    patterns:
+      - match: \b(return)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+      - include: "#expression"
+      - match: \b(break|continue)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+      - include: "#semicolon"
+  wait-statement:
+    patterns:
+      - begin: \b(wait)\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#expression"
+      - match: \b(fork)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+      - begin: \b(wait_order)\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#hierarchical-identifier"
+          - include: "#comma"
+      - include: "#action-block"
+  event-trigger:
+    patterns:
+      - begin: (\-\>)\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: punctuation.definition.event-trigger.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#hierarchical-event-identifier"
+      - begin: (\-\>\>)\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: punctuation.definition.event-trigger.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#delay-or-event-control"
+          - include: "#hierarchical-event-identifier"
+  disable-statement:
+    patterns:
+      - begin: \b(disable)\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - match: \b(fork)\b\s*
+            captures:
+              "1": { name: keyword.control.$1.sv }
+          - include: "#hierarchical-task-identifier"
+          - include: "#hierarchical-block-identifier"
+  # A.6.6 Conditional statements
+  conditional-statement:
+    patterns:
+      - include: "#unique-priority"
+      - match: \b(if)\b\s*(\()\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        end: (\))\s*
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#cond-predicate"
+      - match: \b(else)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+  unique-priority:
+    match: \b(unique|unique0|priority)\b\s*
+    captures:
+      "1": { name: keyword.control.$1.sv }
+  cond-predicate:
+    patterns:
+      - match: (\&\&\&)\s*
+        captures:
+          "1": { name: keyword.operator.andandand.sv }
+      - include: "#expression-or-cond-pattern"
+  expression-or-cond-pattern:
+    patterns:
+      - include: "#expression"
+      - include: "#cond-pattern"
+  cond-pattern:
+    patterns:
+      - match: \b(matches)\b\s*
+        captures:
+          "1": { name: keyword.operator.matches.sv }
+      - include: "#expression"
+      - include: "#pattern"
+  # A.6.7 Case statements
+  case-statement:
+    patterns:
+      - include: "#unique-priority"
+      - begin: \b(case|casex|casez)\b\s*
+        end: \b(endcase)\b\s*
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+        endCaptures:
+          "1": { name: keyword.control.$1.sv }
+        patterns:
+          - begin: (\()\s*
+            end: (\))\s*
+            beginCaptures:
+              "1": { name: punctuation.section.group.begin.sv }
+            endCaptures:
+              "1": { name: punctuation.section.group.end.sv }
+            patterns:
+              - include: "#expression"
+          - match: \b(inside)\b\s*
+            captures:
+              "1": { name: keyword.control.$1.sv }
+          - include: "#case-item"
+          - include: "#case-pattern-item"
+          - include: "#case-inside-item"
+  case-keyword:
+    match: \b(case|casex|casez)\b\s*
+    captures:
+      "1": { name: keyword.control.$1.sv }
+  case-expression:
+    patterns:
+      - include: "#expression"
+  case-item:
+    patterns:
+      - include: "#colon"
+      - include: "#comma"
+      - match: \b(default)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+      - include: "#case-item-expression"
+      - include: "#statement-or-null"
+  case-pattern-item:
+    patterns:
+      - match: (\&\&\&)\s*
+        captures:
+          "1": { name: keyword.operator.andandand.sv }
+      - include: "#colon"
+      - match: \b(default)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+      - include: "#pattern"
+      - include: "#expression"
+      - include: "#statement-or-null"
+  case-inside-item:
+    patterns:
+      - include: "#colon"
+      - match: \b(default)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+      - include: "#open-range-list"
+      - include: "#statement-or-null"
+  case-item-expression:
+    patterns:
+      - include: "#expression"
+  randcase-statement:
+    begin: \b(randcase)\b\s*
+    end: \b(endcase)\b\s*
+    beginCaptures:
+      "1": { name: keyword.control.$1.sv }
+    endCaptures:
+      "1": { name: keyword.control.$1.sv }
+    patterns:
+      - include: "#randcase-item"
+  randcase-item:
+    patterns:
+      - include: "#colon"
+      - include: "#expression"
+      - include: "#statement-or-null"
+  open-range-list:
+    patterns:
+      - include: "#comma"
+      - include: "#open-value-range"
+  open-value-range:
+    patterns:
+      - include: "#value-range"
   # A.6.7.1 Patterns
   pattern:
     patterns:
@@ -167,16 +1676,17 @@ repository:
           - include: "#member-identifier"
           - include: "#colon"
   assignment-pattern:
+    name: meta.pattern.sv
     begin: \'\{
     end: \}
-    name: meta.assignment-pattern.sv
     beginCaptures:
       "0": { name: punctuation.section.braces.begin.sv }
     endCaptures:
       "0": { name: punctuation.section.braces.end.sv }
     patterns:
       # Replication case
-      - begin: (?<=[^{,'\s])\s*\{
+      - name: meta.assignment-pattern-replication.sv
+        begin: (?<=[^{,'\s])\s*\{
         end: \}
         beginCaptures:
           "0": { name: punctuation.section.braces.begin.sv }
@@ -187,7 +1697,8 @@ repository:
           - include: "#expression"
           - include: "#comment"
           - include: "#compiler-directive"
-      - begin: (\:)\s*
+      - name: meta.assignment-pattern-key-value.sv
+        begin: (\:)\s*
         end: (?=\}|,)
         beginCaptures:
           "1": { name: punctuation.separator.colon.sv }
@@ -233,9 +1744,9 @@ repository:
       - include: "#assignment-pattern-expression"
   assignment-pattern-net-lvalue:
     patterns:
-      - begin: \'\{
+      - name: meta.assignment-pattern-net-lvalue.sv
+        begin: \'\{
         end: \}
-        name: meta.assignment-pattern-net-lvalue.sv
         beginCaptures:
           "0": { name: punctuation.section.braces.begin.sv }
         endCaptures:
@@ -245,9 +1756,9 @@ repository:
           - include: "#comma"
   assignment-pattern-variable-lvalue:
     patterns:
-      - begin: \'\{
+      - name: meta.assignment-pattern-variable-lvalue.sv
+        begin: \'\{
         end: \}
-        name: meta.assignment-pattern-variable-lvalue.sv
         beginCaptures:
           "0": { name: punctuation.section.braces.begin.sv }
         endCaptures:
@@ -255,19 +1766,189 @@ repository:
         patterns:
           - include: "#variable-lvalue"
           - include: "#comma"
+  # A.6.8 Looping statements
+  loop-statement:
+    patterns:
+      - match: \b(forever)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+      - name: meta.loop-statement.sv
+        begin: \b(repeat)\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#expression"
+      - name: meta.loop-statement.sv
+        begin: \b(while)\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#expression"
+      - name: meta.loop-statement.sv
+        begin: \b(for)\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#for-initialization"
+          - include: "#expression"
+          - include: "#for-step"
+          - include: "#semicolon"
+      - match: \b(do)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+      - name: meta.loop-statement.sv
+        begin: \b(foreach)\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#ps-or-hierarchical-array-identifier"
+          - name: meta.loop-variables.sv
+            begin: (\[)\s*
+            end: (\])\s*
+            beginCaptures:
+              "1": { name: punctuation.section.brackets.begin.sv }
+            endCaptures:
+              "1": { name: punctuation.section.brackets.end.sv }
+            patterns:
+              - include: "#loop-variables"
+  for-initialization:
+    patterns:
+      - include: "#list-of-variable-assignments"
+      - include: "#for-variable-declaration"
+  for-variable-declaration:
+    patterns:
+      - match: \b(var)\b\s*
+        captures:
+          "1": { name: storage.modifier.var.sv }
+      - include: "#equals"
+      - include: "#expression"
+      - include: "#variable-identifier"
+      - include: "#data-type"
+      - include: "#comma"
+  for-step:
+    patterns:
+      - include: "#for-step-assignment"
+      - include: "#comma"
+  for-step-assignment:
+    patterns:
+      - include: "#operator-assignment"
+      - include: "#inc-or-dec-expression"
+      - include: "#function-subroutine-call"
+  loop-variables:
+    patterns:
+      - include: "#index-variable-identifier"
+      - include: "#comma"
   # A.6.9 Subroutine call statements
   subroutine-call-statement:
     patterns:
       - include: "#subroutine-call"
+  # A.7.4 Specify path delays
+  edge-identifier:
+    match: \b(posedge|negedge|edge)\b\s*
+    captures:
+      "1": { name: keyword.other.$1.sv }
+  # A.8 Expressions
+  # A.8.1 Concatenations
+  concatenation:
+    name: meta.concatenation.sv
+    begin: (\{)\s*
+    end: (\})\s*
+    beginCaptures:
+      "1": { name: punctuation.section.braces.begin.sv }
+    endCaptures:
+      "1": { name: punctuation.section.braces.end.sv }
+    patterns:
+      - include: "#expression"
+      - include: "#constant-expression"
+      - include: "#stream-operator"
+      - include: "#slice-size"
+      - include: "#stream-concatenation"
+      - include: "#comma"
+  constant-concatenation:
+    patterns:
+      - include: "#concatenation"
+  constant-multiple-concatenation:
+    patterns:
+      - include: "#constant-concatenation"
+  module-path-concatenation:
+    begin: (\{)\s*
+    end: (\})\s*
+    beginCaptures:
+      "1": { name: punctuation.section.braces.begin.sv }
+    endCaptures:
+      "1": { name: punctuation.section.braces.end.sv }
+    patterns:
+      - include: "#module-path-expression"
+      - include: "#comma"
+  module-path-multiple-concatenation:
+    patterns:
+      - include: "#constant-expression"
+      - include: "#module-path-concatenation"
+  multiple-concatenation:
+    patterns:
+      - include: "#concatenation"
+  streaming-concatenation:
+    patterns:
+      - include: "#concatenation"
+  stream-operator:
+    match: (>>|<<)\s*
+    captures:
+      "1": { name: keyword.operator.stream.sv }
+  slice-size:
+    patterns:
+      - include: "#simple-type"
+      - include: "#constant-expression"
+  stream-concatenation:
+    patterns:
+      - include: "#stream-expression"
+      - include: "#comma"
+  stream-expression:
+    patterns:
+      - include: "#expression"
+      - match: \b(with)\s*
+        captures:
+          "1": { name: keyword.control.with.sv }
+      - include: "#array-range-expression"
+  array-range-expression:
+    patterns:
+      - include: "#expression"
+      - match: (\:)\s*
+        captures:
+          "1": { name: punctuation.separator.colon.sv }
+      - match: (\+\:)\s*
+        captures:
+          "1": { name: punctuation.separator.pluscolon.sv }
+      - match: (\-\:)\s*
+        captures:
+          "1": { name: punctuation.separator.minuscolon.sv }
+  empty-unpacked-array-concatenation:
+    patterns:
+      - include: "#concatenation"
   # A.8.2 Subroutine calls
   constant-function-call:
     patterns:
       - include: "#function-subroutine-call"
   tf-call:
     patterns:
-      - begin: (${funcIdentifier})\s*(\()\s*
+      - name: meta.tf-call.sv
+        begin: (?<!${simpleIdentifier}\s+)(${funcIdentifier})\s*(\()\s*
         end: (\))\s*
-        name: meta.tf-call.sv
         beginCaptures:
           "1": { name: entity.name.function.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -284,10 +1965,10 @@ repository:
         begin: (\$[a-zA-Z0-9_\$]+)\b(\()\s*
         beginCaptures:
           "1": { name: entity.name.function.sv }
-          "2": { name: punctuation.definition.parameters.sv }
+          "2": { name: punctuation.section.group.begin.sv }
         end: (\))
         endCaptures:
-          "1": { name: punctuation.definition.parameters.sv }
+          "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#list-of-arguments"
       - match: (\$[a-zA-Z0-9_\$]+)\b
@@ -302,20 +1983,84 @@ repository:
       - include: "#subroutine-call"
   list-of-arguments:
     patterns:
+      - include: "#comment"
       - include: "#compiler-directive"
       - include: "#comma"
       - include: "#expression"
   # A.8.3 Expressions
-  constant-expression:
-    name: meta.expression.sv
+  inc-or-dec-expression:
     patterns:
+      - include: "#attribute-instance"
+      - include: "#inc-or-dec-operator"
+      - include: "#variable-lvalue"
+  conditional-expression:
+    patterns:
+      - include: "#cond-predicate"
+      - match: (\?)\s*
+        captures:
+          "1": { name: keyword.operator.ternary.sv }
+      - include: "#attribute-instance"
+      - match: (\:)\s*
+        captures:
+          "1": { name: punctuation.separator.colon.sv }
+      - include: "#attribute-instance"
+  constant-expression:
+    patterns:
+      - match: (\?)\s*
+        captures:
+          "1": { name: keyword.operator.ternary.sv }
+      - match: (\:)\s*
+        captures:
+          "1": { name: punctuation.separator.colon.sv }
+      - include: "#attribute-instance"
+      - include: "#constant-primary"
       - include: "#binary-operator"
       - include: "#unary-operator"
       - include: "#attribute-instance"
-      - include: "#constant-primary"
-      - include: "#hierarchical-identifier"
+  constant-mintypmax-expression:
+    patterns:
+      - match: (\:)\s*
+        captures:
+          "1": { name: punctuation.separator.colon.sv }
+      - include: "#constant-expression"
+  constant-param-expression:
+    patterns:
+      - match: (\$)\s*
+        captures:
+          "1": { name: variable.language.dollar.sv }
+      - include: "#constant-mintypmax-expression"
+      - include: "#data-type"
+  param-expression:
+    patterns:
+      - match: (\$)\s*
+        captures:
+          "1": { name: variable.language.dollar.sv }
+      - include: "#mintypmax-expression"
+      - include: "#data-type"
+  constant-range-expression:
+    patterns:
+      - include: "#constant-expression"
+      - include: "#constant-part-select-range"
+  constant-part-select-range:
+    patterns:
+      - include: "#constant-range"
+      - include: "#constant-indexed-range"
+  constant-range:
+    patterns:
+      - match: (\:)\s*
+        captures:
+          "1": { name: punctuation.separator.colon.sv }
+      - include: "#constant-expression"
+  constant-indexed-range:
+    patterns:
+      - match: (\+\:)\s*
+        captures:
+          "1": { name: punctuation.separator.pluscolon.sv }
+      - match: (\-\:)\s*
+        captures:
+          "1": { name: punctuation.separator.minuscolon.sv }
+      - include: "#constant-expression"
   expression:
-    name: meta.expression.sv
     patterns:
       - include: "#inc-or-dec-expression"
       - include: "#binary-operator"
@@ -326,13 +2071,131 @@ repository:
   # A.8.4 Primaries
   constant-primary:
     patterns:
+      # Two special identifier for type casting:
+      # 1. If the identifier starts with an uppercase letter, we guess it is a parameter name
+      # 2. Otherwise, we guess it is a type name
+      - match: (\b[A-Z][a-zA-Z0-9_\$]*)\s*(?=\')
+        captures:
+          "1": { name: variable.other.constant.sv }
+      - match: (${simpleIdentifier})\s*(?=\')
+        captures:
+          "1": { name: entity.name.type.sv }
       - include: "#primary-literal"
+      - include: "#ps-parameter-identifier"
+      - include: "#constant-select"
+      - include: "#specparam-identifier"
+      - begin: (\[)\s*
+        end: (\])\s*
+        beginCaptures:
+          "1": { name: punctuation.section.brackets.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.brackets.end.sv }
+        patterns:
+          - include: "#constant-range-expression"
+      - include: "#genvar-identifier"
+      - include: "#formal-port-identifier"
+      - include: "#package-scope"
+      - include: "#class-scope"
+      - include: "#enum-identifier"
+      - include: "#constant-concatenation"
+      - match: (\{)
+        name: test1
+      - include: "#constant-multiple-concatenation"
+      - include: "#constant-function-call"
+      - include: "#constant-let-expression"
+      - begin: \(\s*
+        end: \)\s*
+        beginCaptures:
+          "0": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "0": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#constant-mintypmax-expression"
+      - include: "#constant-cast"
       - include: "#constant-assignment-pattern-expression"
+      - include: "#type-reference"
+      - match: \b(null)\b\s*
+        captures:
+          "1": { name: constant.language.null.sv }
+  module-path-primary:
+    patterns:
+      - include: "#number"
+      - include: "#identifier"
+      - include: "#module-path-concatenation"
+      - include: "#module-path-multiple-concatenation"
+      - include: "#function-subroutine-call"
+      - begin: \(\s*
+        end: \)\s*
+        beginCaptures:
+          "0": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "0": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#module-path-mintypmax-expression"
   primary:
     patterns:
+      # Two special identifier for type casting:
+      # 1. If the identifier starts with an uppercase letter, we guess it is a parameter name
+      # 2. Otherwise, we guess it is a type name
+      - match: (\b[A-Z][a-zA-Z0-9_\$]*)\s*(?=\')
+        captures:
+          "1": { name: variable.other.constant.sv }
+      - match: (${simpleIdentifier})\s*(?=\')
+        captures:
+          "1": { name: entity.name.type.sv }
       - include: "#primary-literal"
-      - include: "#assignment-pattern-expression"
+      - include: "#class-qualifier"
+      - include: "#package-scope"
+      - include: "#hierarchical-identifier"
+      - include: "#select"
+      - include: "#empty-unpacked-array-concatenation"
+      - include: "#concatenation"
+      - begin: (\[)\s*
+        end: (\])\s*
+        beginCaptures:
+          "1": { name: punctuation.section.brackets.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.brackets.end.sv }
+        patterns:
+          - include: "#range-expression"
       - include: "#function-subroutine-call"
+      - include: "#let-expression"
+      - begin: \(\s*
+        end: \)\s*
+        beginCaptures:
+          "0": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "0": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#mintypmax-expression"
+      - include: "#cast"
+      - include: "#assignment-pattern-expression"
+      - include: "#streaming-concatenation"
+      - include: "#sequence-method-call"
+      - match: \b(this)\b\s*
+        captures:
+          "1": { name: variable.language.this.sv }
+      - match: (\$)\s*
+        captures:
+          "1": { name: variable.language.dollar.sv }
+      - match: \b(null)\b\s*
+        captures:
+          "1": { name: constant.language.null.sv }
+  class-qualifier:
+    patterns:
+      - match: \b(local)\b\s*
+        captures:
+          "1": { name: entity.name.namespace.sv }
+      - match: (\:\:)\s*
+        captures:
+          "1": { name: punctuation.separator.double-colon.sv }
+      - include: "#period"
+      - include: "#implicit-class-handle"
+      - include: "#class-scope"
+  range-expression:
+    patterns:
+      - include: "#expression"
+      - include: "#part-select-range"
   primary-literal:
     patterns:
       - include: "#string-literal"
@@ -353,6 +2216,60 @@ repository:
   time-unit:
     name: constant.numeric.time-unit.sv
     match: (?<=[0-9][0-9_]*\s*)(s|ms|us|ns|ps|fs)\b
+  implicit-class-handle:
+    match: \b(this|super)\b\s*
+    captures:
+      "1": { name: variable.language.$1.sv }
+  bit-select:
+    patterns:
+      - include: "#dimension"
+  select:
+    patterns:
+      - include: "#bit-select"
+      - include: "#dimension"
+      - include: "#period"
+      - include: "#member-identifier"
+  nonrange-select:
+    patterns:
+      - include: "#bit-select"
+      - include: "#period"
+      - include: "#member-identifier"
+  constant-bit-select:
+    patterns:
+      - include: "#dimension"
+  constant-select:
+    patterns:
+      - include: "#constant-bit-select"
+      - include: "#dimension"
+      - include: "#period"
+      - include: "#member-identifier"
+  constant-cast:
+    patterns:
+      - include: "#casting-type"
+      - begin: (\')\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.definition.casting.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#constant-expression"
+  constant-let-expression:
+    patterns:
+      - include: "#let-expression"
+  cast:
+    patterns:
+      - include: "#casting-type"
+      - begin: (\')\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.definition.casting.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#expression"
   # A.8.6 Operators
   unary-operator:
     match: (~\^|\^~|~&|~\||\+|\-|!|~|&|\||\^)\s*
@@ -446,13 +2363,13 @@ repository:
       - include: "#compiler-directive"
   # A.8.8 Strings
   string-literal:
+    name: string.quoted.double.sv
     begin: \"
     end: \"
     beginCaptures:
       "0": { name: punctuation.definition.string.begin.sv }
     endCaptures:
       "0": { name: punctuation.definition.string.end.sv }
-    name: string.quoted.double.sv
     patterns:
       - match: (?:\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
         name: constant.character.escape.sv
@@ -467,7 +2384,7 @@ repository:
       - match: \\\n
         name: punctuation.separator.continuation.sv
   # A.9.2 Comments
-  comments:
+  comment:
     patterns:
       - include: "#line-comment"
       - include: "#block-comment"
@@ -485,6 +2402,89 @@ repository:
     endCaptures:
       "0": { name: punctuation.definition.comment.sv }
   # A.9.3 Identifiers
+  array-identifier:
+    patterns:
+      - include: "#identifier"
+  block-identifier:
+    patterns:
+      - include: "#identifier"
+  bin-identifier:
+    patterns:
+      - include: "#identifier"
+  c-identifier:
+    match: \b([a-zA-Z_][a-zA-Z0-9_]*)\b\s*
+    captures:
+      "1": { name: variable.other.sv }
+  cell-identifier:
+    patterns:
+      - include: "#identifier"
+  checker-identifier:
+    patterns:
+      - include: "#identifier"
+  class-identifier:
+    patterns:
+      - include: "#identifier"
+  class-variable-identifier:
+    patterns:
+      - include: "#variable-identifier"
+  clocking-identifier:
+    patterns:
+      - include: "#identifier"
+  config-identifier:
+    patterns:
+      - include: "#identifier"
+  const-identifier:
+    patterns:
+      - include: "#identifier"
+  constraint-identifier:
+    patterns:
+      - include: "#identifier"
+  covergroup-identifier:
+    patterns:
+      - include: "#identifier"
+  covergroup-variable-identifier:
+    patterns:
+      - include: "#variable-identifier"
+  cover-point-identifier:
+    patterns:
+      - include: "#identifier"
+  cross-identifier:
+    patterns:
+      - include: "#identifier"
+  dynamic-array-variable-identifier:
+    patterns:
+      - include: "#variable-identifier"
+  enum-identifier:
+    patterns:
+      - include: "#identifier"
+  escaped-identifier:
+    match: \\[^\s]+\s*
+    name: variable.other.sv
+  formal-identifier:
+    patterns:
+      - include: "#identifier"
+  formal-port-identifier:
+    patterns:
+      - include: "#identifier"
+  function-identifier:
+    match: (${funcIdentifier})\s*
+    captures:
+      "1": { name: entity.name.function.sv }
+  generate-block-identifier:
+    patterns:
+      - include: "#identifier"
+  genvar-identifier:
+    patterns:
+      - include: "#identifier"
+  hierarchical-array-identifier:
+    patterns:
+      - include: "#hierarchical-identifier"
+  hierarchical-block-identifier:
+    patterns:
+      - include: "#hierarchical-identifier"
+  hierarchical-event-identifier:
+    patterns:
+      - include: "#hierarchical-identifier"
   hierarchical-identifier:
     patterns:
       - match: (\$root)\s*(\.)\s*
@@ -495,16 +2495,205 @@ repository:
         captures:
           "1": { name: punctuation.accessor.dot.sv }
       - include: "#identifier"
+  hierarchical-net-identifier:
+    patterns:
+      - include: "#hierarchical-identifier"
+  hierarchical-parameter-identifier:
+    patterns:
+      - include: "#hierarchical-identifier"
+  hierarchical-property-identifier:
+    patterns:
+      - include: "#hierarchical-identifier"
+  hierarchical-sequence-identifier:
+    patterns:
+      - include: "#hierarchical-identifier"
+  hierarchical-task-identifier:
+    patterns:
+      - include: "#hierarchical-identifier"
+  hierarchical-tf-identifier:
+    patterns:
+      - include: "#hierarchical-identifier"
+  hierarchical-variable-identifier:
+    patterns:
+      - include: "#hierarchical-identifier"
   identifier:
-    match: (${identifier})\s*(?!\()
+    patterns:
+      - match: ([A-Z][a-zA-Z0-9_$]*)(?!\s+${identifier}|\(|\')
+        captures:
+          "1": { name: variable.other.constant.sv }
+      - match: (${identifier})(?!\s+${identifier}|\(|\')
+        captures:
+          "1": { name: variable.other.sv }
+  interface-instance-identifier:
+    patterns:
+      - include: "#identifier"
+  interface-identifier:
+    patterns:
+      - include: "#identifier"
+  inout-port-identifier:
+    patterns:
+      - include: "#identifier"
+  input-port-identifier:
+    patterns:
+      - include: "#identifier"
+  instance-identifier:
+    patterns:
+      - include: "#identifier"
+  library-identifier:
+    patterns:
+      - include: "#identifier"
+  member-identifier:
+    patterns:
+      - include: "#identifier"
+  method-identifier:
+    patterns:
+      - include: "#identifier"
+  modport-identifier:
+    patterns:
+      - include: "#identifier"
+  module-identifier:
+    match: (${identifier})(?=\s+${identifier})
     captures:
-      "1": { name: variable.other.sv }
+      "1": { name: entity.name.type.sv }
+  net-identifier:
+    patterns:
+      - include: "#identifier"
+  net-type-identifier:
+    match: (${identifier})\s*${typeIdentifierEnd}
+    captures:
+      "1": { name: entity.name.type.sv }
+  output-port-identifier:
+    patterns:
+      - include: "#identifier"
+  package-identifier:
+    patterns:
+      - include: "#identifier"
+  package-scope:
+    patterns:
+      - match: (\$unit)\s*
+        captures:
+          "1": { name: entity.name.scope.sv }
+      - include: "#package-identifier"
+      - match: (::)\s*
+        captures:
+          "1": { name: punctuation.separator.scope-resolution.sv }
+  parameter-identifier:
+    match: (${identifier})(?!\s+${identifier}|\()
+    captures:
+      "1": { name: variable.other.constant.sv }
+  port-identifier:
+    patterns:
+      - include: "#identifier"
+  production-identifier:
+    patterns:
+      - include: "#identifier"
+  program-identifier:
+    patterns:
+      - include: "#identifier"
+  property-identifier:
+    patterns:
+      - include: "#identifier"
+  ps-class-identifier:
+    patterns:
+      - include: "#package-scope"
+      - include: "#class-identifier"
+  ps-covergroup-identifier:
+    patterns:
+      - include: "#package-scope"
+      - include: "#covergroup-identifier"
+  ps-checker-identifier:
+    patterns:
+      - include: "#package-scope"
+      - include: "#checker-identifier"
+  ps-identifier:
+    patterns:
+      - include: "#package-scope"
+      - include: "#identifier"
+  ps-or-hierarchical-array-identifier:
+    patterns:
+      - include: "#implicit-class-handle"
+      - match: (\.)\s*
+        captures:
+          "1": { name: punctuation.accessor.dot.sv }
+      - include: "#class-scope"
+      - include: "#package-scope"
+      - include: "#hierarchical-array-identifier"
+  ps-or-hierarchical-net-identifier:
+    patterns:
+      - include: "#package-scope"
+      - include: "#net-identifier"
+      - include: "#hierarchical-net-identifier"
+  ps-or-hierarchical-property-identifier:
+    patterns:
+      - include: "#package-scope"
+      - include: "#property-identifier"
+      - include: "#hierarchical-property-identifier"
+  ps-or-hierarchical-sequence-identifier:
+    patterns:
+      - include: "#package-scope"
+      - include: "#sequence-identifier"
+      - include: "#hierarchical-sequence-identifier"
+  ps-or-hierarchical-tf-identifier:
+    patterns:
+      - include: "#package-scope"
+      - include: "#tf-identifier"
+      - include: "#hierarchical-tf-identifier"
+  ps-parameter-identifier:
+    patterns:
+      - include: "#package-scope"
+      - include: "#class-scope"
+      - include: "#generate-block-identifier"
+      - include: "#dimension"
+      - match: (\.)\s*
+        captures:
+          "1": { name: punctuation.accessor.dot.sv }
+      - include: "#parameter-identifier"
+  ps-type-identifier:
+    patterns:
+      - match: (\b(local)\b)\s*(::)\s*
+        captures:
+          "1": { name: keyword.other.local.sv }
+          "2": { name: punctuation.separator.scope-resolution.sv }
+      - include: "#package-scope"
+      - include: "#class-scope"
+      - include: "#type-identifier"
+  sequence-identifier:
+    patterns:
+      - include: "#identifier"
+  signal-identifier:
+    patterns:
+      - include: "#identifier"
   simple-identifier:
     name: variable.other.sv
     match: ${simpleIdentifier}
+  specparam-identifier:
+    patterns:
+      - include: "#parameter-identifier"
   system-tf-identifier:
     match: (\$[a-zA-Z0-9_\$]+)\b
     name: entity.name.function.sv
+  task-identifier:
+    match: (${funcIdentifier})\s*(?!\.)
+    name: entity.name.function.sv
+  tf-identifier:
+    match: (${funcIdentifier})\s*(?!\.)
+    name: entity.name.function.sv
+  terminal-identifier:
+    patterns:
+      - include: "#identifier"
+  topmodule-identifier:
+    patterns:
+      - include: "#identifier"
+  type-identifier:
+    match: (${identifier})\s*${typeIdentifierEnd}
+    captures:
+      "1": { name: entity.name.type.sv }
+  udp-identifier:
+    patterns:
+      - include: "#identifier"
+  variable-identifier:
+    patterns:
+      - include: "#identifier"
   # Compiler directives
   compiler-directive:
     patterns:
@@ -535,9 +2724,9 @@ repository:
     match: (`resetall)\b
     name: keyword.control.resetall.sv
   macro-include:
+    name: meta.preprocessor.include.sv
     begin: (`include)\s*
     end: $
-    name: meta.preprocessor.include.sv
     beginCaptures:
       "1": { name: keyword.control.include.sv }
     patterns:
@@ -556,7 +2745,8 @@ repository:
           "2": { name: meta.preprocessor.macro-name.sv }
           "3":
             patterns:
-              - begin: \(
+              - name: meta.preprocessor.macro-text.sv
+                begin: \(
                 end: \)
                 beginCaptures:
                   "0": { name: punctuation.section.group.begin.sv }
@@ -567,13 +2757,15 @@ repository:
                   - include: "#comma"
               - include: "#macro-text"
       # Multiline
-      - begin: (`define)\s*([a-zA-Z_][a-zA-Z0-9_\$]*)
+      - name: meta.macro-definition.sv
+        begin: (`define)\s*([a-zA-Z_][a-zA-Z0-9_\$]*)
         end: (?<!\\)$
         beginCaptures:
           "1": { name: keyword.control.define.sv }
           "2": { name: meta.preprocessor.macro-name.sv }
         patterns:
-          - begin: \(
+          - name: meta.preprocessor.macro-text.sv
+            begin: \(
             end: \)
             beginCaptures:
               "0": { name: punctuation.section.group.begin.sv }
@@ -590,13 +2782,13 @@ repository:
   macro-text:
     patterns:
       # Escaped quotation mark
-      - begin: \`\"
+      - name: string.quoted.macro.sv
+        begin: \`\"
         end: \`\"
         beginCaptures:
           "0": { name: constant.character.escape.sv }
         endCaptures:
           "0": { name: constant.character.escape.sv }
-        name: string.quoted.macro.sv
         patterns:
           - match: \`\`
             name: constant.character.escape.sv

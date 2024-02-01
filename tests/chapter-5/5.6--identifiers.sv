@@ -31,6 +31,9 @@ module identifiers();
    */
   reg sensitive;
 //    ^^^^^^^^^ variable.other.sv
+
+// Because tmLanguage is limited, we cannot distinguish between variables and constants. Therefore,
+// we make an educated guess that if the identifier starts with a capital letter, it is a constant.
   reg Sensitive;
-//    ^^^^^^^^^ variable.other.sv
+//    ^^^^^^^^^ variable.other.constant.sv
 endmodule : identifiers
