@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "node src/main.js",
-    "test": "npm run build && vscode-tmgrammar-test -g syntaxes/systemverilog.tmLanguage.json \"tests/chapter-6/*.sv\"",
+    "test": "npm run build && vscode-tmgrammar-test -g syntaxes/systemverilog.tmLanguage.json \"tests/**/*.sv\"",
     "test-watch": "nodemon --watch src --watch syntaxes --watch tests -e js,yaml,sv --exec \"npm run test\"",
     "package": "vsce package"
   },
