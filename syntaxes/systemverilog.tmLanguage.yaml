@@ -50,7 +50,7 @@ repository:
         endCaptures:
           "1": { name: punctuation.terminator.semicolon.sv }
         patterns:
-          - include: "#parameter-import-declaration"
+          - include: "#package-import-declaration"
           - include: "#parameter-port-list"
           - include: "#list-of-port-declarations"
       - name: meta.module-body.sv
@@ -196,6 +196,23 @@ repository:
   # A.1.4 Module items
   module-common-item:
     patterns:
+      # Conflict: The 'generate for' and 'for' statements have the same beginning. Therefore, they are combined here:
+      - name: meta.for.sv
+        begin: \b(for)\b\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#semicolon"
+          - include: "#for-initialization"
+          - include: "#for-step"
+          - include: "#genvar-initialization"
+          - include: "#genvar-iteration"
+          - include: "#expression"
+          - include: "#genvar-expression"
       - include: "#module-or-generate-item-declaration"
       - include: "#interface-instantiation"
       - include: "#program-instantiation"
@@ -1381,6 +1398,122 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#expression"
+  # A.4.2 Generated instantiation
+  generate-region:
+    name: meta.generate-region.sv
+    begin: \b(generate)\b\s*
+    end: \b(endgenerate)\b\s*
+    beginCaptures:
+      "1": { name: keyword.control.$1.sv }
+    endCaptures:
+      "1": { name: keyword.control.$1.sv }
+    patterns:
+      - include: "#generate-item"
+  loop-generate-construct:
+    patterns:
+      - begin: \b(for)\b\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#genvar-initialization"
+          - include: "#genvar-expression"
+          - include: "#genvar-iteration"
+          - include: "#semicolon"
+  genvar-initialization:
+    patterns:
+      - match: \b(genvar)\b\s*
+        captures:
+          "1": { name: entity.name.type.$1.sv }
+      - include: "#genvar-identifier"
+      - name: meta.genvar-initialization.sv
+        begin: (\=)\s*
+        end: (?=\;)
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#constant-expression"
+  genvar-iteration:
+    patterns:
+      - include: "#genvar-identifier"
+      - include: "#assignment-operator"
+      - include: "#genvar-expression"
+      - include: "#inc-or-dec-operator"
+  conditional-generate-construct:
+    patterns:
+      - include: "#if-generate-construct"
+      - include: "#case-generate-construct"
+  if-generate-construct:
+    patterns:
+      - begin: \b(if)\b\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#constant-expression"
+      - match: \b(else)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+  case-generate-construct:
+    begin: (?=\b(case)\b)
+    end: \b(endcase)\b\s*
+    endCaptures:
+      "1": { name: keyword.control.$1.sv }
+    patterns:
+      # Header
+      - name: meta.case-generate-construct-header.sv
+        begin: \b(case)\b\s*(\()\s*
+        end: (?=\))
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        patterns:
+          - include: "#constant-expression"
+      # Body
+      - name: meta.case-generate-construct-body.sv
+        begin: (\))\s*
+        end: (?=\b(endcase)\b)
+        beginCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#case-generate-item"
+  case-generate-item:
+    patterns:
+      - include: "#constant-expression"
+      - include: "#colon"
+      - include: "#generate-block"
+      - match: \b(default)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+  generate-block:
+    patterns:
+      # The seq-block and generate-block have the same beginning ('begin'). Therefore, include 'generate-item' in seq-block.
+      - include: "#generate-item"
+      - match: \b(${identifier})\s*(\:)\s*
+        captures:
+          "1": { name: variable.other.block.sv }
+          "2": { name: punctuation.separator.colon.sv }
+      - match: \b(begin)\b\s*
+        captures:
+          "1": { name: keyword.control.begin.sv }
+      - match: \b(end)\b\s*
+        captures:
+          "1": { name: keyword.control.end.sv }
+      - match: (\:)\s*(${identifier})\s*
+        captures:
+          "1": { name: punctuation.separator.colon.sv }
+          "2": { name: variable.other.block.sv }
+  generate-item:
+    patterns:
+      - include: "#module-or-generate-item"
+      - include: "#interface-or-generate-item"
+      - include: "#checker-or-generate-item"
   # A.6 Behavioral statements
   # A.6.1 Continuous assignment and net alias statements
   continuous-assign:
@@ -1461,6 +1594,7 @@ repository:
         captures:
           "1": { name: keyword.control.$1.sv }
   seq-block:
+    name: meta.seq-block.sv
     begin: \b(begin)\s*(?:(\:)\s*(${identifier})\s*)?
     end: \b(end)\s*(?:(\:)\s*(${identifier})\s*)?
     beginCaptures:
@@ -1474,6 +1608,7 @@ repository:
     patterns:
       - include: "#block-item-declaration"
       - include: "#statement-or-null"
+      - include: "#generate-item"
   par-block:
     begin: \b(fork)\s*(?:(\:)\s*(${identifier})\s*)?
     end: \b(join|join_any|join_none)\b\s*(?:(\:)\s*(${identifier})\s*)?
