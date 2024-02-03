@@ -1114,11 +1114,15 @@ repository:
         captures:
           "1": { name: storage.modifier.var.sv }
       - include: "#tf-port-direction"
-      - include: "#data-type-or-implicit"
       - include: "#port-identifier"
       - include: "#variable-dimension"
-      - include: "#equals"
-      - include: "#expression"
+      - begin: (\=)\s*
+        end: (?=\,|\))
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#expression"
+      - include: "#data-type-or-implicit"
   tf-port-direction:
     patterns:
       - match: \b(const)\b\s*
@@ -1423,7 +1427,7 @@ repository:
       - include: "#statement-or-null"
   par-block:
     begin: \b(fork)\s*(?:(\:)\s*(${identifier})\s*)?
-    end: \b(join|join_any|join_none)\s*(?:(\:)\s*(${identifier})\s*)?
+    end: \b(join|join_any|join_none)\b\s*(?:(\:)\s*(${identifier})\s*)?
     beginCaptures:
       "1": { name: keyword.control.fork.sv }
       "2": { name: punctuation.separator.colon.sv }
