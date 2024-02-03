@@ -259,6 +259,8 @@ repository:
       - include: "#timeunits-declaration"
   package-or-generate-item-declaration:
     patterns:
+      # This section handles assignments for both nets and data.
+      # The assignment logic has been moved here for better organization.
       - name: meta.assignments.sv
         begin: (\=)\s*
         end: ${assignmentEnd}
@@ -951,15 +953,6 @@ repository:
         captures:
           "1": { name: keyword.control.$1.sv }
       - include: "#dimension"
-      - name: meta.dynamic-array-new.sv
-        begin: (\()\s*
-        end: (\))\s*
-        beginCaptures:
-          "1": { name: punctuation.section.group.begin.sv }
-        endCaptures:
-          "1": { name: punctuation.section.group.end.sv }
-        patterns:
-          - include: "#expression"
   # A.2.5 Declaration ranges
   dimension:
     name: meta.dimension.sv
@@ -974,6 +967,7 @@ repository:
         name: keyword.operator.star.sv
       - match: \$\s*
         name: keyword.operator.dollar.sv
+      - include: "#constant-range-expression"
       - include: "#constant-range"
       - include: "#constant-expression"
       - include: "#data-type"
@@ -1159,6 +1153,94 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#tf-port-list"
+  # A.2.8 Block item declarations
+  block-item-declaration:
+    patterns:
+      - include: "#attribute-instance"
+      - include: "#data-declaration"
+      - include: "#local-parameter-declaration"
+      - include: "#parameter-declaration"
+      - include: "#let-declaration"
+  # A.2.10 Assertion declarations
+  assertion-item-declaration:
+    patterns:
+      - include: "#property-declaration"
+      - include: "#sequence-declaration"
+      - include: "#let-declaration"
+  # A.2.12 Let declarations
+  let-declaration:
+    name: meta.let-declaration.sv
+    begin: \b(let)\s*
+    end: (\;)\s*
+    beginCaptures:
+      "1": { name: storage.type.$1.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#let-port-list"
+      - begin: (\=)\s*
+        end: (?=\;)
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#expression"
+      - include: "#let-identifier"
+  let-identifier:
+    match: (${identifier})\s*
+    captures:
+      "1": { name: entity.name.function.sv }
+  let-port-list:
+    patterns:
+      - include: "#comma"
+      - include: "#let-port-item"
+  let-port-item:
+    patterns:
+      - include: "#attribute-instance"
+      - begin: (\=)\s*
+        end: (?=\,|\))
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#expression"
+      - include: "#variable-dimension"
+      - include: "#formal-port-identifier"
+      - include: "#let-formal-type"
+  let-formal-type:
+    patterns:
+      - match: \b(untyped)\b\s*
+        captures:
+          "1": { name: storage.modifier.$1.sv }
+      - include: "#data-type-or-implicit"
+  let-expression:
+    patterns:
+      - include: "#package-scope"
+      - include: "#let-identifier"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#let-list-of-arguments"
+  let-list-of-arguments:
+    patterns:
+      - match: (\.)\s*(${identifier})\s*
+        captures:
+          "1": { name: punctuation.definition.argument.sv }
+          "2": { name: variable.other.sv }
+      - include: "#comma"
+      - include: "#let-actual-arg"
+  let-actual-arg:
+    patterns:
+      - include: "#expression"
   # A.4 Instantiations
   # A.4.1 Instantiation
   # A.4.1.1 Module instantiation
@@ -1276,9 +1358,17 @@ repository:
   blocking-assignment:
     patterns:
       - include: "#equals"
-      - match: (=|\+=|-=|\*=|/=|%=|&=|\|=|\^=|<<=|>>=|<<<=|>>>=)\s*
+      - include: "#assignment-operator"
+  assignment-operator:
+    patterns:
+      - match: (=|\+=|-=|\*=|\/=|%=|&=|\|=|\^=|<<=|>>=|<<<=|>>>=)\s*
         captures:
           "1": { name: keyword.operator.assignment.sv }
+  operator-assignment:
+    patterns:
+      - include: "#assignment-operator"
+      - include: "#variable-lvalue"
+      - include: "#expression"
   nonblocking-assignment:
     patterns:
       - match: (\<=)\s*
@@ -1416,10 +1506,11 @@ repository:
   delay-control:
     patterns:
       - name: meta.delay-control.sv
-        begin: \#\s*(\()\s*
+        begin: (\#)\s*(\()\s*
         end: (\))\s*
         beginCaptures:
-          "1": { name: punctuation.section.group.begin.sv }
+          "1": { name: punctuation.definition.delay.sv }
+          "2": { name: punctuation.section.group.begin.sv }
         endCaptures:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
@@ -1576,14 +1667,12 @@ repository:
       - include: "#expression-or-cond-pattern"
   expression-or-cond-pattern:
     patterns:
-      - include: "#expression"
       - include: "#cond-pattern"
   cond-pattern:
     patterns:
       - match: \b(matches)\b\s*
         captures:
           "1": { name: keyword.operator.matches.sv }
-      - include: "#expression"
       - include: "#pattern"
   # A.6.7 Case statements
   case-statement:
@@ -1684,7 +1773,9 @@ repository:
       - match: \b(tagged)\s+([a-zA-Z_][a-zA-Z0-9_$]*)
         captures:
           "1": { name: keyword.other.tagged.sv }
-          "2": { name: variable.other.patterns.sv }
+          "2":
+            patterns:
+              - include: "#identifier"
       - begin: \'\{
         end: \}
         name: meta.pattern.sv
@@ -1899,9 +1990,9 @@ repository:
     endCaptures:
       "1": { name: punctuation.section.braces.end.sv }
     patterns:
+      - include: "#stream-operator"
       - include: "#expression"
       - include: "#constant-expression"
-      - include: "#stream-operator"
       - include: "#slice-size"
       - include: "#stream-concatenation"
       - include: "#comma"
@@ -1945,11 +2036,11 @@ repository:
       - include: "#comma"
   stream-expression:
     patterns:
+      - include: "#array-range-expression"
       - include: "#expression"
       - match: \b(with)\s*
         captures:
           "1": { name: keyword.control.with.sv }
-      - include: "#array-range-expression"
   array-range-expression:
     patterns:
       - include: "#expression"
@@ -2027,7 +2118,7 @@ repository:
       - include: "#attribute-instance"
       - match: (\:)\s*
         captures:
-          "1": { name: punctuation.separator.colon.sv }
+          "1": { name: keyword.operator.colon.sv }
       - include: "#attribute-instance"
   constant-expression:
     patterns:
@@ -2064,12 +2155,12 @@ repository:
       - include: "#data-type"
   constant-range-expression:
     patterns:
-      - include: "#constant-expression"
       - include: "#constant-part-select-range"
+      - include: "#constant-expression"
   constant-part-select-range:
     patterns:
-      - include: "#constant-range"
       - include: "#constant-indexed-range"
+      - include: "#constant-range"
   constant-range:
     patterns:
       - match: (\:)\s*
@@ -2087,12 +2178,82 @@ repository:
       - include: "#constant-expression"
   expression:
     patterns:
+      # This section of code handles the expression in different types of declarations,
+      # such as data declaration and net declaration. By moving this code here, it
+      # improves the organization of the syntax file.
+      - name: meta.parenthesis.sv
+        begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#operator-assignment"
+          - include: "#expression"
       - include: "#inc-or-dec-expression"
       - include: "#binary-operator"
       - include: "#unary-operator"
       - include: "#attribute-instance"
       - include: "#primary"
-      - include: "#hierarchical-identifier"
+      - include: "#conditional-expression"
+      - include: "#inside-expression"
+      - include: "#tagged-union-expression"
+  tagged-union-expression:
+    match: \b(tagged)\b\s*
+    captures:
+      "1": { name: keyword.other.tagged.sv }
+  inside-expression:
+    patterns:
+      - match: \b(inside)\b\s*
+        captures:
+          "1": { name: keyword.control.inside.sv }
+      - include: "#open-range-list"
+  value-range:
+    patterns:
+      # - include: "#expression"
+      - include: "#dimension"
+  mintypmax-expression:
+    patterns:
+      - include: "#expression"
+      - include: "#colon"
+  module-path-conditional-expression:
+    patterns:
+      - match: (\?)\s*
+        captures:
+          "1": { name: keyword.operator.ternary.sv }
+      - include: "#attribute-instance"
+      - match: (\:)\s*
+        captures:
+          "1": { name: punctuation.separator.colon.sv }
+      - include: "#module-path-expression"
+  module-path-expression:
+    patterns:
+      - include: "#module-path-primary"
+      - include: "#unary-module-path-operator"
+      - include: "#binary-module-path-operator"
+      - include: "#module-path-conditional-expression"
+      - include: "#attribute-instance"
+  module-path-mintypmax-expression:
+    patterns:
+      - include: "#module-path-expression"
+      - include: "#colon"
+  part-select-range:
+    patterns:
+      - include: "#constant-indexed-range"
+      - include: "#constant-range"
+  indexed-range:
+    patterns:
+      - match: (\+\:)\s*
+        captures:
+          "1": { name: punctuation.separator.pluscolon.sv }
+      - match: (\-\:)\s*
+        captures:
+          "1": { name: punctuation.separator.minuscolon.sv }
+      - include: "#constant-expression"
+  genvar-expression:
+    patterns:
+      - include: "#constant-expression"
   # A.8.4 Primaries
   constant-primary:
     patterns:
@@ -2109,22 +2270,13 @@ repository:
       - include: "#ps-parameter-identifier"
       - include: "#constant-select"
       - include: "#specparam-identifier"
-      - begin: (\[)\s*
-        end: (\])\s*
-        beginCaptures:
-          "1": { name: punctuation.section.brackets.begin.sv }
-        endCaptures:
-          "1": { name: punctuation.section.brackets.end.sv }
-        patterns:
-          - include: "#constant-range-expression"
+      - include: "#dimension"
       - include: "#genvar-identifier"
       - include: "#formal-port-identifier"
       - include: "#package-scope"
       - include: "#class-scope"
       - include: "#enum-identifier"
       - include: "#constant-concatenation"
-      - match: (\{)
-        name: test1
       - include: "#constant-multiple-concatenation"
       - include: "#constant-function-call"
       - include: "#constant-let-expression"
@@ -2219,8 +2371,8 @@ repository:
       - include: "#class-scope"
   range-expression:
     patterns:
-      - include: "#expression"
       - include: "#part-select-range"
+      - include: "#expression"
   primary-literal:
     patterns:
       - include: "#string-literal"

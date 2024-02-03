@@ -21,6 +21,6 @@ module systemfn();
 
   initial $display("hello world");
 //        ^^^^^^^^ entity.name.function.sv
-//                ^ punctuation.definition.parameters.sv
-//                              ^ punctuation.definition.parameters.sv
+//                ^ punctuation.section.group.begin.sv
+//                              ^ punctuation.section.group.end.sv
 endmodule
