@@ -24,10 +24,10 @@ u_int a, b;
 initial begin
   a = tagged Invalid;
 //    ^^^^^^ keyword.other.tagged.sv
-//           ^^^^^^^ variable.other.constant.sv
+//           ^^^^^^^ variable.other.enummember.sv
   b = tagged Valid(42);
 //    ^^^^^^ keyword.other.tagged.sv
-//           ^^^^^ variable.other.constant.sv
+//           ^^^^^ variable.other.enummember.sv
 //                ^^^ meta.parenthesis.sv
 end
 

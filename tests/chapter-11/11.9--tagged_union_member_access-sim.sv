@@ -27,7 +27,7 @@ int b;
 initial begin
   a = tagged Valid(42);
 //    ^^^^^^ keyword.other.tagged.sv
-//           ^^^^^ variable.other.constant.sv
+//           ^^^^^ variable.other.enummember.sv
 //                ^^^ meta.parenthesis.sv
   b = a.Valid;
   $display(":assert: (42 == %d)", b);

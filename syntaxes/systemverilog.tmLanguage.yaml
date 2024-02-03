@@ -1177,7 +1177,8 @@ repository:
     endCaptures:
       "1": { name: punctuation.terminator.semicolon.sv }
     patterns:
-      - begin: (\()\s*
+      - name: meta.let-declaration-header.sv
+        begin: (\()\s*
         end: (\))\s*
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
@@ -1222,7 +1223,8 @@ repository:
     patterns:
       - include: "#package-scope"
       - include: "#let-identifier"
-      - begin: (\()\s*
+      - name: meta.let-expression.sv
+        begin: (\()\s*
         end: (\))\s*
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
@@ -1255,7 +1257,7 @@ repository:
     begin: (\#)\s*(\()
     end: (\))\s*
     beginCaptures:
-      "1": { name: punctuation.definition.parameter-value-assignment.sv }
+      "1": { name: punctuation.definition.parameter-assignment-or-delay.sv }
       "2": { name: punctuation.section.group.begin.sv }
     endCaptures:
       "1": { name: punctuation.section.group.end.sv }
@@ -1276,7 +1278,8 @@ repository:
       "1": { name: punctuation.definition.named-parameter-assignment.sv }
     patterns:
       - include: "#parameter-identifier"
-      - begin: (\()\s*
+      - name: meta.named-parameter-assignment.sv
+        begin: (\()\s*
         end: (\))\s*
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
@@ -1316,7 +1319,8 @@ repository:
       "1": { name: punctuation.definition.named-port-connection.sv }
     patterns:
       - include: "#port-identifier"
-      - begin: (\()\s*
+      - name: meta.named-port-connection.sv
+        begin: (\()\s*
         end: (\))\s*
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
@@ -1409,11 +1413,11 @@ repository:
     beginCaptures:
       "1": { name: keyword.control.begin.sv }
       "2": { name: punctuation.separator.colon.sv }
-      "3": { name: entity.name.type.block.sv }
+      "3": { name: variable.other.block.sv }
     endCaptures:
       "1": { name: keyword.control.end.sv }
       "2": { name: punctuation.separator.colon.sv }
-      "3": { name: entity.name.type.block.sv }
+      "3": { name: variable.other.block.sv }
     patterns:
       - include: "#block-item-declaration"
       - include: "#statement-or-null"
@@ -1423,11 +1427,11 @@ repository:
     beginCaptures:
       "1": { name: keyword.control.fork.sv }
       "2": { name: punctuation.separator.colon.sv }
-      "3": { name: entity.name.type.block.sv }
+      "3": { name: variable.other.block.sv }
     endCaptures:
       "1": { name: keyword.control.$1.sv }
       "2": { name: punctuation.separator.colon.sv }
-      "3": { name: entity.name.type.block.sv }
+      "3": { name: variable.other.block.sv }
     patterns:
       - include: "#block-item-declaration"
       - include: "#statement-or-null"
@@ -1643,8 +1647,9 @@ repository:
   conditional-statement:
     patterns:
       - include: "#unique-priority"
-      - match: \b(if)\b\s*(\()\s*
-        captures:
+      - name: meta.conditional-statement.sv
+        begin: \b(if)\b\s*(\()\s*
+        beginCaptures:
           "1": { name: keyword.control.$1.sv }
           "2": { name: punctuation.section.group.begin.sv }
         end: (\))\s*
@@ -1652,6 +1657,7 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#cond-predicate"
+          - include: "#expression"
       - match: \b(else)\b\s*
         captures:
           "1": { name: keyword.control.$1.sv }
@@ -1669,36 +1675,46 @@ repository:
     patterns:
       - include: "#cond-pattern"
   cond-pattern:
+    name: meta.cond-pattern.sv
+    begin: \b(matches)\b\s*
+    end: (?=\&\&\&|\)|\?)
+    beginCaptures:
+      "1": { name: keyword.control.matches.sv }
     patterns:
-      - match: \b(matches)\b\s*
-        captures:
-          "1": { name: keyword.operator.matches.sv }
       - include: "#pattern"
   # A.6.7 Case statements
   case-statement:
     patterns:
       - include: "#unique-priority"
-      - begin: \b(case|casex|casez)\b\s*
+      - name: meta.case-statement.sv
+        begin: (?=\b(case|casex|casez)\b)
         end: \b(endcase)\b\s*
-        beginCaptures:
-          "1": { name: keyword.control.$1.sv }
         endCaptures:
           "1": { name: keyword.control.$1.sv }
         patterns:
-          - begin: (\()\s*
-            end: (\))\s*
+          # Header
+          - begin: (case|casex|casez)\s*(\()\s*
+            end: (?=\))
             beginCaptures:
-              "1": { name: punctuation.section.group.begin.sv }
-            endCaptures:
-              "1": { name: punctuation.section.group.end.sv }
-            patterns:
-              - include: "#expression"
-          - match: \b(inside)\b\s*
-            captures:
               "1": { name: keyword.control.$1.sv }
-          - include: "#case-item"
-          - include: "#case-pattern-item"
-          - include: "#case-inside-item"
+              "2": { name: punctuation.section.group.begin.sv }
+            patterns:
+              - include: "#case-expression"
+          # Body
+          - begin: (\))\s*
+            beginCaptures:
+              "1": { name: punctuation.section.group.end.sv }
+            end: (?=\b(endcase)\b)
+            patterns:
+              - match: \b(matches)\b\s*
+                captures:
+                  "1": { name: keyword.control.matches.sv }
+              - match: \b(inside)\b\s*
+                captures:
+                  "1": { name: keyword.control.$1.sv }
+              - include: "#case-pattern-item"
+              - include: "#case-item"
+              - include: "#case-inside-item"
   case-keyword:
     match: \b(case|casex|casez)\b\s*
     captures:
@@ -1762,44 +1778,29 @@ repository:
   # A.6.7.1 Patterns
   pattern:
     patterns:
-      - match: (\.)\s*([a-zA-Z_][a-zA-Z0-9_$]*)
+      - match: (\.)\s*(${identifier})\s*
         captures:
           "1": { name: punctuation.definition.pattern.sv }
-          "2": { name: variable.other.patterns.sv }
+          "2": { name: variable.other.sv }
       - match: (\.\*)
         captures:
           "1": { name: punctuation.definition.wildcard.sv }
       - include: "#constant-expression"
-      - match: \b(tagged)\s+([a-zA-Z_][a-zA-Z0-9_$]*)
+      - match: \b(tagged)\s+(${identifier})\s*
         captures:
           "1": { name: keyword.other.tagged.sv }
-          "2":
-            patterns:
-              - include: "#identifier"
-      - begin: \'\{
-        end: \}
-        name: meta.pattern.sv
-        beginCaptures:
-          "0": { name: punctuation.section.braces.begin.sv }
-        endCaptures:
-          "0": { name: punctuation.section.braces.end.sv }
-        patterns:
-          - include: "#pattern"
-          - match: ","
-            name: punctuation.separator.comma.sv
-          - include: "#comment"
-          - include: "#compiler-directive"
-          - include: "#member-identifier"
-          - include: "#colon"
+          "2": { name: variable.other.enummember.sv }
+      - include: "#assignment-pattern"
   assignment-pattern:
     name: meta.pattern.sv
-    begin: \'\{
-    end: \}
+    begin: (\'\{)\s*
+    end: (\})\s*
     beginCaptures:
-      "0": { name: punctuation.section.braces.begin.sv }
+      "1": { name: punctuation.section.braces.begin.sv }
     endCaptures:
-      "0": { name: punctuation.section.braces.end.sv }
+      "1": { name: punctuation.section.braces.end.sv }
     patterns:
+      - include: "#pattern"
       # Replication case
       - name: meta.assignment-pattern-replication.sv
         begin: (?<=[^{,'\s])\s*\{
@@ -1934,15 +1935,7 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#ps-or-hierarchical-array-identifier"
-          - name: meta.loop-variables.sv
-            begin: (\[)\s*
-            end: (\])\s*
-            beginCaptures:
-              "1": { name: punctuation.section.brackets.begin.sv }
-            endCaptures:
-              "1": { name: punctuation.section.brackets.end.sv }
-            patterns:
-              - include: "#loop-variables"
+          - include: "#dimension"
   for-initialization:
     patterns:
       - include: "#list-of-variable-assignments"
@@ -2118,7 +2111,7 @@ repository:
       - include: "#attribute-instance"
       - match: (\:)\s*
         captures:
-          "1": { name: keyword.operator.colon.sv }
+          "1": { name: punctuation.separator.colon.sv }
       - include: "#attribute-instance"
   constant-expression:
     patterns:
@@ -2200,9 +2193,10 @@ repository:
       - include: "#inside-expression"
       - include: "#tagged-union-expression"
   tagged-union-expression:
-    match: \b(tagged)\b\s*
+    match: \b(tagged)\s+(${identifier})\s*
     captures:
       "1": { name: keyword.other.tagged.sv }
+      "2": { name: variable.other.enummember.sv }
   inside-expression:
     patterns:
       - match: \b(inside)\b\s*
@@ -2701,6 +2695,9 @@ repository:
       - match: (${identifier})(?!\s+${identifier}|\(|\')
         captures:
           "1": { name: variable.other.sv }
+  index-variable-identifier:
+    patterns:
+      - include: "#identifier"
   interface-instance-identifier:
     patterns:
       - include: "#identifier"
