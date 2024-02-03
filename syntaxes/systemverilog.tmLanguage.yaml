@@ -7,7 +7,11 @@ variables:
   # Remove array method name: unique, and, or, xor
   funcIdentifier: (?:(?<!\\|\$)(?:\b[a-zA-Z_]|\$)[a-zA-Z0-9_\$]*\b|\\\S+(?=\s|$))(?<!\b(?:accept_on|alias|always|always_comb|always_ff|always_latch|assert|assign|assume|automatic|before|begin|bind|bins|binsof|bit|break|buf|bufif0|bufif1|byte|case|casex|casez|cell|chandle|checker|class|clocking|cmos|config|const|constraint|context|continue|cover|covergroup|coverpoint|cross|deassign|default|defparam|design|disable|dist|do|edge|else|end|endcase|endchecker|endclass|endclocking|endconfig|endfunction|endgenerate|endgroup|endinterface|endmodule|endpackage|endprimitive|endprogram|endproperty|endspecify|endsequence|endtable|endtask|enum|event|eventually|expect|export|extends|extern|final|first_match|for|force|foreach|forever|fork|forkjoin|function|generate|genvar|global|highz0|highz1|if|iff|ifnone|ignore_bins|illegal_bins|implements|implies|import|incdir|include|initial|inout|input|inside|instance|int|integer|interconnect|interface|intersect|join|join_any|join_none|large|let|liblist|library|local|localparam|logic|longint|macromodule|matches|medium|modport|module|nand|negedge|nettype|new|nexttime|nmos|nor|noshowcancelled|not|notif0|notif1|null|output|package|packed|parameter|pmos|posedge|primitive|priority|program|property|protected|pull0|pull1|pulldown|pullup|pulsestyle_ondetect|pulsestyle_onevent|pure|rand|randc|randcase|randsequence|rcmos|real|realtime|ref|reg|reject_on|release|repeat|restrict|return|rnmos|rpmos|rtran|rtranif0|rtranif1|s_always|s_eventually|s_nexttime|s_until|s_until_with|scalared|sequence|shortint|shortreal|showcancelled|signed|small|soft|solve|specify|specparam|static|string|strong|strong0|strong1|struct|super|supply0|supply1|sync_accept_on|sync_reject_on|table|tagged|task|this|throughout|time|timeprecision|timeunit|tran|tranif0|tranif1|tri|tri0|tri1|triand|trior|trireg|type|typedef|union|unique0|unsigned|until|until_with|untyped|use|uwire|var|vectored|virtual|void|wait|wait_order|wand|weak|weak0|weak1|while|wildcard|wire|with|within|wor|xnor)\b)
   classScope: (?:${identifier}\s*(?:\#\(.*?\)\s*)?::\s*)+
-  typeIdentifierEnd: (?!\s*(\[|\(|\.|\#|\=))
+  identifierEnd: (?!\s*(${identifier}|#|\(|\'|::|\s*\[.*\]\s*${identifier}))
+  # Type identifier can be followed by "#" (class, module, etc.)
+  typeIdentifierEnd: (?!\s*(\(|\.|\=|::))
+  functionIdentifierStart: (?<!(?:\))\s+)
+  functionIdentifierEnd: (?!\s*(\.|\[|#))
   assignmentEnd: (?=\,|\)|\;)
   psIdentifier: (?:(?:${identifier})\s*(?:::)\s*)?(?:${identifier})
 patterns:
@@ -46,8 +50,6 @@ repository:
         endCaptures:
           "1": { name: punctuation.terminator.semicolon.sv }
         patterns:
-          - include: "#comment"
-          - include: "#compiler-directive"
           - include: "#parameter-import-declaration"
           - include: "#parameter-port-list"
           - include: "#list-of-port-declarations"
@@ -55,7 +57,6 @@ repository:
         begin: (?<=\;\s*)
         end: (?=\b(endmodule)\b)
         patterns:
-          - include: "#comment"
           - include: "#compiler-directive"
           - include: "#timeunits-declaration"
           - include: "#module-item"
@@ -417,6 +418,69 @@ repository:
       - include: "#package-import-declaration"
       - include: "#net-type-declaration"
       - include: "#data-type-or-implicit"
+  package-import-declaration:
+    begin: \b(import)\b\s*
+    end: (\;)\s*
+    beginCaptures:
+      "1": { name: keyword.control.import.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - include: "#package-import-item"
+      - include: "#comma"
+  package-import-item:
+    patterns:
+      - match: (${identifier})\s*(\:\:)\s*(${identifier})\s*
+        captures:
+          "1": { name: entity.name.namespace.sv }
+          "2": { name: punctuation.separator.scope-resolution.sv }
+          # This section handles declarations that could be parameters, functions/tasks, data types, or classes.
+          # Unfortunately, without semantic analysis, it's not possible to distinguish between them accurately.
+          # In this extension, we use naming conventions to make educated guesses:
+          # - If the identifier starts with a capital letter, it's likely a parameter.
+          # - If the identifier starts with "t_" or "e_" or ends with "_t" or "_e", it's likely a data type.
+          # - Otherwise, it's likely a function/task.
+          "3":
+            patterns:
+              - match: \b([A-Z][a-zA-Z0-9_$]*)\b\s*
+                captures:
+                  "1": { name: variable.other.constant.sv }
+              - match: \b(t_[a-zA-Z0-9_]*|e_[a-zA-Z0-9_]*|.*_t|.*_e)\b\s*
+                captures:
+                  "1": { name: entity.name.type.sv }
+              - match: \b(${funcIdentifier})\b\s*
+                captures:
+                  "1": { name: entity.name.function.sv }
+      - match: (${identifier})\s*(\:\:)\s*(\*)\s*
+        captures:
+          "1": { name: entity.name.namespace.sv }
+          "2": { name: punctuation.separator.scope-resolution.sv }
+          "3": { name: keyword.operator.wildcard.sv }
+  package-export-declaration:
+    begin: \b(export)\b\s*
+    end: (\;)\s*
+    beginCaptures:
+      "1": { name: keyword.control.export.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - match: \b(\*)\s*(\:\:)\s*(\*)\s*
+        captures:
+          "1": { name: keyword.operator.wildcard.sv }
+          "2": { name: punctuation.separator.scope-resolution.sv }
+          "3": { name: keyword.operator.wildcard.sv }
+      - include: "#package-import-item"
+      - include: "#comma"
+  genvar-declaration:
+    name: meta.genvar-declaration.sv
+    begin: \b(genvar)\b\s*
+    end: (\;)\s*
+    beginCaptures:
+      "1": { name: storage.modifier.genvar.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - include: "#list-of-genvar-identifiers"
   net-declaration:
     patterns:
       - match: \b(interconnect)\b\s*
@@ -626,22 +690,8 @@ repository:
           "3": { name: punctuation.accessor.double-colon.sv }
   class-type:
     patterns:
-      # with parameter_value_assignment
-      - match: (${psIdentifier})\s*(?=\#\()
-        captures:
-          "1":
-            patterns:
-              - include: "#ps-class-identifier"
       - include: "#parameter-value-assignment"
-      # without parameter_value_assignment
-      - match: (${psIdentifier})(?!\()
-        captures:
-          "1":
-            patterns:
-              - include: "#ps-class-identifier"
-      - match: (::)\s*
-        captures:
-          "1": { name: punctuation.accessor.double-colon.sv }
+      - include: "#ps-class-identifier"
   integer-type:
     patterns:
       - include: "#integer-atom-type"
@@ -668,9 +718,9 @@ repository:
         captures:
           "1": { name: entity.name.type.$1.sv }
       - include: "#net-type"
-      - include: "#data-type-or-implicit"
       - include: "#net-type-identifier"
       - include: "#implicit-data-type"
+      - include: "#data-type-or-implicit"
   variable-port-type:
     patterns:
       - include: "#var-data-type"
@@ -1198,7 +1248,7 @@ repository:
           - include: "#expression"
       - include: "#let-identifier"
   let-identifier:
-    match: (${identifier})\s*
+    match: ${functionIdentifierStart}(${identifier})\s*${functionIdentifierEnd}
     captures:
       "1": { name: entity.name.function.sv }
   let-port-list:
@@ -1269,19 +1319,20 @@ repository:
       - include: "#list-of-parameter-assignments"
   list-of-parameter-assignments:
     patterns:
-      - include: "#ordered-parameter-assignment"
       - include: "#named-parameter-assignment"
+      - include: "#ordered-parameter-assignment"
       - include: "#comma"
   ordered-parameter-assignment:
     patterns:
       - include: "#param-expression"
   named-parameter-assignment:
-    begin: (\.)\s*
+    name: meta.named-parameter-assignment.sv
+    begin: (\.)\s*(${identifier})\s*
     end: (?=\)|,)
     beginCaptures:
       "1": { name: punctuation.definition.named-parameter-assignment.sv }
+      "2": { name: variable.parameter.sv }
     patterns:
-      - include: "#parameter-identifier"
       - name: meta.named-parameter-assignment.sv
         begin: (\()\s*
         end: (\))\s*
@@ -1292,7 +1343,7 @@ repository:
         patterns:
           - include: "#param-expression"
   hierarchical-instance:
-    begin: (?<=\b\w+\b\s+)(${identifier})\s*(\()
+    begin: (?<!\.\s*)(${identifier})\s*(\()
     end: (\))\s*
     beginCaptures:
       "1": { name: variable.other.sv }
@@ -1300,8 +1351,6 @@ repository:
     endCaptures:
       "1": { name: punctuation.section.group.end.sv }
     patterns:
-      - match: fun
-        name: fun
       - include: "#list-of-port-connections"
   name-of-instance:
     patterns:
@@ -1309,20 +1358,20 @@ repository:
       - include: "#dimension"
   list-of-port-connections:
     patterns:
-      - include: "#ordered-port-connection"
       - include: "#named-port-connection"
+      - include: "#ordered-port-connection"
       - include: "#comma"
   ordered-port-connection:
     patterns:
       - include: "#attribute-instance"
       - include: "#expression"
   named-port-connection:
-    begin: (\.)\s*
+    begin: (\.)\s*(${identifier})\s*
     end: (?=\)|,)
     beginCaptures:
       "1": { name: punctuation.definition.named-port-connection.sv }
+      "2": { name: variable.parameter.sv }
     patterns:
-      - include: "#port-identifier"
       - name: meta.named-port-connection.sv
         begin: (\()\s*
         end: (\))\s*
@@ -2058,20 +2107,19 @@ repository:
     patterns:
       - include: "#function-subroutine-call"
   tf-call:
+    name: meta.tf-call.sv
+    begin: (?<!(?:${simpleIdentifier}|\))\s+)(${funcIdentifier})\s*(\()\s*
+    end: (\))\s*
+    beginCaptures:
+      "1": { name: entity.name.function.sv }
+      "2": { name: punctuation.section.group.begin.sv }
+    endCaptures:
+      "1": { name: punctuation.section.group.end.sv }
     patterns:
-      - name: meta.tf-call.sv
-        begin: (?<!${simpleIdentifier}\s+)(${funcIdentifier})\s*(\()\s*
-        end: (\))\s*
-        beginCaptures:
-          "1": { name: entity.name.function.sv }
-          "2": { name: punctuation.section.group.begin.sv }
-        endCaptures:
-          "1": { name: punctuation.section.group.end.sv }
-        patterns:
-          - include: "#let-list-of-arguments"
-          - include: "#list-of-arguments"
-          - include: "#comment"
-          - include: "#compiler-directive"
+      - include: "#let-list-of-arguments"
+      - include: "#list-of-arguments"
+      - include: "#comment"
+      - include: "#compiler-directive"
   system-tf-call:
     patterns:
       - name: meta.system-tf-call.sv
@@ -2138,14 +2186,14 @@ repository:
       - include: "#constant-expression"
   constant-param-expression:
     patterns:
-      - match: (\$)\s*
+      - match: (\$)\s*(?!\w)
         captures:
           "1": { name: variable.language.dollar.sv }
       - include: "#constant-mintypmax-expression"
       - include: "#data-type"
   param-expression:
     patterns:
-      - match: (\$)\s*
+      - match: (\$)\s*(?!\w)
         captures:
           "1": { name: variable.language.dollar.sv }
       - include: "#mintypmax-expression"
@@ -2350,7 +2398,7 @@ repository:
       - match: \b(this)\b\s*
         captures:
           "1": { name: variable.language.this.sv }
-      - match: (\$)\s*
+      - match: (\$)\s*(?!\w)
         captures:
           "1": { name: variable.language.dollar.sv }
       - match: \b(null)\b\s*
@@ -2642,7 +2690,7 @@ repository:
     patterns:
       - include: "#identifier"
   function-identifier:
-    match: (${funcIdentifier})\s*
+    match: (${funcIdentifier})\s*${functionIdentifierEnd}
     captures:
       "1": { name: entity.name.function.sv }
   generate-block-identifier:
@@ -2693,10 +2741,10 @@ repository:
       - include: "#hierarchical-identifier"
   identifier:
     patterns:
-      - match: ([A-Z][a-zA-Z0-9_$]*)(?!\s+${identifier}|\(|\')
+      - match: \b([A-Z][a-zA-Z0-9_$]*)\b(?!\s*${identifier}|\(|\'|::)
         captures:
           "1": { name: variable.other.constant.sv }
-      - match: (${identifier})(?!\s+${identifier}|\(|\')
+      - match: (${identifier})\s*${identifierEnd}
         captures:
           "1": { name: variable.other.sv }
   index-variable-identifier:
@@ -2750,13 +2798,13 @@ repository:
     patterns:
       - match: (\$unit)\s*
         captures:
-          "1": { name: entity.name.scope.sv }
-      - include: "#package-identifier"
-      - match: (::)\s*
+          "1": { name: entity.name.namespace.sv }
+      - match: (${identifier})\s*(::)\s*
         captures:
-          "1": { name: punctuation.separator.scope-resolution.sv }
+          "1": { name: entity.name.namespace.sv }
+          "2": { name: punctuation.separator.scope-resolution.sv }
   parameter-identifier:
-    match: (${identifier})(?!\s+${identifier}|\()
+    match: (${identifier})\s*${identifierEnd}
     captures:
       "1": { name: variable.other.constant.sv }
   port-identifier:
@@ -2849,13 +2897,16 @@ repository:
       - include: "#parameter-identifier"
   system-tf-identifier:
     match: (\$[a-zA-Z0-9_\$]+)\b
-    name: entity.name.function.sv
+    captures:
+      "1": { name: entity.name.function.sv }
   task-identifier:
-    match: (${funcIdentifier})\s*(?!\.)
-    name: entity.name.function.sv
+    match: (${funcIdentifier})\s*${functionIdentifierEnd}
+    captures:
+      "1": { name: entity.name.function.sv }
   tf-identifier:
-    match: (${funcIdentifier})\s*(?!\.)
-    name: entity.name.function.sv
+    match: (${funcIdentifier})\s*${functionIdentifierEnd}
+    captures:
+      "1": { name: entity.name.function.sv }
   terminal-identifier:
     patterns:
       - include: "#identifier"

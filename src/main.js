@@ -32,7 +32,6 @@ Object.keys(tmLanguage.variables).forEach((key) => {
   }
 });
 
-// Walk the tree and interpolate variables
 function walk(node) {
   if (node instanceof Array) {
     node.forEach(walk);
@@ -43,9 +42,18 @@ function walk(node) {
         if (typeof value === "string") {
           node[key] = value.interpolate(symbolTable);
         }
-      } else {
-        walk(node[key]);
       }
+
+      // Check and modify 'patterns' if 'begin' and 'end' are present
+      if (key === "patterns" && node.begin && node.end) {
+        node[key].push(
+          { include: "#comment" },
+          { include: "#compiler-directive" }
+        );
+      }
+
+      // Continue walking recursively
+      walk(node[key]);
     });
   }
 }
