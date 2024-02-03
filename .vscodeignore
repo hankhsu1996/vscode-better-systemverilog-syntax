@@ -13,3 +13,7 @@ out/test/**
 **/package-lock.json
 **/yarn.lock
 .gitignore
+
+src
+tests
+syntaxes/*.yaml
