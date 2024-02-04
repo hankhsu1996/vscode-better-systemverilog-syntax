@@ -5,13 +5,14 @@ variables:
   identifier: (?:(?<!\\|\$)\b[a-zA-Z_][a-zA-Z0-9_\$]*\b|\\\S+(?=\s|$)|`[a-zA-Z_][a-zA-Z0-9_\$]*\b(?:\(.*?\))?)(?<!\b(?:accept_on|alias|always|always_comb|always_ff|always_latch|and|assert|assign|assume|automatic|before|begin|bind|bins|binsof|bit|break|buf|bufif0|bufif1|byte|case|casex|casez|cell|chandle|checker|class|clocking|cmos|config|const|constraint|context|continue|cover|covergroup|coverpoint|cross|deassign|default|defparam|design|disable|dist|do|edge|else|end|endcase|endchecker|endclass|endclocking|endconfig|endfunction|endgenerate|endgroup|endinterface|endmodule|endpackage|endprimitive|endprogram|endproperty|endspecify|endsequence|endtable|endtask|enum|event|eventually|expect|export|extends|extern|final|first_match|for|force|foreach|forever|fork|forkjoin|function|generate|genvar|global|highz0|highz1|if|iff|ifnone|ignore_bins|illegal_bins|implements|implies|import|incdir|include|initial|inout|input|inside|instance|int|integer|interconnect|interface|intersect|join|join_any|join_none|large|let|liblist|library|local|localparam|logic|longint|macromodule|matches|medium|modport|module|nand|negedge|nettype|new|nexttime|nmos|nor|noshowcancelled|not|notif0|notif1|null|or|output|package|packed|parameter|pmos|posedge|primitive|priority|program|property|protected|pull0|pull1|pulldown|pullup|pulsestyle_ondetect|pulsestyle_onevent|pure|rand|randc|randcase|randsequence|rcmos|real|realtime|ref|reg|reject_on|release|repeat|restrict|return|rnmos|rpmos|rtran|rtranif0|rtranif1|s_always|s_eventually|s_nexttime|s_until|s_until_with|scalared|sequence|shortint|shortreal|showcancelled|signed|small|soft|solve|specify|specparam|static|string|strong|strong0|strong1|struct|super|supply0|supply1|sync_accept_on|sync_reject_on|table|tagged|task|this|throughout|time|timeprecision|timeunit|tran|tranif0|tranif1|tri|tri0|tri1|triand|trior|trireg|type|typedef|union|unique|unique0|unsigned|until|until_with|untyped|use|uwire|var|vectored|virtual|void|wait|wait_order|wand|weak|weak0|weak1|while|wildcard|wire|with|within|wor|xnor|xor)\b|`(?:__FILE__|__LINE__|begin_keywords|celldefine|default_nettype|define|else|elsif|end_keywords|endcelldefine|endif|ifdef|ifndef|include|line|nounconnected_drive|pragma|resetall|timescale|unconnected_drive|undef|undefineall)\b)
   macro: (?:`[a-zA-Z_][a-zA-Z0-9_\$]*\b(?:\(.*?\))?)(?<!`(?:__FILE__|__LINE__|begin_keywords|celldefine|default_nettype|define|else|elsif|end_keywords|endcelldefine|endif|ifdef|ifndef|include|line|nounconnected_drive|pragma|resetall|timescale|unconnected_drive|undef|undefineall)\b)
   # Remove array method name: unique, and, or, xor
-  funcIdentifier: (?:(?<!\\|\$)(?:\b[a-zA-Z_]|\$)[a-zA-Z0-9_\$]*\b|\\\S+(?=\s|$))(?<!\b(?:accept_on|alias|always|always_comb|always_ff|always_latch|assert|assign|assume|automatic|before|begin|bind|bins|binsof|bit|break|buf|bufif0|bufif1|byte|case|casex|casez|cell|chandle|checker|class|clocking|cmos|config|const|constraint|context|continue|cover|covergroup|coverpoint|cross|deassign|default|defparam|design|disable|dist|do|edge|else|end|endcase|endchecker|endclass|endclocking|endconfig|endfunction|endgenerate|endgroup|endinterface|endmodule|endpackage|endprimitive|endprogram|endproperty|endspecify|endsequence|endtable|endtask|enum|event|eventually|expect|export|extends|extern|final|first_match|for|force|foreach|forever|fork|forkjoin|function|generate|genvar|global|highz0|highz1|if|iff|ifnone|ignore_bins|illegal_bins|implements|implies|import|incdir|include|initial|inout|input|inside|instance|int|integer|interconnect|interface|intersect|join|join_any|join_none|large|let|liblist|library|local|localparam|logic|longint|macromodule|matches|medium|modport|module|nand|negedge|nettype|new|nexttime|nmos|nor|noshowcancelled|not|notif0|notif1|null|output|package|packed|parameter|pmos|posedge|primitive|priority|program|property|protected|pull0|pull1|pulldown|pullup|pulsestyle_ondetect|pulsestyle_onevent|pure|rand|randc|randcase|randsequence|rcmos|real|realtime|ref|reg|reject_on|release|repeat|restrict|return|rnmos|rpmos|rtran|rtranif0|rtranif1|s_always|s_eventually|s_nexttime|s_until|s_until_with|scalared|sequence|shortint|shortreal|showcancelled|signed|small|soft|solve|specify|specparam|static|string|strong|strong0|strong1|struct|super|supply0|supply1|sync_accept_on|sync_reject_on|table|tagged|task|this|throughout|time|timeprecision|timeunit|tran|tranif0|tranif1|tri|tri0|tri1|triand|trior|trireg|type|typedef|union|unique0|unsigned|until|until_with|untyped|use|uwire|var|vectored|virtual|void|wait|wait_order|wand|weak|weak0|weak1|while|wildcard|wire|with|within|wor|xnor)\b)
+  functionIdentifier: (?:(?<!\\|\$)(?:\b[a-zA-Z_]|\$)[a-zA-Z0-9_\$]*\b|\\\S+(?=\s|$))(?<!\b(?:accept_on|alias|always|always_comb|always_ff|always_latch|assert|assign|assume|automatic|before|begin|bind|bins|binsof|bit|break|buf|bufif0|bufif1|byte|case|casex|casez|cell|chandle|checker|class|clocking|cmos|config|const|constraint|context|continue|cover|covergroup|coverpoint|cross|deassign|default|defparam|design|disable|dist|do|edge|else|end|endcase|endchecker|endclass|endclocking|endconfig|endfunction|endgenerate|endgroup|endinterface|endmodule|endpackage|endprimitive|endprogram|endproperty|endspecify|endsequence|endtable|endtask|enum|event|eventually|expect|export|extends|extern|final|first_match|for|force|foreach|forever|fork|forkjoin|function|generate|genvar|global|highz0|highz1|if|iff|ifnone|ignore_bins|illegal_bins|implements|implies|import|incdir|include|initial|inout|input|inside|instance|int|integer|interconnect|interface|intersect|join|join_any|join_none|large|let|liblist|library|local|localparam|logic|longint|macromodule|matches|medium|modport|module|nand|negedge|nettype|new|nexttime|nmos|nor|noshowcancelled|not|notif0|notif1|null|output|package|packed|parameter|pmos|posedge|primitive|priority|program|property|protected|pull0|pull1|pulldown|pullup|pulsestyle_ondetect|pulsestyle_onevent|pure|rand|randc|randcase|randsequence|rcmos|real|realtime|ref|reg|reject_on|release|repeat|restrict|return|rnmos|rpmos|rtran|rtranif0|rtranif1|s_always|s_eventually|s_nexttime|s_until|s_until_with|scalared|sequence|shortint|shortreal|showcancelled|signed|small|soft|solve|specify|specparam|static|string|strong|strong0|strong1|struct|super|supply0|supply1|sync_accept_on|sync_reject_on|table|tagged|task|this|throughout|time|timeprecision|timeunit|tran|tranif0|tranif1|tri|tri0|tri1|triand|trior|trireg|type|typedef|union|unique0|unsigned|until|until_with|untyped|use|uwire|var|vectored|virtual|void|wait|wait_order|wand|weak|weak0|weak1|while|wildcard|wire|with|within|wor|xnor)\b)
   classScope: (?:${identifier}\s*(?:\#\(.*?\)\s*)?::\s*)+
   identifierEnd: (?!\s*(${identifier}|#|\(|\'|::|\s*\[.*\]\s*${identifier}))
   # Type identifier can be followed by "#" (class, module, etc.)
   typeIdentifierEnd: (?!\s*(\(|\.|\=|::))
   functionIdentifierStart: (?<!(?:\))\s+)
-  functionIdentifierEnd: (?!\s*(\.|\[|#))
+  functionIdentifierEnd: (?!\s*(\b\w+\b|\.|\[|#))
+  classIdentifierEnd: (?!\s*(\(|\.|\=))
   assignmentEnd: (?=\,|\)|\;)
   psIdentifier: (?:(?:${identifier})\s*(?:::)\s*)?(?:${identifier})
 patterns:
@@ -61,6 +62,52 @@ repository:
           - include: "#timeunits-declaration"
           - include: "#module-item"
           - include: "#non-port-module-item"
+
+  # class_declaration ::=
+  # [ virtual ] class [ lifetime ] class_identifier [ parameter_port_list ]
+  # [ extends class_type [ ( list_of_arguments ) ] ]
+  # [ implements interface_class_type { , interface_class_type } ] ;
+  # { class_item }
+  # endclass [ : class_identifier]
+  class-declaration:
+    begin: (?=\b(class)\b|\bvirtual\b\s+\bclass\b)
+    end: \b(endclass)\b\s*(?:(\:)\s*(${identifier})\s*)?
+    endCaptures:
+      "1": { name: storage.type.class.sv }
+      "2": { name: punctuation.separator.colon.sv }
+      "3": { name: entity.name.type.class.sv }
+    patterns:
+      - begin: (?:\b(virtual)\b\s+)?\b(class)\b\s*
+        end: (?=\;)
+        beginCaptures:
+          "1": { name: storage.modifier.virtual.sv }
+          "2": { name: storage.type.$2.sv }
+        patterns:
+          - include: "#lifetime"
+          - include: "#class-identifier"
+          - include: "#parameter-port-list"
+          # Extends
+          - begin: \b(extends)\b\s*
+            end: (?=\;|\b(implements)\b)
+            beginCaptures:
+              "1": { name: storage.modifier.$1.sv }
+            patterns:
+              - include: "#class-type"
+              - include: "#list-of-arguments"
+          # Implements
+          - begin: \b(implements)\b\s*
+            end: (?=\;)
+            beginCaptures:
+              "1": { name: storage.modifier.$1.sv }
+            patterns:
+              - include: "#interface-class-type"
+              - include: "#comma"
+      - begin: (\;)\s*
+        end: (?=\b(endclass)\b)
+        beginCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#class-item"
   # A.1.3 Module parameters and ports
   parameter-port-list:
     name: meta.parameter-port-list.sv
@@ -268,6 +315,116 @@ repository:
       - include: "#module-declaration"
       - include: "#interface-declaration"
       - include: "#timeunits-declaration"
+  # A.1.9 Class items
+  class-item:
+    patterns:
+      - include: "#attribute-instance"
+      - include: "#class-property"
+      - include: "#class-method"
+      - include: "#class-constraint"
+      - include: "#class-declaration"
+      - include: "#covergroup-declaration"
+      - include: "#local-parameter-declaration"
+      - include: "#parameter-declaration"
+      - include: "#semicolon"
+  class-property:
+    patterns:
+      - include: "#property-qualifier"
+      - include: "#data-declaration"
+      - begin: \b(const)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: storage.modifier.const.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#class-item-qualifier"
+          - include: "#const-identifier"
+          - begin: (\=)\s*
+            end: ${assignmentEnd}
+            beginCaptures:
+              "1": { name: keyword.operator.assignment.sv }
+            patterns:
+              - include: "#constant-expression"
+          - include: "#data-type"
+    class-method:
+      patterns:
+        - include: "#method-qualifier"
+        - include: "#task-declaration"
+        - include: "#function-declaration"
+        - begin: \b(pure)\s+(virtual)\s*
+          end: (\;)\s*
+          beginCaptures:
+            "1": { name: storage.modifier.pure.sv }
+            "2": { name: storage.modifier.virtual.sv }
+          endCaptures:
+            "1": { name: punctuation.terminator.semicolon.sv }
+          patterns:
+            - include: "#class-item-qualifier"
+            - include: "#method-prototype"
+        - begin: \b(extern)\b\s*
+          end: (\;)\s*
+          beginCaptures:
+            "1": { name: storage.modifier.extern.sv }
+          endCaptures:
+            "1": { name: punctuation.terminator.semicolon.sv }
+          patterns:
+            - include: "#method-qualifier"
+            - include: "#method-prototype"
+            - include: "#class-constructor-prototype"
+        - include: "#method-qualifier"
+        - include: "#class-constructor-declaration"
+    class-constructor-prototype:
+      name: meta.class-constructor-protoype.sv
+      begin: \b(function)\b\s+\b(new)\b\s*
+      end: (\;)\s*
+      beginCaptures:
+        "1": { name: storage.type.function.sv }
+        "2": { name: storage.type.$2.sv }
+      endCaptures:
+        "1": { name: punctuation.terminator.semicolon.sv }
+      patterns:
+        - begin: (\()\s*
+          end: (\))\s*
+          beginCaptures:
+            "1": { name: punctuation.section.group.begin.sv }
+          endCaptures:
+            "1": { name: punctuation.section.group.end.sv }
+          patterns:
+            - include: "#tf-port-list"
+    class-constraint:
+      patterns:
+        - include: "#constraint-prototype"
+        - include: "#constraint-declaration"
+    class-item-qualifier:
+      patterns:
+        - match: \b(static|protected|local)\b
+          captures:
+            "1": { name: storage.modifier.$1.sv }
+    property-qualifier:
+      patterns:
+        - include: "#random-qualifier"
+        - include: "#class-item-qualifier"
+    random-qualifier:
+      patterns:
+        - match: \b(rand|randc)\b\s*
+          captures:
+            "1": { name: storage.modifier.$1.sv }
+    method-qualifier:
+      patterns:
+        - match: (?:\b(pure)\b\s+)?\b(virtual)\b\s*
+          captures:
+            "1": { name: storage.modifier.$1.sv }
+            "2": { name: storage.modifier.$2.sv }
+        - include: "#class-item-qualifier"
+    method-prototype:
+      patterns:
+        - include: "#task-prototype"
+        - include: "#function-prototype"
+    # Move the 'super.new' pattern to function declaration
+    class-constructor-declaration:
+      patterns:
+        - include: "#function-declaration"
   # A.1.11 Package items
   package-item:
     patterns:
@@ -465,7 +622,7 @@ repository:
               - match: \b(t_[a-zA-Z0-9_]*|e_[a-zA-Z0-9_]*|.*_t|.*_e)\b\s*
                 captures:
                   "1": { name: entity.name.type.sv }
-              - match: \b(${funcIdentifier})\b\s*
+              - match: \b(${functionIdentifier})\b\s*
                 captures:
                   "1": { name: entity.name.function.sv }
       - match: (${identifier})\s*(\:\:)\s*(\*)\s*
@@ -1030,10 +1187,12 @@ repository:
     endCaptures:
       "1": { name: punctuation.section.brackets.end.sv }
     patterns:
-      - match: \*\s*
-        name: keyword.operator.star.sv
-      - match: \$\s*
-        name: keyword.operator.dollar.sv
+      - match: (\*)\s*
+        captures:
+          "1": { name: keyword.operator.wildcard.sv }
+      - match: (\$)\s*
+        captures:
+          "1": { name: constant.numeric.dollar.sv }
       - include: "#constant-range-expression"
       - include: "#constant-range"
       - include: "#constant-expression"
@@ -1079,11 +1238,30 @@ repository:
         begin: (?<=\;\s*)
         end: (?=\b(endfunction)\s*)
         patterns:
+          # super.new is copied from class constructor declaration
+          - begin: \b(super)\b\s*(\.)\s*(new)\b\s*
+            end: (\;)\s*
+            beginCaptures:
+              "1": { name: keyword.control.$1.sv }
+              "2": { name: punctuation.accessor.dot.sv }
+              "3": { name: keyword.control.$3.sv }
+            endCaptures:
+              "1": { name: punctuation.terminator.semicolon.sv }
+            patterns:
+              - begin: (\()\s*
+                end: (\))\s*
+                beginCaptures:
+                  "1": { name: punctuation.section.group.begin.sv }
+                endCaptures:
+                  "1": { name: punctuation.section.group.end.sv }
+                patterns:
+                  - include: "#list-of-arguments"
           - include: "#comment"
           - include: "#compiler-directive"
           - include: "#tf-item-declaration"
           - include: "#block-item-declaration"
           - include: "#function-statement-or-null"
+
   function-prototype:
     begin: \b(function)\s*
     end: (?=\;|\(|\)|\{)
@@ -1137,35 +1315,38 @@ repository:
       - include: "#task-prototype"
   # A.2.7 Task declarations
   task-declaration:
-    name: meta.task-declaration.sv
-    begin: \b(task)\s*
+    begin: (?=\b(task)\s*)
     end: \b(endtask)\b\s*(?:(\:)\s*(${identifier})\s*)?
-    beginCaptures:
-      "1": { name: storage.type.$1.sv }
     endCaptures:
       "1": { name: storage.type.$1.sv }
       "2": { name: punctuation.separator.colon.sv }
       "3": { name: entity.name.type.task.sv }
     patterns:
-      - include: "#comment"
-      - include: "#compiler-directive"
-      - begin: (\()\s*
-        end: (\))\s*
+      - begin: \b(task)\b\s*
+        end: (?=\;)
         beginCaptures:
-          "1": { name: punctuation.section.group.begin.sv }
-        endCaptures:
-          "1": { name: punctuation.section.group.end.sv }
+          "1": { name: storage.type.$1.sv }
         patterns:
-          - include: "#tf-port-list"
-      - include: "#lifetime"
-      - include: "#period"
-      - include: "#semicolon"
-      - include: "#task-identifier"
-      - include: "#interface-identifier"
-      - include: "#class-scope"
-      - include: "#tf-item-declaration"
-      - include: "#statement-or-null"
-      - include: "#block-item-declaration"
+          - include: "#lifetime"
+          - include: "#task-identifier"
+          - include: "#interface-identifier"
+          - include: "#class-scope"
+          - begin: (\()\s*
+            end: (\))\s*
+            beginCaptures:
+              "1": { name: punctuation.section.group.begin.sv }
+            endCaptures:
+              "1": { name: punctuation.section.group.end.sv }
+            patterns:
+              - include: "#tf-port-list"
+      - begin: (\;)\s*
+        end: (?=\b(endtask)\s*)
+        beginCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#tf-item-declaration"
+          - include: "#block-item-declaration"
+          - include: "#statement-or-null"
   tf-item-declaration:
     patterns:
       - include: "#block-item-declaration"
@@ -1265,7 +1446,7 @@ repository:
           - include: "#expression"
       - include: "#let-identifier"
   let-identifier:
-    match: ${functionIdentifierStart}(${identifier})\s*${functionIdentifierEnd}
+    match: ${functionIdentifierStart}(${functionIdentifier})\s*${functionIdentifierEnd}
     captures:
       "1": { name: entity.name.function.sv }
   let-port-list:
@@ -1850,7 +2031,7 @@ repository:
         captures:
           "1": { name: keyword.control.$1.sv }
   unique-priority:
-    match: \b(unique|unique0|priority)\b\s*
+    match: (?<!\.)\b(unique|unique0|priority)\b\s*
     captures:
       "1": { name: keyword.control.$1.sv }
   cond-predicate:
@@ -2243,7 +2424,7 @@ repository:
       - include: "#function-subroutine-call"
   tf-call:
     name: meta.tf-call.sv
-    begin: (?<!(?:${simpleIdentifier}|\))\s+)(${funcIdentifier})\s*(\()\s*
+    begin: (?<!(?:${simpleIdentifier}|\))\s+)(${functionIdentifier})\s*(\()\s*
     end: (\))\s*
     beginCaptures:
       "1": { name: entity.name.function.sv }
@@ -2274,6 +2455,12 @@ repository:
     patterns:
       - include: "#system-tf-call"
       - include: "#tf-call"
+      - include: "#method-call"
+      - match: \b(std)\b\s*(\:\:)\s*
+        captures:
+          "1": { name: entity.name.function.sv }
+          "2": { name: punctuation.separator.scope-resolution.sv }
+      - include: "#randomize-call"
   function-subroutine-call:
     patterns:
       - include: "#subroutine-call"
@@ -2283,6 +2470,72 @@ repository:
       - include: "#compiler-directive"
       - include: "#comma"
       - include: "#expression"
+  method-call:
+    patterns:
+      - include: "#method-call-root"
+      - include: "#period"
+      - include: "#method-call-body"
+  method-call-body:
+    patterns:
+      - include: "#built-in-method-call"
+  built-in-method-call:
+    patterns:
+      - include: "#array-manipulation-call"
+      - include: "#randomize-call"
+  array-manipulation-call:
+    patterns:
+      - begin: (${functionIdentifier}|\b(?:unique|and|or|xor))\b\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: entity.name.function.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#list-of-arguments"
+      # - match: (${functionIdentifier}|\b(?:unique|and|or|xor))\b\s*(?=\bwith\b)
+      #   captures:
+      #     "1": { name: entity.name.function.sv }
+      - begin: \b(with)\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.with.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#expression"
+  randomize-call:
+    patterns:
+      - begin: \b(randomize)\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: entity.name.function.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#variable-identifier-list"
+          - match: \b(null)\b\s*
+            captures:
+              "1": { name: constant.language.null.sv }
+      - begin: \b(with)\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.with.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#identifier-list"
+      - include: "#constraint-block"
+  method-call-root:
+    patterns:
+      - include: "#implicit-class-handle"
+  array-method-name:
+    match: \b(unique|and|or|xor|${functionIdentifier})\b\s*
+    captures:
+      "1": { name: entity.name.function.sv }
   # A.8.3 Expressions
   inc-or-dec-expression:
     patterns:
@@ -2780,8 +3033,9 @@ repository:
     patterns:
       - include: "#identifier"
   class-identifier:
-    patterns:
-      - include: "#identifier"
+    match: (${identifier})\s*${classIdentifierEnd}
+    captures:
+      "1": { name: entity.name.type.sv }
   class-variable-identifier:
     patterns:
       - include: "#variable-identifier"
@@ -2825,7 +3079,7 @@ repository:
     patterns:
       - include: "#identifier"
   function-identifier:
-    match: (${funcIdentifier})\s*${functionIdentifierEnd}
+    match: (${functionIdentifier})\s*${functionIdentifierEnd}
     captures:
       "1": { name: entity.name.function.sv }
   generate-block-identifier:
@@ -2876,6 +3130,16 @@ repository:
       - include: "#hierarchical-identifier"
   identifier:
     patterns:
+      # For built-in methods, we use an educated guess to highlight them as functions
+      # 1. Associative array methods: num, size, delete, exists, first, last, next, prev
+      # 2. Queue: size, insert, delete, pop_front, pop_back, push_front, push_back
+      # 3. Array locator: find, find_index, find_first, find_first_index, find_last, find_last_index, min, max, unique, unique_index
+      # 4. Array ordering: reverse, sort, rsort, shuffle
+      # 5. Array reduction: sum, product, and, or, xor
+      # 6. Iterator index querying: index
+      - match: (?<=\.)\b(num|size|delete|exists|first|last|next|prev|insert|pop_front|pop_back|push_front|push_back|find|find_index|find_first|find_first_index|find_last|find_last_index|min|max|unique|unique_index|reverse|sort|rsort|shuffle|sum|product|and|or|xor|index)\b(?!\b(if|case|casez|casex)\b)
+        captures:
+          "1": { name: entity.name.function.sv }
       - match: \b([A-Z][a-zA-Z0-9_$]*)\b(?!\s*${identifier}|\(|\'|::)
         captures:
           "1": { name: variable.other.constant.sv }
@@ -3035,11 +3299,11 @@ repository:
     captures:
       "1": { name: entity.name.function.sv }
   task-identifier:
-    match: (${funcIdentifier})\s*${functionIdentifierEnd}
+    match: (${functionIdentifier})\s*${functionIdentifierEnd}
     captures:
       "1": { name: entity.name.function.sv }
   tf-identifier:
-    match: (${funcIdentifier})\s*${functionIdentifierEnd}
+    match: (${functionIdentifier})\s*${functionIdentifierEnd}
     captures:
       "1": { name: entity.name.function.sv }
   terminal-identifier:
