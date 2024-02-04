@@ -231,7 +231,7 @@ repository:
       - include: "#variable-port-header"
       - include: "#dimension"
       - name: meta.ansi-port-declaration.sv
-        begin: (\=)\s*
+        begin: (\=)\s*(?!\=)
         end: ${assignmentEnd}
         beginCaptures:
           "1": { name: keyword.operator.assignment.sv }
@@ -340,7 +340,7 @@ repository:
         patterns:
           - include: "#class-item-qualifier"
           - include: "#const-identifier"
-          - begin: (\=)\s*
+          - begin: (\=)\s*(?!\=)
             end: ${assignmentEnd}
             beginCaptures:
               "1": { name: keyword.operator.assignment.sv }
@@ -437,7 +437,7 @@ repository:
       # This section handles assignments for both nets and data.
       # The assignment logic has been moved here for better organization.
       - name: meta.assignments.sv
-        begin: (\=)\s*
+        begin: (\=)\s*(?!\=)
         end: ${assignmentEnd}
         beginCaptures:
           "1": { name: keyword.operator.assignment.sv }
@@ -843,7 +843,7 @@ repository:
           - include: "#integral-number"
           - include: "#colon"
       - name: meta.enum-assignment.sv
-        begin: (\=)\s*
+        begin: (\=)\s*(?!\=)
         end: (?=\,|\})
         beginCaptures:
           "1": { name: keyword.operator.assignment.sv }
@@ -1059,7 +1059,7 @@ repository:
       - include: "#variable-identifier"
       - include: "#dimension"
       - name: meta.tf-variable-identifier.sv
-        begin: (\=)\s*
+        begin: (\=)\s*(?!\=)
         end: ${assignmentEnd}
         beginCaptures:
           "1": { name: keyword.operator.assignment.sv }
@@ -1084,7 +1084,7 @@ repository:
       - include: "#variable-identifier"
       - include: "#variable-dimension"
       - name: meta.variable-port-identifier.sv
-        begin: (\=)\s*
+        begin: (\=)\s*(?!\=)
         end: ${assignmentEnd}
         beginCaptures:
           "1": { name: keyword.operator.assignment.sv }
@@ -1094,7 +1094,7 @@ repository:
   defparam-assignment:
     patterns:
       - name: meta.defparam-assignment.sv
-        begin: (\=)\s*
+        begin: (\=)\s*(?!\=)
         end: ${assignmentEnd}
         beginCaptures:
           "1": { name: keyword.operator.assignment.sv }
@@ -1108,7 +1108,7 @@ repository:
   param-assignment:
     patterns:
       - name: meta.param-assignment.sv
-        begin: (\=)\s*
+        begin: (\=)\s*(?!\=)
         end: ${assignmentEnd}
         beginCaptures:
           "1": { name: keyword.operator.assignment.sv }
@@ -1119,7 +1119,7 @@ repository:
   specparam-assignment:
     patterns:
       - name: meta.specparam-assignment.sv
-        begin: (\=)\s*
+        begin: (\=)\s*(?!\=)
         end: ${assignmentEnd}
         beginCaptures:
           "1": { name: keyword.operator.assignment.sv }
@@ -1130,7 +1130,7 @@ repository:
   type-assignment:
     patterns:
       - name: meta.type-assignment.sv
-        begin: (\=)\s*
+        begin: (\=)\s*(?!\=)
         end: ${assignmentEnd}
         beginCaptures:
           "1": { name: keyword.operator.assignment.sv }
@@ -1364,7 +1364,7 @@ repository:
       - include: "#tf-port-direction"
       - include: "#port-identifier"
       - include: "#variable-dimension"
-      - begin: (\=)\s*
+      - begin: (\=)\s*(?!\=)
         end: (?=\,|\))
         beginCaptures:
           "1": { name: keyword.operator.assignment.sv }
@@ -1438,7 +1438,7 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#let-port-list"
-      - begin: (\=)\s*
+      - begin: (\=)\s*(?!\=)
         end: (?=\;)
         beginCaptures:
           "1": { name: keyword.operator.assignment.sv }
@@ -1456,7 +1456,7 @@ repository:
   let-port-item:
     patterns:
       - include: "#attribute-instance"
-      - begin: (\=)\s*
+      - begin: (\=)\s*(?!\=)
         end: (?=\,|\))
         beginCaptures:
           "1": { name: keyword.operator.assignment.sv }
@@ -1611,7 +1611,7 @@ repository:
           "1": { name: entity.name.type.$1.sv }
       - include: "#genvar-identifier"
       - name: meta.genvar-initialization.sv
-        begin: (\=)\s*
+        begin: (\=)\s*(?!\=)
         end: (?=\;)
         beginCaptures:
           "1": { name: keyword.operator.assignment.sv }
@@ -1732,7 +1732,7 @@ repository:
       - include: "#assignment-operator"
   assignment-operator:
     patterns:
-      - match: (=|\+=|-=|\*=|\/=|%=|&=|\|=|\^=|<<=|>>=|<<<=|>>>=)\s*
+      - match: (=|\+=|-=|\*=|\/=|%=|&=|\|=|\^=|<<=|>>=|<<<=|>>>=)\s*(?!\=)
         captures:
           "1": { name: keyword.operator.assignment.sv }
   operator-assignment:
@@ -1823,9 +1823,17 @@ repository:
       - include: "#statement-item"
   statement-item:
     patterns:
-      - include: "#comment"
-      - include: "#compiler-directive"
       - include: "#semicolon"
+      - name: meta.assignments.sv
+        begin: (\=)\s*(?!\=)
+        end: ${assignmentEnd}
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#expression"
+          - include: "#dynamic-array-new"
+          - include: "#class-new"
+          - include: "#delay-or-event-control"
       - include: "#blocking-assignment"
       - include: "#nonblocking-assignment"
       - include: "#procedural-continuous-assignment"
@@ -3598,7 +3606,7 @@ repository:
     captures:
       "1": { name: punctuation.separator.comma.sv }
   equals:
-    match: (\=)\s*
+    match: (\=)\s*(?!\=)
     captures:
       "1": { name: keyword.operator.assignment.sv }
   colon:
