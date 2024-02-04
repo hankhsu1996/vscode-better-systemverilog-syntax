@@ -8,19 +8,20 @@
 
 
 /*
-:name: assign_in_expr_inv
-:description: invalid assignment in expression test
-:should_fail_because: blocking assignments within expression must be enclosed in parentheses
-:tags: 11.3.6
+:name: insert
+:description: Test queues insert function support
+:tags: 7.10.2.2 7.10.2
+:type: simulation elaboration parsing
 */
-module top();
+module top ();
 
-int a;
-int b;
-int c;
+int q[$];
 
 initial begin
-  a = b = c = 5;
+  q.insert(0, 1);
+//  ^^^^^^ entity.name.function.sv
+  $display(":assert: (%d == 1)", q.size);
+  $display(":assert: (%d == 1)", q[0]);
 end
 
 endmodule

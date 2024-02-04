@@ -8,19 +8,22 @@
 
 
 /*
-:name: assign_in_expr_inv
-:description: invalid assignment in expression test
-:should_fail_because: blocking assignments within expression must be enclosed in parentheses
-:tags: 11.3.6
+:name: basic-union
+:description: Test basic union support
+:tags: 7.3
+:type: simulation elaboration parsing
 */
-module top();
+module top ();
 
-int a;
-int b;
-int c;
+union {
+  bit [7:0] v1;
+  bit [3:0] v2;
+} un;
 
 initial begin
-  a = b = c = 5;
+  un.v1 = 8'd140;
+  $display(":assert: (%d == 140)", un.v1);
+  $display(":assert: (%d == 12)", un.v2);
 end
 
 endmodule

@@ -8,19 +8,21 @@
 
 
 /*
-:name: assign_in_expr_inv
-:description: invalid assignment in expression test
-:should_fail_because: blocking assignments within expression must be enclosed in parentheses
-:tags: 11.3.6
+:name: push_front_assign
+:description: Update queue by assignment (push_front)
+:tags: 7.10.4
+:type: simulation elaboration parsing
 */
-module top();
+module top ();
 
-int a;
-int b;
-int c;
+int q[$];
 
 initial begin
-  a = b = c = 5;
+  q = { 2, q };
+  q = { 3, q };
+  q = { 4, q };
+  $display(":assert: (%d == 3)", q.size);
+  $display(":assert: (%d == 4)", q[0]);
 end
 
 endmodule

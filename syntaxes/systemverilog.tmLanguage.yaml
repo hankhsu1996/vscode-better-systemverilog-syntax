@@ -917,6 +917,12 @@ repository:
       - include: "#ps-parameter-identifier"
   struct-union-member:
     patterns:
+      - begin: (\=)\s*(?!\=)
+        end: ${assignmentEnd}
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#expression"
       - include: "#attribute-instance"
       - include: "#random-qualifier"
       - include: "#list-of-variable-decl-assignments"
@@ -2623,7 +2629,7 @@ repository:
       # such as data declaration and net declaration. By moving this code here, it
       # improves the organization of the syntax file.
       - name: meta.parenthesis.sv
-        begin: (\()\s*
+        begin: (\()\s*(?!\s*\*)
         end: (\))\s*
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }

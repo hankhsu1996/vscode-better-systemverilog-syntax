@@ -8,19 +8,16 @@
 
 
 /*
-:name: assign_in_expr_inv
-:description: invalid assignment in expression test
-:should_fail_because: blocking assignments within expression must be enclosed in parentheses
-:tags: 11.3.6
+:name: memories-basic
+:description: Test memories support
+:tags: 7.4.4
 */
-module top();
+module top ();
 
-int a;
-int b;
-int c;
-
-initial begin
-  a = b = c = 5;
-end
+// one-dimensinal array with elements of types
+// reg, logic, bit
+logic [7:0] mem [0:255];
+//    ^^^^^ meta.dimension.sv
+//              ^^^^^^^ meta.dimension.sv
 
 endmodule

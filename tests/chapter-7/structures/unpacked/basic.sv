@@ -8,19 +8,22 @@
 
 
 /*
-:name: assign_in_expr_inv
-:description: invalid assignment in expression test
-:should_fail_because: blocking assignments within expression must be enclosed in parentheses
-:tags: 11.3.6
+:name: basic-unpacked-structures
+:description: Test unpacked structures support
+:tags: 7.2 7.1
+:type: simulation elaboration parsing
 */
-module top();
+module top ();
 
-int a;
-int b;
-int c;
+struct {
+  bit [3:0] lo;
+  bit [3:0] hi;
+} p1;
 
 initial begin
-  a = b = c = 5;
+  p1.lo = 4'h5;
+  p1.hi = 4'ha;
+  $display(":assert: (('%h' == 'a') and ('%h' == '5'))", p1.hi, p1.lo);
 end
 
 endmodule
