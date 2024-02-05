@@ -19,7 +19,7 @@ bit [7:0] arr[];
 
 initial begin
   arr = new [ 16 ];
-//      ^^^ keyword.control.new.sv
+//      ^^^ entity.name.function.sv
 //          ^ punctuation.section.brackets.begin.sv
 //            ^^ constant.numeric.integer.sv
 //               ^ punctuation.section.brackets.end.sv

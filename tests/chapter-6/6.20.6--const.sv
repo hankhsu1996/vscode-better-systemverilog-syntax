@@ -28,5 +28,5 @@ module top();
 //      ^^^^^^^^ entity.name.type.sv
 //               ^^^^^^^^ variable.other.sv
 //                        ^ keyword.operator.assignment.sv
-//                          ^^^ keyword.control.new.sv
+//                          ^^^ entity.name.function.sv
 endmodule

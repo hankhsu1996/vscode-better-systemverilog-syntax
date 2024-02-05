@@ -20,7 +20,7 @@ module top();
 //     ^^^^^^ entity.name.function.sv
     $display(":assert: True");
   endtask
-//^^^^^^^ storage.type.endtask.sv
+//^^^^^^^ storage.type.task.sv
 
 // The code snippet demonstrates a limitation in the syntax highlighting extension.
 // In this case, the task "myTask" is not recognized as a function because it is not preceded by a "(".

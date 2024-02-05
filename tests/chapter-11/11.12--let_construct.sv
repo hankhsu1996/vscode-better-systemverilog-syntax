@@ -37,8 +37,8 @@ initial begin
 //    ^^^^^^^^^^^^^^^^^^^^^^^ meta.tf-call.sv
 //    ^^ entity.name.function.sv
 //      ^ punctuation.section.group.begin.sv
-//       ^ punctuation.definition.argument.sv
-//        ^ variable.other.sv
+//       ^ punctuation.definition.named-parameter-assignment.sv
+//        ^ variable.parameter.sv
 //         ^ punctuation.section.group.begin.sv
 //          ^ variable.other.sv
 //           ^ punctuation.section.group.end.sv
