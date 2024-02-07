@@ -40,7 +40,7 @@ repository:
     endCaptures:
       "1": { name: storage.type.module.sv }
       "2": { name: punctuation.separator.colon.sv }
-      "3": { name: entity.name.type.module.sv }
+      "3": { name: entity.name.type.sv }
     patterns:
       - name: meta.module-header.sv
         begin: \b(module|macromodule)\s+(?:(static|automatic)\s+)?(${identifier})\s*
@@ -48,7 +48,7 @@ repository:
         beginCaptures:
           "1": { name: storage.type.$1.sv }
           "2": { name: storage.modifier.$2.sv }
-          "3": { name: entity.name.type.module.sv }
+          "3": { name: entity.name.type.sv }
         endCaptures:
           "1": { name: punctuation.terminator.semicolon.sv }
         patterns:
@@ -63,6 +63,93 @@ repository:
           - include: "#timeunits-declaration"
           - include: "#module-item"
           - include: "#non-port-module-item"
+  interface-declaration:
+    begin: (?=\b(interface)\b)
+    end: \b(endinterface)\b\s*(?:(\:)\s*(${identifier})\s*)?
+    endCaptures:
+      "1": { name: storage.type.interface.sv }
+      "2": { name: punctuation.separator.colon.sv }
+      "3": { name: entity.name.type.sv }
+    patterns:
+      - name: meta.interface-header.sv
+        begin: \b(interface)\s+(?:(static|automatic)\s+)?(${identifier})\s*
+        end: (?=\;)
+        beginCaptures:
+          "1": { name: storage.type.interface.sv }
+          "2": { name: storage.modifier.$2.sv }
+          "3": { name: entity.name.type.sv }
+        patterns:
+          - include: "#package-import-declaration"
+          - include: "#parameter-port-list"
+          - include: "#list-of-port-declarations"
+      - name: meta.interface-body.sv
+        begin: (\;)\s*
+        end: (?=\b(endinterface)\b)
+        beginCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#timeunits-declaration"
+          - include: "#interface-item"
+          - include: "#non-port-interface-item"
+  program-declaration:
+    begin: (?=\b(program)\b)
+    end: \b(endprogram)\b\s*(?:(\:)\s*(${identifier})\s*)?
+    endCaptures:
+      "1": { name: storage.type.program.sv }
+      "2": { name: punctuation.separator.colon.sv }
+      "3": { name: entity.name.type.sv }
+    patterns:
+      - name: meta.program-header.sv
+        begin: \b(program)\s+(?:(static|automatic)\s+)?(${identifier})\s*
+        end: (?=\;)
+        beginCaptures:
+          "1": { name: storage.type.program.sv }
+          "2": { name: storage.modifier.$2.sv }
+          "3": { name: entity.name.type.sv }
+        patterns:
+          - include: "#package-import-declaration"
+          - include: "#parameter-port-list"
+          - include: "#list-of-port-declarations"
+      - name: meta.program-body.sv
+        begin: (\;)\s*
+        end: (?=\b(endprogram)\b)
+        beginCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#timeunits-declaration"
+          - include: "#program-item"
+          - include: "#non-port-program-item"
+  checker-declaration:
+    begin: (?=\b(checker)\b)
+    end: \b(endchecker)\b\s*(?:(\:)\s*(${identifier})\s*)?
+    endCaptures:
+      "1": { name: storage.type.checker.sv }
+      "2": { name: punctuation.separator.colon.sv }
+      "3": { name: entity.name.type.sv }
+    patterns:
+      - name: meta.checker-header.sv
+        begin: \b(checker)\s+(${identifier})\s*
+        end: (?=\;)
+        beginCaptures:
+          "1": { name: storage.type.checker.sv }
+          "2": { name: entity.name.type.sv }
+        patterns:
+          - begin: (\()\]\s*
+            end: (\))\s*
+            beginCaptures:
+              "1": { name: punctuation.section.group.begin.sv }
+            endCaptures:
+              "1": { name: punctuation.section.group.end.sv }
+            patterns:
+              - include: "#checker-port-list"
+      - name: meta.checker-body.sv
+        begin: (\;)\s*
+        end: (?=\b(endchecker)\b)
+        beginCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#attribute-instance"
+          - include: "#checker-or-generate-item"
   class-declaration:
     begin: (?=\b(class)\b|\bvirtual\b\s+\bclass\b)
     end: \b(endclass)\b\s*(?:(\:)\s*(${identifier})\s*)?
@@ -110,6 +197,90 @@ repository:
     patterns:
       - include: "#ps-class-identifier"
       - include: "#parameter-value-assignment"
+  interface-class-declaration:
+    begin: (?=\b(interface)\b\s+\bclass\b)
+    end: \b(endclass)\b\s*(?:(\:)\s*(${identifier})\s*)?
+    endCaptures:
+      "1": { name: storage.type.class.sv }
+      "2": { name: punctuation.separator.colon.sv }
+      "3": { name: entity.name.type.sv }
+    patterns:
+      - name: meta.interface-class-header.sv
+        begin: \b(interface)\s+\b(class)\b\s*(${identifier})\s*
+        end: (?=\;)
+        beginCaptures:
+          "1": { name: storage.type.interface.sv }
+          "2": { name: storage.type.class.sv }
+          "3": { name: entity.name.type.sv }
+        patterns:
+          - include: "#parameter-port-list"
+          - begin: \b(extends)\b\s*
+            end: (?=\;)
+            beginCaptures:
+              "1": { name: storage.modifier.$1.sv }
+            patterns:
+              - include: "#interface-class-type"
+              - include: "#comma"
+      - name: meta.interface-class-body.sv
+        begin: (\;)\s*
+        end: (?=\b(endclass)\b)
+        beginCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#interface-class-item"
+  interface-class-item:
+    patterns:
+      - include: "#type-declaration"
+      - include: "#attribute-instance"
+      - include: "#interface-class-method"
+      - include: "#local-parameter-declaration"
+      - include: "#parameter-declaration"
+      - include: "#semicolon"
+  interface-class-method:
+    begin: \b(pure)\s+(virtual)\s*
+    end: (\;)\s*
+    beginCaptures:
+      "1": { name: storage.modifier.pure.sv }
+      "2": { name: storage.modifier.virtual.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - include: "#method-prototype"
+  package-declaration:
+    begin: (?=\b(package)\b)
+    end: \b(endpackage)\b\s*(?:(\:)\s*(${identifier})\s*)?
+    endCaptures:
+      "1": { name: storage.type.package.sv }
+      "2": { name: punctuation.separator.colon.sv }
+      "3": { name: entity.name.namespace.sv }
+    patterns:
+      - name: meta.package-header.sv
+        begin: \b(package)\s+(?:(static|automatic)\s+)?(${identifier})\s*
+        end: (?=\;)
+        beginCaptures:
+          "1": { name: storage.type.package.sv }
+          "2": { name: storage.modifier.$2.sv }
+          "3": { name: entity.name.namespace.sv }
+      - name: meta.package-body.sv
+        begin: (\;)\s*
+        end: (?=\b(endpackage)\b)
+        beginCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#timeunits-declaration"
+          - include: "#package-item"
+  timeunits-declaration:
+    begin: \b(timeunit|timeprecision)\b\s*
+    end: (\;)\s*
+    beginCaptures:
+      "1": { name: storage.type.$1.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - match: (\/)]\s*
+        captures:
+          "1": { name: punctuation.separator.slash.sv }
+      - include: "#time-literal"
   # A.1.3 Module parameters and ports
   parameter-port-list:
     name: meta.parameter-port-list.sv
@@ -317,6 +488,56 @@ repository:
       - include: "#module-declaration"
       - include: "#interface-declaration"
       - include: "#timeunits-declaration"
+  # A.1.6 Interface items
+  interface-or-generate-item:
+    patterns:
+      - include: "#attribute-instance"
+      - include: "#module-common-item"
+      - include: "#extern-tf-declaration"
+  extern-tf-declaration:
+    begin: \b(extern)\b\s*(?:\b(forkjoin)\b\s+)?
+    end: (\;)\s*
+    beginCaptures:
+      "1": { name: storage.modifier.extern.sv }
+      "2": { name: storage.modifier.forkjoin.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - include: "#method-prototype"
+      - include: "#task-prototype"
+  interface-item:
+    patterns:
+      - include: "#port-declaration"
+      - include: "#non-port-interface-item"
+  non-port-interface-item:
+    patterns:
+      - include: "#generate-region"
+      - include: "#interface-or-generate-item"
+      - include: "#program-declaration"
+      - include: "#modport-declaration"
+      - include: "#interface-declaration"
+      - include: "#timeunits-declaration"
+  # A.1.7 Program items
+  program-item:
+    patterns:
+      - include: "#port-declaration"
+      - include: "#non-port-program-item"
+  non-port-program-item:
+    patterns:
+      - include: "#attribute-instance"
+      - include: "#continuous-assign"
+      - include: "#module-or-generate-item-declaration"
+      - include: "#initial-construct"
+      - include: "#final-construct"
+      - include: "#concurrent-assertion-item"
+      - include: "#timeunits-declaration"
+      - include: "#program-generate-item"
+  program-generate-item:
+    patterns:
+      - include: "#loop-generate-construct"
+      - include: "#conditional-generate-construct"
+      - include: "#generate-region"
+      - include: "#elaboration-system-task"
   # A.1.9 Class items
   class-item:
     patterns:
