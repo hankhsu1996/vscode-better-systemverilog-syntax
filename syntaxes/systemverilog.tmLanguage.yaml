@@ -7,7 +7,8 @@ variables:
   # Remove array method name: unique, and, or, xor
   functionIdentifier: (?:(?<!\\|\$)(?:\b[a-zA-Z_]|\$)[a-zA-Z0-9_\$]*\b|\\\S+(?=\s|$))(?<!\b(?:accept_on|alias|always|always_comb|always_ff|always_latch|assert|assign|assume|automatic|before|begin|bind|bins|binsof|bit|break|buf|bufif0|bufif1|byte|case|casex|casez|cell|chandle|checker|class|clocking|cmos|config|const|constraint|context|continue|cover|covergroup|coverpoint|cross|deassign|default|defparam|design|disable|dist|do|edge|else|end|endcase|endchecker|endclass|endclocking|endconfig|endfunction|endgenerate|endgroup|endinterface|endmodule|endpackage|endprimitive|endprogram|endproperty|endspecify|endsequence|endtable|endtask|enum|event|eventually|expect|export|extends|extern|final|first_match|for|force|foreach|forever|fork|forkjoin|function|generate|genvar|global|highz0|highz1|if|iff|ifnone|ignore_bins|illegal_bins|implements|implies|import|incdir|include|initial|inout|input|inside|instance|int|integer|interconnect|interface|intersect|join|join_any|join_none|large|let|liblist|library|local|localparam|logic|longint|macromodule|matches|medium|modport|module|nand|negedge|nettype|new|nexttime|nmos|nor|noshowcancelled|not|notif0|notif1|null|output|package|packed|parameter|pmos|posedge|primitive|priority|program|property|protected|pull0|pull1|pulldown|pullup|pulsestyle_ondetect|pulsestyle_onevent|pure|rand|randc|randcase|randsequence|rcmos|real|realtime|ref|reg|reject_on|release|repeat|restrict|return|rnmos|rpmos|rtran|rtranif0|rtranif1|s_always|s_eventually|s_nexttime|s_until|s_until_with|scalared|sequence|shortint|shortreal|showcancelled|signed|small|soft|solve|specify|specparam|static|string|strong|strong0|strong1|struct|super|supply0|supply1|sync_accept_on|sync_reject_on|table|tagged|task|this|throughout|time|timeprecision|timeunit|tran|tranif0|tranif1|tri|tri0|tri1|triand|trior|trireg|type|typedef|union|unique0|unsigned|until|until_with|untyped|use|uwire|var|vectored|virtual|void|wait|wait_order|wand|weak|weak0|weak1|while|wildcard|wire|with|within|wor|xnor)\b)
   classScope: (?:${identifier}\s*(?:\#\(.*?\)\s*)?::\s*)+
-  identifierEnd: (?!\s*(${identifier}|#|\(|\'|::|:|\s*\[.*\]\s*${identifier}))
+  # Identifier can be followed by ":" (ternary statement, label, etc.)
+  identifierEnd: (?!\s*(${identifier}|#|\(|\'|::|\s*\[.*\]\s*${identifier}))
   # Type identifier can be followed by "#" (class, module, etc.)
   typeIdentifierEnd: (?!\s*(\(|\.|\=|::|:))
   functionIdentifierStart: (?<!(?:\))\s+)
@@ -249,18 +250,18 @@ repository:
         begin: \b(for)\b\s*(\()\s*
         end: (\))\s*
         beginCaptures:
-          "1": { name: keyword.control.$1.sv }
+          "1": { name: keyword.control.for.sv }
           "2": { name: punctuation.section.group.begin.sv }
         endCaptures:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
+          - include: "#genvar-initialization"
+          - include: "#genvar-iteration"
+          - include: "#genvar-expression"
           - include: "#semicolon"
           - include: "#for-initialization"
           - include: "#for-step"
-          - include: "#genvar-initialization"
-          - include: "#genvar-iteration"
           - include: "#expression"
-          - include: "#genvar-expression"
       - include: "#module-or-generate-item-declaration"
       - include: "#interface-instantiation"
       - include: "#program-instantiation"
@@ -497,7 +498,7 @@ repository:
     patterns:
       - name: meta.local-parameter-declaration.sv
         begin: \b(localparam)\s+(type)\b\s*
-        end: (\;)\s*
+        end: (?=[,);])
         beginCaptures:
           "1": { name: storage.modifier.localparam.sv }
           "2": { name: storage.modifier.type.sv }
@@ -507,7 +508,7 @@ repository:
           - include: "#list-of-type-assignments"
       - name: meta.local-parameter-declaration.sv
         begin: \b(localparam)\b\s*
-        end: (\;)\s*
+        end: (?=[,);])
         beginCaptures:
           "1": { name: storage.modifier.localparam.sv }
         endCaptures:
@@ -1202,7 +1203,7 @@ repository:
       - match: (\*)\s*
         captures:
           "1": { name: keyword.operator.wildcard.sv }
-      - match: (\$)\s*
+      - match: (\$)\s*(?!\w)
         captures:
           "1": { name: constant.numeric.dollar.sv }
       - include: "#constant-range-expression"
@@ -1459,7 +1460,7 @@ repository:
           - include: "#expression"
       - include: "#let-identifier"
   let-identifier:
-    match: ${functionIdentifierStart}(${functionIdentifier})\s*${functionIdentifierEnd}
+    match: ${functionIdentifierStart}(${functionIdentifier})\s*(?=\()
     captures:
       "1": { name: entity.name.function.sv }
   let-port-list:
@@ -1611,10 +1612,11 @@ repository:
       - include: "#generate-item"
   loop-generate-construct:
     patterns:
-      - begin: \b(for)\b\s*(\()\s*
+      - name: meta.loop-generate-construct.sv
+        begin: \b(for)\b\s*(\()\s*
         end: (\))\s*
         beginCaptures:
-          "1": { name: keyword.control.$1.sv }
+          "1": { name: keyword.control.for.sv }
           "2": { name: punctuation.section.group.begin.sv }
         endCaptures:
           "1": { name: punctuation.section.group.end.sv }
@@ -1796,7 +1798,7 @@ repository:
   seq-block:
     name: meta.seq-block.sv
     begin: \b(begin)\s*(?:(\:)\s*(${identifier})\s*)?
-    end: \b(end)\s*(?:(\:)\s*(${identifier})\s*)?
+    end: \b(end)\b\s*(?:(\:)\s*(${identifier})\s*)?
     beginCaptures:
       "1": { name: keyword.control.begin.sv }
       "2": { name: punctuation.separator.colon.sv }
@@ -1806,9 +1808,9 @@ repository:
       "2": { name: punctuation.separator.colon.sv }
       "3": { name: variable.other.block.sv }
     patterns:
+      - include: "#generate-item"
       - include: "#block-item-declaration"
       - include: "#statement-or-null"
-      - include: "#generate-item"
   par-block:
     begin: \b(fork)\s*(?:(\:)\s*(${identifier})\s*)?
     end: \b(join|join_any|join_none)\b\s*(?:(\:)\s*(${identifier})\s*)?
@@ -1862,6 +1864,23 @@ repository:
       - include: "#subroutine-call-statement"
       - include: "#disable-statement"
       - include: "#event-trigger"
+      # Conflict: The 'generate for' and 'for' statements have the same beginning. Therefore, they are combined here:
+      - name: meta.for.sv
+        begin: \b(for)\b\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.for.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#genvar-initialization"
+          - include: "#genvar-iteration"
+          - include: "#genvar-expression"
+          - include: "#semicolon"
+          - include: "#for-initialization"
+          - include: "#for-step"
+          - include: "#expression"
       - include: "#loop-statement"
       - include: "#jump-statement"
       - include: "#par-block"
@@ -2925,11 +2944,11 @@ repository:
           - include: "#expression"
   # A.8.6 Operators
   unary-operator:
-    match: (~\^|\^~|~&|~\||\+|\-|!|~|&|\||\^)\s*
+    match: (~\^|\^~|~&|~\||\+|\-|!|~|&|\||\^)\s*(?!\+)
     captures:
       "1": { name: keyword.operator.unary.sv }
   binary-operator:
-    match: (?<!^|(?:\(|\:|=)\s*)(===|!==|==\?|==|!=\?|!=|&&|\|\||\*\*|<=|>=|\^~|~\^|\^~|>>>|<<<|>>|<<|->|<->|\+|\-|\*|\/|%|<|>|&|\||\^)\s*
+    match: (?<!^|(?:\(|\:|=)\s*)(===|!==|==\?|==|!=\?|!=|&&|\|\||\*\*|<=|>=|\^~|~\^|\^~|>>>|<<<|>>|<<|->|<->|\+|\-|\*|\/|%|<|>|&|\||\^)\s*(?!\+)
     captures:
       "1": { name: keyword.operator.binary.sv }
   inc-or-dec-operator:

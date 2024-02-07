@@ -15,7 +15,7 @@
 module for_tb ();
   initial begin
     for (int i = 0; i < 256; i++)
-//  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.loop-statement.sv
+//  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.for.sv
 //  ^^^ keyword.control.for.sv
 //       ^^^ entity.name.type.int.sv
 //           ^ variable.other.sv

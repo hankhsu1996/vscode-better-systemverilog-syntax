@@ -46,7 +46,7 @@ function walk(node) {
 
       // Check and modify 'patterns' if 'begin' and 'end' are present
       if (key === "patterns" && node.begin && node.end) {
-        node[key].push(
+        node[key].unshift(
           { include: "#comment" },
           { include: "#compiler-directive" }
         );
