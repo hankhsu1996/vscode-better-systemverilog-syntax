@@ -2389,6 +2389,118 @@ repository:
   subroutine-call-statement:
     patterns:
       - include: "#subroutine-call"
+  # A.6.11 Clocking block
+  clocking-declaration:
+    begin: (?:\b(default|global)\b\s+)?\b(clocking)\b\s*(?:(\b${identifier}\b)\s*)?
+    end: \b(endclocking)\b\s*(?:(\:)\s*(${identifier})\s*)?
+    beginCaptures:
+      "1": { name: storage.modifier.$1.sv }
+      "2": { name: storage.type.clocking.sv }
+      "3": { name: entity.name.type.sv }
+    endCaptures:
+      "1": { name: storage.type.clocking.sv }
+      "2": { name: punctuation.separator.colon.sv }
+      "3": { name: entity.name.type.sv }
+    patterns:
+      - include: "#clocking-event"
+      - include: "#clocking-item"
+  clocking-event:
+    patterns:
+      - name: meta.clocking-event.sv
+        match: (\@)\s*(${identifier})\s*
+        captures:
+          "1": { name: punctuation.definition.event.sv }
+          "2": { name: variable.other.sv }
+      - name: meta.clocking-event.sv
+        begin: (\@)\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.definition.event.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#event-expression"
+  clocking-item:
+    patterns:
+      - begin: \b(default)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: storage.modifier.default.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#default-skew"
+      - include: "#clocking-direction"
+      - include: "#list-of-clocking-decl-assign"
+      - include: "#attribute-instance"
+      - include: "#assertion-item-declaration"
+      - include: "#semicolon"
+  default-skew:
+    patterns:
+      - match: \b(input|output)\b\s*
+        captures:
+          "1": { name: storage.modifier.$1.sv }
+      - include: "#clocking-skew"
+  clocking-direction:
+    patterns:
+      - match: \b(inout)\b\s*
+        captures:
+          "1": { name: storage.modifier.$1.sv }
+      - match: \b(input|output)\b\s*
+        captures:
+          "1": { name: storage.modifier.$1.sv }
+      - include: "#clocking-skew"
+  list-of-clocking-decl-assign:
+    patterns:
+      - include: "#clocking-decl-assign"
+      - include: "#comma"
+  clocking-decl-assign:
+    patterns:
+      - include: "#signal-identifier"
+      - begin: (\=)\s*
+        end: (?=\,|\;)
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#expression"
+  clocking-skew:
+    patterns:
+      - include: "#edge-identifier"
+      - include: "#delay-control"
+  clocking-drive:
+    patterns:
+      - include: "#clockvar-expression"
+      - begin: (\<\=)\s*
+        end: (?=\;)
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#cycle-delay"
+          - include: "#expression"
+  cycle-delay:
+    patterns:
+      - match: (\#\#)\s*
+        captures:
+          "1": { name: keyword.operator.cycle-delay.sv }
+      - include: "#integral-number"
+      - include: "#identifier"
+      - begin: (\#\#)\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.operator.cycle-delay.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#expression"
+  clockvar:
+    patterns:
+      - include: "#hierarchical-identifier"
+  clockvar-expression:
+    patterns:
+      - include: "#clockvar"
+      - include: "#select"
   # A.7.4 Specify path delays
   edge-identifier:
     match: \b(posedge|negedge|edge)\b\s*
