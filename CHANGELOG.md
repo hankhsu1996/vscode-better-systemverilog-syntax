@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.5] - 2024-02-07
+
+### Added
+
+- Support for SystemVerilog LRM chapter 16 syntax.
+
 ## [0.0.4] - 2024-02-06
 
 ### Added
