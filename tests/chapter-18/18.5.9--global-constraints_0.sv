@@ -8,22 +8,18 @@
 
 
 /*
-:name: set_member
-:description: inside operator test
-:tags: 11.4.13
+:name: global_constraints_0
+:description: global constraints test
+:tags: 18.5.9
 */
-module top();
 
-int a;
-int b = 12;
-localparam c = 5;
-localparam d = 7;
+class a;
+    rand int v;
+endclass
 
-initial begin
-  a = b inside {c, d};
-//    ^ variable.other.sv
-//      ^^^^^^ keyword.other.inside.sv
-//             ^^^^^^ meta.concatenation.sv
-end
+class b;
+    rand a aObj;
+    rand int v;
 
-endmodule
+    constraint c { aObj.v < v; }
+endclass

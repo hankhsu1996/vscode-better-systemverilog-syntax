@@ -8,22 +8,18 @@
 
 
 /*
-:name: set_member
-:description: inside operator test
-:tags: 11.4.13
+:name: soft_constraints_0
+:description: soft constraints test
+:tags: 18.5.14
 */
-module top();
 
-int a;
-int b = 12;
-localparam c = 5;
-localparam d = 7;
 
-initial begin
-  a = b inside {c, d};
-//    ^ variable.other.sv
-//      ^^^^^^ keyword.other.inside.sv
-//             ^^^^^^ meta.concatenation.sv
-end
+class a;
+    rand int b;
 
-endmodule
+    constraint c {
+        soft b > 4;
+//      ^^^^ keyword.other.soft.sv
+        soft b < 12; }
+//      ^^^^ keyword.other.soft.sv
+endclass

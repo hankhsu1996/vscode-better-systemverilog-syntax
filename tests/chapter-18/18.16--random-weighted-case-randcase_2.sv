@@ -8,19 +8,25 @@
 
 
 /*
-:name: set_member_sim
-:description: inside operator simulation test
+:name: random_weighted_case_randcase_2
+:description: randcase test
+:tags: 18.16
 :type: simulation elaboration parsing
-:tags: 11.4.13
 */
-module top();
 
-int a = 12;
+function int F(int y);
+    int a;
+    randcase
+        y - y : a = 5;
+        y + y : a = 10;
+    endcase
+    return a;
+endfunction
 
-initial begin
-  $display(":assert: (1 == %d)", a inside {2, 4, 6, 8, 10, 12});
-//                                 ^^^^^^ keyword.other.inside.sv
-//                                        ^^^^^^^^^^^^^^^^^^^^ meta.concatenation.sv
-end
-
+module top;
+   int x;
+   initial begin
+      x = F(6);
+      $display(":assert: (10 == %d)", x);
+   end
 endmodule

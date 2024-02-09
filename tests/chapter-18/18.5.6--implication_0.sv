@@ -1,0 +1,28 @@
+// SYNTAX TEST "source-text.sv"
+//
+// Original source code by The SymbiFlow Authors under ISC License.
+// Modifications by Shou-Li Hsu under MIT License.
+// For full license information, see LICENSE file in the project root.
+//
+// vscode-tmgrammar-test annotations added by Shou-Li Hsu
+
+
+/*
+:name: implication_0
+:description: implication test
+:tags: 18.5.6
+*/
+
+class a;
+    rand int b1, b2;
+    constraint c1 { b1 == 5; }
+    constraint c2 { b1 == 5 -> b2 == 10; }
+//                  ^^ variable.other.sv
+//                     ^^ keyword.operator.binary.sv
+//                        ^ constant.numeric.integer.sv
+//                          ^^ keyword.operator.constraint.sv
+//                             ^^ variable.other.sv
+//                                ^^ keyword.operator.binary.sv
+//                                   ^^ constant.numeric.integer.sv
+//                                     ^ punctuation.terminator.semicolon.sv
+endclass

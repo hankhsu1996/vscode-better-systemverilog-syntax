@@ -18,7 +18,7 @@ module top(input [3:0] a, output b);
 assign b = (a inside {2, 3, 4, 5});
 //         ^ punctuation.section.group.begin.sv
 //          ^ variable.other.sv
-//            ^^^^^^ keyword.control.inside.sv
+//            ^^^^^^ keyword.other.inside.sv
 //                   ^^^^^^^^^^^^ meta.concatenation.sv
 //                               ^ punctuation.section.group.end.sv
 

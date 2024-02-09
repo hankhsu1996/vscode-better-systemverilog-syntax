@@ -595,7 +595,7 @@ repository:
         patterns:
           - include: "#class-item-qualifier"
           - include: "#method-prototype"
-      - begin: \b(extern)\b\s*
+      - begin: \b(extern)\b\s*(?!\s*\b(constraint)\b)
         end: (\;)\s*
         beginCaptures:
           "1": { name: storage.modifier.extern.sv }
@@ -657,6 +657,170 @@ repository:
   class-constructor-declaration:
     patterns:
       - include: "#function-declaration"
+  # A.1.10 Constraints
+  constraint-declaration:
+    name: meta.constraint-declaration.sv
+    begin: (?=(?:\b(static)\b\s+)?\b(constraint)\b)
+    end: (\})\s*
+    beginCaptures:
+      "1": { name: storage.modifier.static.sv }
+      "2": { name: storage.type.constraint.sv }
+    endCaptures:
+      "1": { name: punctuation.section.braces.end.sv }
+    patterns:
+      - name: meta.constraint-declaration-header.sv
+        begin: (?:\b(static)\b\s+)?\b(constraint)\b\s*
+        end: (?=\{)
+        beginCaptures:
+          "1": { name: storage.modifier.static.sv }
+          "2": { name: storage.type.constraint.sv }
+        patterns:
+          - include: "#constraint-identifier"
+          - include: "#class-scope"
+      - name: meta.constraint-declaration-body.sv
+        begin: (\{)\s*
+        end: (?=\})\s*
+        beginCaptures:
+          "1": { name: punctuation.section.braces.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.braces.end.sv }
+        patterns:
+          - include: "#constraint-block-item"
+  constraint-block-item:
+    patterns:
+      - begin: \b(solve)\b\s*
+        end: (?=\b(before)\b)
+        beginCaptures:
+          "1": { name: keyword.control.solve.sv }
+        patterns:
+          - include: "#solve-before-list"
+      - begin: \b(before)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: keyword.control.before.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#solve-before-list"
+      - include: "#constraint-expression"
+  solve-before-list:
+    patterns:
+      - include: "#constraint-primary"
+      - include: "#comma"
+  constraint-primary:
+    patterns:
+      - include: "#implicit-class-handle"
+      - include: "#dot"
+      - include: "#class-scope"
+      - include: "#hierarchical-identifier"
+      - include: "#dimension"
+  constraint-expression:
+    patterns:
+      - match: (\-\>)\s*
+        captures:
+          "1": { name: keyword.operator.constraint.sv }
+      - match: \b(soft)\b\s+
+        captures:
+          "1": { name: keyword.other.soft.sv }
+      - include: "#expression-or-dist"
+      - include: "#uniqueness-constraint"
+      - include: "#semicolon"
+      - include: "#expression"
+      - include: "#constraint-set"
+      - begin: \b(if)\b\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.if.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#expression"
+      - match: \b(else)\b\s*
+        captures:
+          "1": { name: keyword.control.else.sv }
+      - begin: \b(foreach)\b\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.foreach.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#ps-or-hierarchical-array-identifier"
+          - begin: (\[)\s*
+            end: (\])\s*
+            beginCaptures:
+              "1": { name: punctuation.section.brackets.begin.sv }
+            endCaptures:
+              "1": { name: punctuation.section.brackets.end.sv }
+            patterns:
+              - include: "#loop-variables"
+      - begin: \b(disable)\b\s+(soft)\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: keyword.control.disable.sv }
+          "2": { name: keyword.other.soft.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#constraint-primary"
+  uniqueness-constraint:
+    patterns:
+      - begin: \b(unique)\b\s*(\{)\s*
+        end: (\})\s*
+        beginCaptures:
+          "1": { name: keyword.other.unique.sv }
+          "2": { name: punctuation.section.braces.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.braces.end.sv }
+        patterns:
+          - include: "#open-range-list"
+          - include: "#expression"
+  constraint-set:
+    patterns:
+      - begin: (\{)\s*
+        end: (\})\s*
+        beginCaptures:
+          "1": { name: punctuation.section.braces.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.braces.end.sv }
+        patterns:
+          - include: "#constraint-expression"
+  dist-list:
+    patterns:
+      - include: "#dist-item"
+      - include: "#comma"
+  dist-item:
+    patterns:
+      - include: "#value-range"
+      - include: "#dist-weight"
+      - include: "#expression"
+  dist-weight:
+    begin: (\:\=|\:\/)\s*
+    end: (?=\,|\})
+    beginCaptures:
+      "1": { name: keyword.operator.dist.sv }
+    patterns:
+      - include: "#expression"
+  constraint-prototype:
+    name: meta.constraint-prototype.sv
+    match: (?:\b(extern|pure)\b\s+)?(?:\b(static)\b\s+)?\b(constraint)\b\s+(${identifier})\s*(\;)\s*
+    captures:
+      "1": { name: storage.modifier.$1.sv }
+      "2": { name: storage.modifier.$2.sv }
+      "3": { name: storage.type.$3.sv }
+      "4": { name: variable.other.sv }
+      "5": { name: punctuation.terminator.semicolon.sv }
+  constraint-prototype-qualifier:
+    patterns:
+      - match: \b(extern|pure)\b\s+
+        captures:
+          "1": { name: storage.modifier.$1.sv }
+  identifier-list:
+    patterns:
+      - include: "#identifier"
+      - include: "#comma"
   # A.1.11 Package items
   package-item:
     patterns:
@@ -1545,7 +1709,7 @@ repository:
     endCaptures:
       "1": { name: storage.type.task.sv }
       "2": { name: punctuation.separator.colon.sv }
-      "3": { name: entity.name.type.task.sv }
+      "3": { name: entity.name.function.sv }
     patterns:
       - begin: \b(task)\b\s*
         end: (?=\;)
@@ -2316,7 +2480,7 @@ repository:
       - begin: \b(dist)\b\s*(\{)\s*
         end: (\})\s*
         beginCaptures:
-          "1": { name: keyword.operator.dist.sv }
+          "1": { name: keyword.other.dist.sv }
           "2": { name: punctuation.section.braces.begin.sv }
         endCaptures:
           "1": { name: punctuation.section.braces.end.sv }
@@ -3535,6 +3699,179 @@ repository:
     patterns:
       - include: "#clockvar"
       - include: "#select"
+  # A.6.12 Randsequence
+  randsequence-statement:
+    begin: (?=\b(randsequence)\b)
+    end: \b(endsequence)\b\s*
+    endCaptures:
+      "1": { name: keyword.control.$1.sv }
+    patterns:
+      - begin: \b(randsequence)\s*(\()\s*
+        end: (?=\))
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        patterns:
+          - include: "#production-identifier"
+      - begin: (\))\s*
+        end: (?=\b(endsequence)\b)
+        beginCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#production"
+  production:
+    patterns:
+      - begin: (\:)\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: punctuation.separator.colon.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - match: (\|)\s*
+            captures:
+              "1": { name: punctuation.separator.bar.sv }
+          - include: "#rs-rule"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#tf-port-list"
+      - include: "#production-identifier"
+      - include: "#data-type-or-void"
+  rs-rule:
+    patterns:
+      - begin: (\:=)\s*
+        end: (?=\;|\|)
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#weight-specification"
+          - include: "#rs-code-block"
+      - include: "#rs-production-list"
+  rs-production-list:
+    patterns:
+      - match: \b(rand)\b\s+\b(join)\b\s*
+        captures:
+          "1": { name: keyword.control.rand.sv }
+          "2": { name: keyword.control.join.sv }
+      - include: "#rs-prod"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#expression"
+      - include: "#production-item"
+  weight-specification:
+    patterns:
+      - include: "#integral-number"
+      - include: "#ps-identifier"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#expression"
+  rs-code-block:
+    patterns:
+      - begin: (\{)\s*
+        end: (\})\s*
+        beginCaptures:
+          "1": { name: punctuation.section.braces.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.braces.end.sv }
+        patterns:
+          - include: "#data-declaration"
+          - include: "#statement-or-null"
+  rs-prod:
+    patterns:
+      - include: "#production-item"
+      - include: "#rs-code-block"
+      - include: "#rs-if-else"
+      - include: "#rs-repeat"
+      - include: "#rs-case"
+  production-item:
+    patterns:
+      - include: "#production-identifier"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#list-of-arguments"
+  rs-if-else:
+    patterns:
+      - name: meta.rs-if-else.sv
+        begin: \b(if)\b\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#expression"
+      - include: "#production-item"
+      - match: \b(else)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+      - include: "#production-item"
+  rs-repeat:
+    patterns:
+      - name: meta.rs-repeat.sv
+        begin: \b(repeat)\b\s*(\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#expression"
+      - include: "#production-item"
+  rs-case:
+    begin: (?=\b(case)\b)
+    end: \b(endcase)\b\s*
+    endCaptures:
+      "1": { name: keyword.control.$1.sv }
+    patterns:
+      - begin: \b(case)\b\s*(\()\s*
+        end: (?=\))
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        patterns:
+          - include: "#case-expression"
+      - begin: (\))\s*
+        end: (?=\b(endcase)\b)
+        beginCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#rs-case-item"
+  rs-case-item:
+    patterns:
+      - begin: (\:)\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: punctuation.separator.colon.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#production-item"
+      - match: \b(default)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+      - include: "#case-item-expression"
   # A.7.4 Specify path delays
   edge-identifier:
     match: \b(posedge|negedge|edge)\b\s*
@@ -3557,6 +3894,8 @@ repository:
       - include: "#slice-size"
       - include: "#stream-concatenation"
       - include: "#comma"
+      - include: "#semicolon"
+      - include: "#expression-or-dist"
   constant-concatenation:
     patterns:
       - include: "#concatenation"
@@ -3599,7 +3938,7 @@ repository:
     patterns:
       - include: "#array-range-expression"
       - include: "#expression"
-      - match: \b(with)\s*
+      - match: \b(with)\b\s*
         captures:
           "1": { name: keyword.control.with.sv }
   array-range-expression:
@@ -3733,6 +4072,9 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#identifier-list"
+      - match: \b(with)\s*(?=\{)
+        captures:
+          "1": { name: keyword.control.with.sv }
       - include: "#constraint-block"
   method-call-root:
     patterns:
@@ -3846,7 +4188,7 @@ repository:
     patterns:
       - match: \b(inside)\b\s*
         captures:
-          "1": { name: keyword.control.inside.sv }
+          "1": { name: keyword.other.inside.sv }
       - include: "#open-range-list"
   value-range:
     patterns:
@@ -4004,7 +4346,7 @@ repository:
           "1": { name: entity.name.namespace.sv }
       - match: (\:\:)\s*
         captures:
-          "1": { name: punctuation.separator.double-colon.sv }
+          "1": { name: punctuation.separator.scope-resolution.sv }
       - include: "#dot"
       - include: "#implicit-class-handle"
       - include: "#class-scope"
@@ -4332,7 +4674,8 @@ repository:
       # 4. Array ordering: reverse, sort, rsort, shuffle
       # 5. Array reduction: sum, product, and, or, xor
       # 6. Iterator index querying: index
-      - match: (?<=\.)\b(num|size|delete|exists|first|last|next|prev|insert|pop_front|pop_back|push_front|push_back|find|find_index|find_first|find_first_index|find_last|find_last_index|min|max|unique|unique_index|reverse|sort|rsort|shuffle|sum|product|and|or|xor|index)\b(?!\b(if|case|casez|casex)\b)
+      # 7. randomize method: randomize, pre_randomize, post_randomize, rand_mode, constraint_mode, srandom, get_randstate, set_randstate
+      - match: (?<=\.)\b(num|size|delete|exists|first|last|next|prev|insert|pop_front|pop_back|push_front|push_back|find|find_index|find_first|find_first_index|find_last|find_last_index|min|max|unique|unique_index|reverse|sort|rsort|shuffle|sum|product|and|or|xor|index|randomize|pre_randomize|post_randomize|rand_mode|constraint_mode|srandom|get_randstate|set_randstate)\b(?!\b(if|case|casez|casex)\b)
         captures:
           "1": { name: entity.name.function.sv }
       - match: \b([A-Z][a-zA-Z0-9_$]*)\b(?!\s*${identifier}|\(|\'|::)
@@ -4409,7 +4752,10 @@ repository:
       - include: "#identifier"
   production-identifier:
     patterns:
-      - include: "#identifier"
+      - match: (${identifier})\s*(?=\()
+        name: entity.name.function.sv
+      - match: (${identifier})\s*
+        name: variable.other.sv
   program-identifier:
     patterns:
       - include: "#type-identifier"
@@ -4656,7 +5002,6 @@ repository:
       # Macro function
       - begin: (${macro})\s*(\()\s*
         end: (\))\s*
-        name: meta.preprocessor.text-macro-usage.sv meta.preprocessor.macro-function.sv
         beginCaptures:
           "1": { name: meta.preprocessor.macro-name.sv }
           "2": { name: punctuation.section.group.begin.sv }
