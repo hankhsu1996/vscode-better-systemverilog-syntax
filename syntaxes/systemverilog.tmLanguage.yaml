@@ -4014,6 +4014,7 @@ repository:
           - include: "#expression"
       - include: "#comma"
       - include: "#expression"
+      - include: "#data-type"
   method-call:
     patterns:
       - include: "#method-call-root"
@@ -4640,8 +4641,11 @@ repository:
     patterns:
       - match: (\$root)\s*(\.)\s*
         captures:
-          "1": { name: variable.other.root.sv }
+          "1": { name: variable.language.root.sv }
           "2": { name: punctuation.accessor.dot.sv }
+      - match: (\$root)\s*
+        captures:
+          "1": { name: variable.language.root.sv }
       - include: "#dot"
       - include: "#identifier"
   hierarchical-net-identifier:
