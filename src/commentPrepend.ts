@@ -8,11 +8,13 @@ import {
 
 export class CommentPrependVisitor implements TmLanguageVisitor {
   visitBeginEnd(node: TmLanguagePatternBeginEnd): void {
-    node.patterns = [
-      { include: "#comment" },
-      { include: "#compiler-directive" },
-      ...(node.patterns ?? []),
-    ];
+    if (node.name !== "comment.block.sv") {
+      node.patterns = [
+        { include: "#comment" },
+        { include: "#compiler-directive" },
+        ...(node.patterns ?? []),
+      ];
+    }
   }
 
   visitMatch(node: TmLanguagePatternMatch): void {}

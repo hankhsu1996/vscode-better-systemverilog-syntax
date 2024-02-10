@@ -8,14 +8,12 @@
 
 
 /*
-:name: include-directive
-:description: Include empty file
-:tags: 5.6.4
+:name: 22.5.2--undef-nonexisting
+:description: Test
+:tags: 22.5.2
+:type: preprocessing
 */
-
-`include "/dev/null"
-//<-------- keyword.control.include.sv
-//       ^^^^^^^^^^^ string.quoted.double.sv
-
-module empty();
-endmodule
+`undef FOO
+//<------ keyword.control.undef.sv
+`undef BAR
+//<------ keyword.control.undef.sv

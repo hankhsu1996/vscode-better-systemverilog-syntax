@@ -9,10 +9,12 @@ variables:
   classScope: (?:${identifier}\s*(?:\#\(.*?\)\s*)?::\s*)+
   # Identifier can be followed by ":" (ternary statement, label, etc.)
   identifierEnd: (?!\s*(${identifier}|#(?!\#)|\(|\'|::))
+  typeIdentifierStart: (?<!\#\s*)
   # Type identifier can be followed by "#" (class, module, etc.)
   typeIdentifierEnd: (?!\s*(\(|\.|\=|::|:))
   functionIdentifierStart: (?<!(?:\))\s+)
   functionIdentifierEnd: (?!\s*(\b\w+\b|\.|\[|#|::))
+  classIdentifierStart: (?<!\#\s*)
   classIdentifierEnd: (?!\s*(\(|\.|\=|:))
   assignmentEnd: (?=\,|\)|\;)
   psIdentifier: (?:(?:${identifier})\s*(?:::)\s*)?(?:${identifier})
@@ -1385,6 +1387,10 @@ repository:
         patterns:
           - include: "#comma"
           - include: "#mintypmax-expression"
+      - match: (\#)\s*(${identifier})\s*
+        captures:
+          "1": { name: punctuation.definition.delay.sv }
+          "2": { name: variable.other.sv }
       - match: (\#)\s*
         captures:
           "1": { name: punctuation.definition.delay.sv }
@@ -1402,6 +1408,10 @@ repository:
         patterns:
           - include: "#comma"
           - include: "#mintypmax-expression"
+      - match: (\#)\s*(${identifier})\s*
+        captures:
+          "1": { name: punctuation.definition.delay.sv }
+          "2": { name: variable.other.sv }
       - match: (\#)\s*
         captures:
           "1": { name: punctuation.definition.delay.sv }
@@ -2573,6 +2583,298 @@ repository:
   let-actual-arg:
     patterns:
       - include: "#expression"
+  # A.3 Primitive instances
+  # A.3.1 Primitive instantiation and instances
+  gate-instantiation:
+    patterns:
+      - begin: \b(cmos|rcmos)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: entity.name.type.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#delay3"
+          - include: "#cmos-switch-instance"
+          - include: "#comma"
+      - begin: \b(bufif0|bufif1|notif0|notif1)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: entity.name.type.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#drive-strength"
+          - include: "#delay3"
+          - include: "#enable-gate-instance"
+          - include: "#comma"
+      - begin: \b(nmos|pmos|rnmos|rpmos)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: entity.name.type.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#delay3"
+          - include: "#mos-switch-instance"
+          - include: "#comma"
+      - begin: \b(and|nand|or|nor|xor|xnor)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: entity.name.type.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#drive-strength"
+          - include: "#delay2"
+          - include: "#n-input-gate-instance"
+          - include: "#comma"
+      - begin: \b(buf|not)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: entity.name.type.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#drive-strength"
+          - include: "#delay2"
+          - include: "#n-output-gate-instance"
+          - include: "#comma"
+      - begin: \b(tranif0|tranif1|rtranif1|rtranif0)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: entity.name.type.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#delay2"
+          - include: "#pass-enable-switch-instance"
+          - include: "#comma"
+      - begin: \b(tran|rtran)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: entity.name.type.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#pass-switch-instance"
+          - include: "#comma"
+      - begin: \b(pulldown)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: entity.name.type.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#pulldown-strength"
+          - include: "#pull-gate-instance"
+          - include: "#comma"
+      - begin: \b(pullup)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: entity.name.type.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#pullup-strength"
+          - include: "#pull-gate-instance"
+          - include: "#comma"
+  cmos-switch-instance:
+    patterns:
+      - include: "#name-of-instance"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#comma"
+          - include: "#output-terminal"
+          - include: "#input-terminal"
+          - include: "#ncontrol-terminal"
+          - include: "#pcontrol-terminal"
+  enable-gate-instance:
+    patterns:
+      - include: "#name-of-instance"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#comma"
+          - include: "#output-terminal"
+          - include: "#input-terminal"
+          - include: "#enable-terminal"
+  mos-switch-instance:
+    patterns:
+      - include: "#name-of-instance"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#comma"
+          - include: "#output-terminal"
+          - include: "#input-terminal"
+          - include: "#enable-terminal"
+  n-input-gate-instance:
+    patterns:
+      - include: "#name-of-instance"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#comma"
+          - include: "#output-terminal"
+          - include: "#input-terminal"
+  n-output-gate-instance:
+    patterns:
+      - include: "#name-of-instance"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#comma"
+          - include: "#output-terminal"
+          - include: "#input-terminal"
+  pass-switch-instance:
+    patterns:
+      - include: "#name-of-instance"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#comma"
+          - include: "#inout-terminal"
+  pass-enable-switch-instance:
+    patterns:
+      - include: "#name-of-instance"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#comma"
+          - include: "#inout-terminal"
+          - include: "#enable-terminal"
+  pull-gate-instance:
+    patterns:
+      - include: "#name-of-instance"
+      - begin: (\()\s*
+        end: (\))\s*
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#output-terminal"
+  # A.3.2 Primitive strengths
+  pulldown-strength:
+    patterns:
+      - match: (\()\s*\b(supply0|strong0|pull0|weak0)\b\s*(,)\s*\b(supply1|strong1|pull1|weak1)\b\s*(\))\s*
+        captures:
+          "1": { name: punctuation.section.group.begin.sv }
+          "2": { name: storage.modifier.strength.sv }
+          "3": { name: punctuation.separator.comma.sv }
+          "4": { name: storage.modifier.strength.sv }
+          "5": { name: punctuation.section.group.end.sv }
+      - match: (\()\s*\b(supply1|strong1|pull1|weak1)\b\s*(,)\s*\b(supply0|strong0|pull0|weak0)\b\s*(\))\s*
+        captures:
+          "1": { name: punctuation.section.group.begin.sv }
+          "2": { name: storage.modifier.strength.sv }
+          "3": { name: punctuation.separator.comma.sv }
+          "4": { name: storage.modifier.strength.sv }
+          "5": { name: punctuation.section.group.end.sv }
+      - match: (\()\s*\b(supply0|strong0|pull0|weak0)\b\s*(\))\s*
+        captures:
+          "1": { name: punctuation.section.group.begin.sv }
+          "2": { name: storage.modifier.strength.sv }
+          "3": { name: punctuation.section.group.end.sv }
+  pullup-strength:
+    patterns:
+      - match: (\()\s*\b(supply0|strong0|pull0|weak0)\b\s*(,)\s*\b(supply1|strong1|pull1|weak1)\b\s*(\))\s*
+        captures:
+          "1": { name: punctuation.section.group.begin.sv }
+          "2": { name: storage.modifier.strength.sv }
+          "3": { name: punctuation.separator.comma.sv }
+          "4": { name: storage.modifier.strength.sv }
+          "5": { name: punctuation.section.group.end.sv }
+      - match: (\()\s*\b(supply1|strong1|pull1|weak1)\b\s*(,)\s*\b(supply0|strong0|pull0|weak0)\b\s*(\))\s*
+        captures:
+          "1": { name: punctuation.section.group.begin.sv }
+          "2": { name: storage.modifier.strength.sv }
+          "3": { name: punctuation.separator.comma.sv }
+          "4": { name: storage.modifier.strength.sv }
+          "5": { name: punctuation.section.group.end.sv }
+      - match: (\()\s*\b(supply1|strong1|pull1|weak1)\b\s*(\))\s*
+        captures:
+          "1": { name: punctuation.section.group.begin.sv }
+          "2": { name: storage.modifier.strength.sv }
+          "3": { name: punctuation.section.group.end.sv }
+  # A.3.3 Primitive terminals
+  enable-terminal:
+    patterns:
+      - include: "#expression"
+  inout-terminal:
+    patterns:
+      - include: "#net-lvalue"
+  input-terminal:
+    patterns:
+      - include: "#expression"
+  nc-ontrol-terminal:
+    patterns:
+      - include: "#expression"
+  output-terminal:
+    patterns:
+      - include: "#net-lvalue"
+  pc-ontrol-terminal:
+    patterns:
+      - include: "#expression"
+  # A.3.4 Primitive gate and switch types
+  cmos-switchtype:
+    match: \b(cmos|rcmos)\b\s*
+    captures:
+      "1": { name: entity.name.type.sv }
+  enable-gatetype:
+    match: \b(bufif0|bufif1|notif0|notif1)\b\s*
+    captures:
+      "1": { name: entity.name.type.sv }
+  mos-switchtype:
+    match: \b(nmos|pmos|rnmos|rpmos)\b\s*
+    captures:
+      "1": { name: entity.name.type.sv }
+  n-input-gatetype:
+    match: \b(and|nand|or|nor|xor|xnor)\b\s*
+    captures:
+      "1": { name: entity.name.type.sv }
+  n-output-gatetype:
+    match: \b(buf|not)\b\s*
+    captures:
+      "1": { name: entity.name.type.sv }
+  pass-en-switchtype:
+    match: \b(tranif0|tranif1|rtranif1|rtranif0)\b\s*
+    captures:
+      "1": { name: entity.name.type.sv }
+  pass-switchtype:
+    match: \b(tran|rtran)\b\s*
+    captures:
+      "1": { name: entity.name.type.sv }
   # A.4 Instantiations
   # A.4.1 Instantiation
   # A.4.1.1 Module instantiation
@@ -4573,7 +4875,7 @@ repository:
     patterns:
       - include: "#identifier"
   class-identifier:
-    match: (${identifier})\s*${classIdentifierEnd}
+    match: ${classIdentifierStart}(${identifier})\s*${classIdentifierEnd}
     captures:
       "1": { name: entity.name.type.sv }
   class-variable-identifier:
@@ -4707,8 +5009,9 @@ repository:
     patterns:
       - include: "#identifier"
   instance-identifier:
-    patterns:
-      - include: "#identifier"
+    match: (${identifier})\s*
+    captures:
+      "1": { name: variable.other.sv }
   library-identifier:
     patterns:
       - include: "#identifier"
@@ -4722,7 +5025,7 @@ repository:
     patterns:
       - include: "#identifier"
   module-identifier:
-    match: (${identifier})(?=\s+${identifier})
+    match: (?<!\#\s*)(${identifier})(?=\s+${identifier})
     captures:
       "1": { name: entity.name.type.sv }
   net-identifier:
@@ -4857,7 +5160,7 @@ repository:
     patterns:
       - include: "#identifier"
   type-identifier:
-    match: (${identifier})\s*${typeIdentifierEnd}
+    match: ${typeIdentifierStart}(${identifier})\s*${typeIdentifierEnd}
     captures:
       "1": { name: entity.name.type.sv }
   udp-identifier:
@@ -4896,49 +5199,50 @@ repository:
     match: (`resetall)\b
     name: keyword.control.resetall.sv
   macro-include:
-    name: meta.preprocessor.include.sv
     begin: (`include)\s*
     end: $
     beginCaptures:
       "1": { name: keyword.control.include.sv }
     patterns:
       - match: ("[^"]*")
-        name: string.quoted.double.include.sv
+        name: string.quoted.double.sv
       - match: (<[^>]*>)
         name: string.quoted.angle.include.sv
       - include: "#text-macro-usage"
+      # Match and highlight variable names within the macro function
+      - match: \b([a-zA-Z_][a-zA-Z0-9_$]*)\b
+        name: variable.other.sv
   macro-define:
     name: meta.macro-definition.sv
     patterns:
       # Oneline
       - name: meta.macro-definition.sv
-        match: ^(define)\s*([a-zA-Z_][a-zA-Z0-9_$]*)\s*([^\\]*[^\\ ])$
+        match: ^(`define)\b\s*\b([a-zA-Z_][a-zA-Z0-9_$]*)\b\s*([^\\]*[^\\ ])$
         captures:
           "1": { name: keyword.control.define.sv }
           "2": { name: meta.preprocessor.macro-name.sv }
           "3":
             patterns:
-              - name: meta.preprocessor.macro-text.sv
-                begin: \(
-                end: \)
+              - begin: (\()\s*
+                end: (\))\s*
                 beginCaptures:
-                  "0": { name: punctuation.section.group.begin.sv }
+                  "1": { name: punctuation.section.group.begin.sv }
                 endCaptures:
-                  "0": { name: punctuation.section.group.end.sv }
+                  "1": { name: punctuation.section.group.end.sv }
                 patterns:
                   - include: "#formal-argument"
                   - include: "#comma"
               - include: "#macro-text"
+              - include: "#compiler-directive"
       # Multiline
       - name: meta.macro-definition.sv
-        begin: (`define)\s*([a-zA-Z_][a-zA-Z0-9_\$]*)
+        begin: (`define)\b\s*\b([a-zA-Z_][a-zA-Z0-9_\$]*)\b\s*
         end: (?<!\\\s*)$
         beginCaptures:
           "1": { name: keyword.control.define.sv }
           "2": { name: meta.preprocessor.macro-name.sv }
         patterns:
-          - name: meta.preprocessor.macro-text.sv
-            begin: \(
+          - begin: \(
             end: \)
             beginCaptures:
               "0": { name: punctuation.section.group.begin.sv }
@@ -4995,6 +5299,7 @@ repository:
       - include: "#interface-class-item"
       - include: "#interface-item"
       - include: "#expression"
+      - include: "#gate-instantiation"
   formal-argument:
     patterns:
       - match: \b([a-zA-Z_][a-zA-Z0-9_\$]*)\b
@@ -5047,7 +5352,6 @@ repository:
     match: (`endif)\b
     name: keyword.control.endif.sv
   macro-timescale:
-    # `timescale time_unit / time_precision
     begin: (`timescale)\s*
     end: $
     beginCaptures:
@@ -5057,33 +5361,27 @@ repository:
         name: punctuation.separator.slash.sv
       - include: "#time-literal"
   macro-default-nettype:
-    # `default_nettype net_type
     match: (`default_nettype)\s+(wire|tri|tri0|tri1|wand|triand|wor|trior|trireg|uwire|none)\b
     captures:
       "1": { name: keyword.control.default-nettype.sv }
-      "2": { name: storage.type.$2.sv }
+      "2": { name: entity.name.type.$2.sv }
   macro-nounconnected-drive:
-    # `nounconnected_drive drive_strength
     match: (`nounconnected_drive)\s*
     captures:
       "1": { name: keyword.control.nounconnected-drive.sv }
   macro-unconnected-drive:
-    # `unconnected_drive drive_strength
-    match: (`unconnected_drive)\s+(pull0|pull1)\b
+    match: (`unconnected_drive)\b\s*(?:\b(pull0|pull1)\b)?\s*
     captures:
       "1": { name: keyword.control.unconnected-drive.sv }
       "2": { name: storage.modifier.$2.sv }
   macro-celldefine:
-    # `celldefine
     match: (`celldefine)\b
     name: keyword.control.celldefine.sv
   macro-endcelldefine:
-    # `endcelldefine
     match: (`endcelldefine)\b
     name: keyword.control.endcelldefine.sv
   macro-pragma:
-    # `pragma
-    begin: (`pragma)\s+([a-zA-Z_][a-zA-Z0-9_$]*)\b\s*
+    begin: (`pragma)\b\s*(?:\b([a-zA-Z_][a-zA-Z0-9_$]*)\b\s*)?
     beginCaptures:
       "1": { name: keyword.control.pragma.sv }
       "2": { name: entity.other.attribute-name.sv }
@@ -5093,7 +5391,6 @@ repository:
       - include: "#pragma-expression"
   pragma-expression:
     patterns:
-      # pragma_keyword = pragma_value
       - begin: (${simpleIdentifier})\s*(\=)\s*
         beginCaptures:
           "1": { name: entity.other.attribute-name.sv }
@@ -5101,7 +5398,6 @@ repository:
         end: (?=\,|\)|$)
         patterns:
           - include: "#pragma-value"
-      # pragma_value
       - include: "#pragma-value"
   pragma-value:
     patterns:
@@ -5119,12 +5415,25 @@ repository:
       - include: "#string-literal"
       - include: "#simple-identifier"
   macro-line:
-    match: (`line)\s+([0-9]+)\s+(\"[^"]+\")\s+([0-9]+)
-    captures:
-      "1": { name: keyword.control.line.sv }
-      "2": { name: constant.numeric.integer.sv }
-      "3": { name: string.quoted.double.sv }
-      "4": { name: constant.numeric.integer.sv }
+    patterns:
+      - match: (`line)\b\s*(?:\b([0-9]+)\b\s*)?(?:([^"\s]+)\s*)?(?:\b([0-9]+)\b\s*)?
+        captures:
+          "1": { name: keyword.control.line.sv }
+          "2": { name: constant.numeric.integer.sv }
+          "3": { name: invalid.illegal.sv }
+          "4": { name: constant.numeric.integer.sv }
+      - match: (`line)\b\s*(?:(\-[0-9]+)\b\s*)?(?:(\"[^"]+\")\s*)?(?:\b([0-9]+)\b\s*)?
+        captures:
+          "1": { name: keyword.control.line.sv }
+          "2": { name: invalid.illegal.sv }
+          "3": { name: string.quoted.double.sv }
+          "4": { name: constant.numeric.integer.sv }
+      - match: (`line)\b\s*(?:\b([0-9]+)\b\s*)?(?:(\"[^"]+\")\s*)?(?:\b([0-9]+)\b\s*)?
+        captures:
+          "1": { name: keyword.control.line.sv }
+          "2": { name: constant.numeric.integer.sv }
+          "3": { name: string.quoted.double.sv }
+          "4": { name: constant.numeric.integer.sv }
   macro-begin-keywords:
     match: (`begin_keywords)\s+(\"[^"]+\")
     captures:

@@ -8,14 +8,11 @@
 
 
 /*
-:name: include-directive
-:description: Include empty file
-:tags: 5.6.4
+:name: 22.9--unconnected_drive-invalid-3
+:description: Test
+:should_fail_because: use a strength keyword with `nounconnected_drive macro
+:tags: 22.9
+:type: simulation elaboration
 */
-
-`include "/dev/null"
-//<-------- keyword.control.include.sv
-//       ^^^^^^^^^^^ string.quoted.double.sv
-
-module empty();
-endmodule
+`unconnected_drive pull0
+`nounconnected_drive pull0

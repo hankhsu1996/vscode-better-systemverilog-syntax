@@ -8,14 +8,15 @@
 
 
 /*
-:name: include-directive
-:description: Include empty file
-:tags: 5.6.4
+:name: 22.5.1--define_expansion_19
+:description: Test
+:tags: 22.5.1
+:type: preprocessing
 */
-
-`include "/dev/null"
-//<-------- keyword.control.include.sv
-//       ^^^^^^^^^^^ string.quoted.double.sv
-
-module empty();
+`define wordsize 8
+module top ();
+logic [1:`wordsize] data;
+//     ^ constant.numeric.integer.sv
+//      ^ punctuation.separator.colon.sv
+//       ^^^^^^^^^ meta.preprocessor.macro-name.sv
 endmodule

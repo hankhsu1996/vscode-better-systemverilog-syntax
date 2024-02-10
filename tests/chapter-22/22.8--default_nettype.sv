@@ -8,16 +8,11 @@
 
 
 /*
-:name: default-nettype
-:description: Default nettype check
-:tags: 5.6.4
+:name: 22.8--default_nettype
+:description: Test
+:tags: 22.8
+:type: preprocessing
 */
-
 `default_nettype wire
 //<---------------- keyword.control.default-nettype.sv
 //               ^^^^ entity.name.type.wire.sv
-`default_nettype none
-//<---------------- keyword.control.default-nettype.sv
-//               ^^^^ entity.name.type.none.sv
-module dn();
-endmodule

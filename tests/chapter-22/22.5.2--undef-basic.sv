@@ -8,14 +8,12 @@
 
 
 /*
-:name: include-directive
-:description: Include empty file
-:tags: 5.6.4
+:name: 22.5.2--undef-basic
+:description: Test
+:tags: 22.5.2
+:type: preprocessing
 */
-
-`include "/dev/null"
-//<-------- keyword.control.include.sv
-//       ^^^^^^^^^^^ string.quoted.double.sv
-
-module empty();
-endmodule
+`define FOO "foo"
+`undef FOO
+//<------ keyword.control.undef.sv
+//     ^^^ meta.preprocessor.macro-name.sv

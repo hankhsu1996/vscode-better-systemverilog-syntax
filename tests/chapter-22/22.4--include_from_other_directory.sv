@@ -8,14 +8,13 @@
 
 
 /*
-:name: include-directive
-:description: Include empty file
-:tags: 5.6.4
+:name: 22.4--include_from_other_directory
+:description: Test
+:tags: 22.4
+:type: preprocessing parsing
 */
-
-`include "/dev/null"
-//<-------- keyword.control.include.sv
-//       ^^^^^^^^^^^ string.quoted.double.sv
-
-module empty();
+`include "include_directory/defs.sv"
+//<------- keyword.control.include.sv
+//       ^^^^^^^^^^^^^^^^^^^^^^^^^^^ string.quoted.double.sv
+module top ();
 endmodule

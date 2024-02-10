@@ -8,14 +8,11 @@
 
 
 /*
-:name: include-directive
-:description: Include empty file
-:tags: 5.6.4
+:name: 22.9--unconnected_drive-basic-2
+:description: Test
+:tags: 22.9
+:type: preprocessing
 */
-
-`include "/dev/null"
-//<-------- keyword.control.include.sv
-//       ^^^^^^^^^^^ string.quoted.double.sv
-
-module empty();
-endmodule
+`unconnected_drive pull1
+//<------------------ keyword.control.unconnected-drive.sv
+//                 ^^^^^ storage.modifier.pull1.sv

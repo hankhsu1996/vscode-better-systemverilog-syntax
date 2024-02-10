@@ -8,14 +8,10 @@
 
 
 /*
-:name: include-directive
-:description: Include empty file
-:tags: 5.6.4
+:name: 22.10--celldefine-basic-2
+:description: Test
+:tags: 22.10
+:type: preprocessing
 */
-
-`include "/dev/null"
-//<-------- keyword.control.include.sv
-//       ^^^^^^^^^^^ string.quoted.double.sv
-
-module empty();
-endmodule
+`celldefine
+//<----------- keyword.control.celldefine.sv

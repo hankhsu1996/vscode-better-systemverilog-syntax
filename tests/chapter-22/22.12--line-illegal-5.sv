@@ -8,14 +8,12 @@
 
 
 /*
-:name: include-directive
-:description: Include empty file
-:tags: 5.6.4
+:name: 22.12--line-illegal-5
+:description: Missing filename
+:should_fail_because: Missing filename
+:tags: 22.12
+:type: preprocessing
 */
-
-`include "/dev/null"
-//<-------- keyword.control.include.sv
-//       ^^^^^^^^^^^ string.quoted.double.sv
-
-module empty();
-endmodule
+`line 1
+//<----- keyword.control.line.sv
+//    ^ constant.numeric.integer.sv

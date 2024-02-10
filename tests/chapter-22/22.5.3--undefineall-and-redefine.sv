@@ -8,14 +8,14 @@
 
 
 /*
-:name: include-directive
-:description: Include empty file
-:tags: 5.6.4
+:name: 22.5.3--undefineall-and-redefine
+:description: Test
+:tags: 22.5.3
+:type: preprocessing
 */
-
-`include "/dev/null"
-//<-------- keyword.control.include.sv
-//       ^^^^^^^^^^^ string.quoted.double.sv
-
-module empty();
-endmodule
+`define FOO "foo"
+`undefineall
+//<------------ keyword.control.undefineall.sv
+`define FOO 5
+`undefineall
+`define FOO(x,y) (x + y)

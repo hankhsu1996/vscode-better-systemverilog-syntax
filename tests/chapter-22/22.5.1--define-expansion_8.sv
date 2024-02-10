@@ -8,14 +8,11 @@
 
 
 /*
-:name: include-directive
-:description: Include empty file
-:tags: 5.6.4
+:name: 22.5.1--define_expansion_8
+:description: Test
+:should_fail_because: It shall be an error to specify more actual arguments than the number of formal arguments.
+:tags: 22.5.1
+:type: preprocessing
 */
-
-`include "/dev/null"
-//<-------- keyword.control.include.sv
-//       ^^^^^^^^^^^ string.quoted.double.sv
-
-module empty();
-endmodule
+`define D(x,y) initial $display("start", x , y, "end");
+`D(,,)

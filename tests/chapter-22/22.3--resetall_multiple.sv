@@ -8,14 +8,18 @@
 
 
 /*
-:name: include-directive
-:description: Include empty file
-:tags: 5.6.4
+:name: 22.3--resetall_multiple
+:description: Test
+:tags: 22.3
+:type: preprocessing parsing
 */
+`resetall
+//<--------- keyword.control.resetall.sv
+`resetall
+//<--------- keyword.control.resetall.sv
+`resetall
+//<--------- keyword.control.resetall.sv
 
-`include "/dev/null"
-//<-------- keyword.control.include.sv
-//       ^^^^^^^^^^^ string.quoted.double.sv
-
-module empty();
+module top ();
 endmodule
+

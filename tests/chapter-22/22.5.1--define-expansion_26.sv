@@ -8,14 +8,13 @@
 
 
 /*
-:name: include-directive
-:description: Include empty file
-:tags: 5.6.4
+:name: 22.5.1--define_expansion_26
+:description: Test
+:tags: 22.5.1
+:type: preprocessing
 */
-
-`include "/dev/null"
-//<-------- keyword.control.include.sv
-//       ^^^^^^^^^^^ string.quoted.double.sv
-
-module empty();
+`define append(f) f``_master
+//                 ^^ constant.character.escape.sv
+module top ();
+initial $display(`append(clock));
 endmodule

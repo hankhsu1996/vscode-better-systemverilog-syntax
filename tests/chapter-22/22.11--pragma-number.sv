@@ -8,14 +8,12 @@
 
 
 /*
-:name: include-directive
-:description: Include empty file
-:tags: 5.6.4
+:name: 22.11--pragma-number
+:description: Test
+:tags: 22.11
+:type: preprocessing
 */
-
-`include "/dev/null"
-//<-------- keyword.control.include.sv
-//       ^^^^^^^^^^^ string.quoted.double.sv
-
-module empty();
-endmodule
+`pragma pragma_number 123
+//<------- keyword.control.pragma.sv
+//      ^^^^^^^^^^^^^ entity.other.attribute-name.sv
+//                    ^^^ constant.numeric.integer.sv

@@ -8,14 +8,12 @@
 
 
 /*
-:name: include-directive
-:description: Include empty file
-:tags: 5.6.4
+:name: 22.5.1--define_expansion_11
+:description: Test
+:tags: 22.5.1
+:type: preprocessing
 */
-
-`include "/dev/null"
-//<-------- keyword.control.include.sv
-//       ^^^^^^^^^^^ string.quoted.double.sv
-
-module empty();
+`define MACRO1(a=5,b="B",c) initial $display(a,,b,,c);
+module top ();
+`MACRO1 ( , 2, )
 endmodule

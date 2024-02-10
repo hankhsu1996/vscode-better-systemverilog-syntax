@@ -8,14 +8,11 @@
 
 
 /*
-:name: include-directive
-:description: Include empty file
-:tags: 5.6.4
+:name: 22.11--pragma-invalid
+:description: Test
+:should_fail_because: The pragma specification is identified by the pragma_name, which follows the `pragma directive.
+:tags: 22.11
+:type: preprocessing
 */
-
-`include "/dev/null"
-//<-------- keyword.control.include.sv
-//       ^^^^^^^^^^^ string.quoted.double.sv
-
-module empty();
-endmodule
+`pragma
+//<------- keyword.control.pragma.sv

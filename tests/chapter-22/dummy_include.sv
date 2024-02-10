@@ -8,14 +8,8 @@
 
 
 /*
-:name: include-directive
-:description: Include empty file
-:tags: 5.6.4
+:name: dummy_include
+:description: Utility for testing `include directive
+:type: preprocessing
+:tags: 22.4
 */
-
-`include "/dev/null"
-//<-------- keyword.control.include.sv
-//       ^^^^^^^^^^^ string.quoted.double.sv
-
-module empty();
-endmodule
