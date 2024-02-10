@@ -8,9 +8,9 @@
     "url": "https://github.com/hankhsu1996/vscode-better-systemverilog-syntax"
   },
   "scripts": {
-    "build": "node src/main.js",
+    "build": "ts-node src/index.ts",
     "test": "npm run build && vscode-tmgrammar-test -g syntaxes/systemverilog.tmLanguage.json \"tests/**/*.sv\"",
-    "test-watch": "nodemon --watch src --watch syntaxes --watch tests -e js,yaml,sv --exec \"npm run test\"",
+    "test-watch": "nodemon --watch src --watch syntaxes --watch tests -e ts,yaml,sv --exec \"npm run test\"",
     "package": "vsce package"
   },
   "license": "MIT",
@@ -47,7 +47,10 @@
     ]
   },
   "devDependencies": {
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2",
     "js-yaml": "^4.1.0",
+    "@types/js-yaml": "^4.0.9",
     "nodemon": "^3.0.3",
     "vscode-tmgrammar-test": "0.1.3"
   }
