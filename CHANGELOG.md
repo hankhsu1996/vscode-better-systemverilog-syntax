@@ -6,6 +6,16 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.7] - 2024-02-10
+
+### Added
+
+- Support for SystemVerilog LRM chapter 20, 21, 22 syntax.
+
+### Changed
+
+- Refactor main.js to TypeScript with visitor pattern
+
 ## [0.0.6] - 2024-02-09
 
 ### Added
