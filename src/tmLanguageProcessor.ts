@@ -17,7 +17,7 @@ export class TmLanguageProcessor {
 
   public process(): void {
     this.buildSymbolTable();
-    Object.entries(this.tmLanguage.repository).forEach(([key, value]) => {
+    Object.values(this.tmLanguage.repository).forEach((value) => {
       this.traverse(value, new InterpolationVisitor(this.symbolTable));
       this.traverse(value, new CommentPrependVisitor());
     });
@@ -37,15 +37,15 @@ export class TmLanguageProcessor {
     if (isPatternBeginEnd(node)) {
       visitor.visitBeginEnd(node);
       node.patterns?.forEach((pattern) => this.traverse(pattern, visitor));
-      Object.entries(node.beginCapture ?? {}).forEach(([key, value]) =>
+      Object.values(node.beginCapture ?? {}).forEach((value) =>
         this.traverse(value, visitor)
       );
-      Object.entries(node.endCapture ?? {}).forEach(([key, value]) =>
+      Object.values(node.endCapture ?? {}).forEach((value) =>
         this.traverse(value, visitor)
       );
     } else if (isPatternMatch(node)) {
       visitor.visitMatch(node);
-      Object.entries(node.captures ?? {}).forEach(([key, value]) =>
+      Object.values(node.captures ?? {}).forEach((value) =>
         this.traverse(value, visitor)
       );
     } else if (isPatternPatterns(node)) {
