@@ -27,7 +27,7 @@ module block_tb ();
 //    ^ punctuation.definition.delay.sv
 //     ^^ constant.numeric.integer.sv
       ->ev;
-//    ^^ keyword.operator.binary.sv
+//    ^^ punctuation.definition.event-trigger.sv
     end
     begin
       @ev

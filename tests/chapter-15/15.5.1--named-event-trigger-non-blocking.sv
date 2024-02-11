@@ -18,7 +18,7 @@
 module inner();
   initial
     ->> top.e;
-//  ^^^ keyword.operator.binary.sv
+//  ^^^ punctuation.definition.event-trigger.sv
 endmodule
 
 module top();
@@ -28,7 +28,7 @@ event e;
 initial begin
   // Nonblocking trigger
   ->> e;
-//^^^ keyword.operator.binary.sv
+//^^^ punctuation.definition.event-trigger.sv
 end
 
 endmodule
@@ -39,7 +39,7 @@ class foo;
 
   task wait_e();
     ->> e;
-//  ^^^ keyword.operator.binary.sv
+//  ^^^ punctuation.definition.event-trigger.sv
   endtask;
 
 endclass

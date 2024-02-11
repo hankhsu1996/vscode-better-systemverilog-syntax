@@ -23,7 +23,7 @@ module top();
       $display(":assert: (0 == %d)", $time);
 
       ->e;
-//    ^^ keyword.operator.binary.sv
+//    ^^ punctuation.definition.event-trigger.sv
 
       #5;
 

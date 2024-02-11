@@ -21,7 +21,6 @@ module top ();
 `var_nand(2) g121 (q21, n10, n11);
 //<--------- meta.preprocessor.macro-name.sv
 //        ^ constant.numeric.integer.sv
-//           ^^^^ variable.other.sv
 //                 ^^^ variable.other.sv
 //                      ^^^ variable.other.sv
 //                           ^^^ variable.other.sv
