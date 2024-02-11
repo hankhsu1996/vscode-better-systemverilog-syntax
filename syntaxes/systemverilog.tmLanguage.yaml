@@ -17,10 +17,12 @@ variables:
   classIdentifierStart: (?<!\#\s*)
   classIdentifierEnd: (?!\s*(\(|\.|\=|:|${identifier}\s*\())
   psIdentifier: (?:(?:${identifier})\s*(?:::)\s*)?(?:${identifier})
-  # module, primitive, interface, program, package
-  failSafeLevel1: (?=\b(?:endmodule|endprimitive|endinterface|endpackage)\b)
-  # task, function, checker, class, covergroup, property, sequence
-  failSafeLevel2: (?=\b(?:endtask|endfunction|endchecker|endclass|endgroup|endproperty|endsequence)\b)
+  # endmodule, endprimitive, endinterface, endprogram, endpackage, endconfig
+  failSafeLevel1: (?=\b(?:endmodule|endprimitive|endinterface|endpackage|endconfig)\b)
+  # endtask, endfunction, endchecker, class, endgroup, endproperty, endsequence, endgenerate, endtable, endclocking, endspecify
+  failSafeLevel2: (?=\b(?:endtask|endfunction|endchecker|endclass|endgroup|endproperty|endsequence|endgenerate|endtable|endclocking|endspecify)\b)
+  # end, endcase
+  failSafeLevel3: (?=\b(?:end|endcase)\b)
   assignmentEnd: (?=\,|\)|\;)|${failSafeLevel1}|${failSafeLevel2}
 
 patterns:
@@ -3367,7 +3369,7 @@ repository:
     patterns:
       - name: meta.module-instantiation.sv
         begin: (${identifier})\s*(?=\#)
-        end: (\;)\s*
+        end: (\;)\s*|${failSafeLevel1}|${failSafeLevel2}
         beginCaptures:
           "1": { name: entity.name.type.sv }
         endCaptures:
@@ -3378,7 +3380,7 @@ repository:
           - include: "#comma"
       - name: meta.module-instantiation.sv
         begin: (${identifier})\s*(?=${identifier}\s*\()
-        end: (\;)\s*
+        end: (\;)\s*|${failSafeLevel1}|${failSafeLevel2}
         beginCaptures:
           "1": { name: entity.name.type.sv }
         endCaptures:
@@ -3388,7 +3390,7 @@ repository:
           - include: "#comma"
   parameter-value-assignment:
     begin: (\#)\s*(\()
-    end: (\))\s*
+    end: (\))\s*|${failSafeLevel1}|${failSafeLevel2}
     beginCaptures:
       "1": { name: punctuation.definition.parameter-assignment-or-delay.sv }
       "2": { name: punctuation.section.group.begin.sv }
@@ -3422,8 +3424,9 @@ repository:
         patterns:
           - include: "#param-expression"
   hierarchical-instance:
-    begin: (?<!\.\s*)(${identifier})\s*(\()
-    end: (\))\s*
+    name: meta.hierarchical-instance.sv
+    begin: (?<!\.\s*)(${identifier})\s*(\()\s*
+    end: (\))\s*|${failSafeLevel1}|${failSafeLevel2}
     beginCaptures:
       "1": { name: variable.other.sv }
       "2": { name: punctuation.section.group.begin.sv }
@@ -3431,6 +3434,7 @@ repository:
       "1": { name: punctuation.section.group.end.sv }
     patterns:
       - include: "#list-of-port-connections"
+      - include: "#module-instantiation"
   name-of-instance:
     patterns:
       - include: "#instance-identifier"
@@ -3445,6 +3449,7 @@ repository:
       - include: "#attribute-instance"
       - include: "#expression"
   named-port-connection:
+    name: meta.named-port-connection.sv
     begin: (\.)\s*(${identifier})\s*
     end: (?=\)|,)
     beginCaptures:
