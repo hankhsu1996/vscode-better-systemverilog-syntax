@@ -6,7 +6,7 @@ import {
   TmLanguageVisitor,
 } from "./types";
 
-export function interpolateString(
+export function interpolate(
   template: string,
   params: Record<string, string>
 ): string {
@@ -22,12 +22,12 @@ export class InterpolationVisitor implements TmLanguageVisitor {
   constructor(private symbolTable: Record<string, string>) {}
 
   visitBeginEnd(node: TmLanguagePatternBeginEnd): void {
-    node.begin = interpolateString(node.begin, this.symbolTable);
-    node.end = interpolateString(node.end, this.symbolTable);
+    node.begin = interpolate(node.begin, this.symbolTable);
+    node.end = interpolate(node.end, this.symbolTable);
   }
 
   visitMatch(node: TmLanguagePatternMatch): void {
-    node.match = interpolateString(node.match, this.symbolTable);
+    node.match = interpolate(node.match, this.symbolTable);
   }
 
   visitPatterns(node: TmLanguagePatternPatterns): void {}

@@ -1,8 +1,8 @@
 export interface TmLanguage {
   name: string;
   scopeName: string;
-  test: string;
   variables?: Record<string, string>;
+  patterns: TmLanguagePattern[];
   repository: Record<string, TmLanguagePattern>;
 }
 
@@ -10,10 +10,10 @@ export type TmLanguagePatternBeginEnd = {
   name?: string;
   begin: string;
   end: string;
-  beginCapture?: {
+  beginCaptures?: {
     [key: string]: TmLanguagePattern;
   };
-  endCapture?: {
+  endCaptures?: {
     [key: string]: TmLanguagePattern;
   };
   patterns?: TmLanguagePattern[];

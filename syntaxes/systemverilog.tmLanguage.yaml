@@ -1198,7 +1198,7 @@ repository:
       - include: "#simple-type"
       - include: "#constant-primary"
       - include: "#signing"
-      - include: \b(string)\b\s*
+      - match: \b(string)\b\s*
         captures:
           "1": { name: entity.name.type.$1.sv }
       - match: \b(const)\b\s*

@@ -6,7 +6,7 @@ import {
   TmLanguagePatternInclude,
 } from "./types";
 
-export class CommentPrependVisitor implements TmLanguageVisitor {
+export class IncludePrependVisitor implements TmLanguageVisitor {
   visitBeginEnd(node: TmLanguagePatternBeginEnd): void {
     if (node.name !== "comment.block.sv") {
       node.patterns = [
