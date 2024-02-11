@@ -6,6 +6,13 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.8] - 2024-02-11
+
+### Added
+
+- Introduced adaptive highlighting for immediate syntax recognition and resilient parsing for error tolerance.
+- Added minify support for output JSON files.
+
 ## [0.0.7] - 2024-02-10
 
 ### Added
