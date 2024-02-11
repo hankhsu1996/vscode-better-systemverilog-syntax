@@ -2,35 +2,25 @@
 
 ## Introduction
 
-"Better SystemVerilog Syntax" enhances SystemVerilog syntax highlighting in Visual Studio Code, offering improved readability and aesthetics through advanced tmLanguage grammar support.
+"Better SystemVerilog Syntax" provides enhanced syntax highlighting for SystemVerilog in Visual Studio Code, improving readability and aesthetics with advanced tmLanguage grammar.
 
 ## Features
 
-- **Enhanced Syntax Highlighting:** Utilizes a refined tmLanguage grammar for more accurate and appealing syntax highlighting, covering key aspects of SystemVerilog including:
-  - Lexical conventions (Chapter 5)
-  - Data types (Chapter 6)
-  - Aggregated data types (Chapter 7)
-  - Classes (Chapter 8)
-  - Processes (Chapter 9)
-  - Assignment statements (Chapter 10)
-  - Operators and expressions (Chapter 11)
-  - Procedural programming statements (Chapter 12)
-  - Tasks and functions (Chapter 13)
-  - Clocking blocks (Chapter 14)
-  - Interprocess synchronization and communication (Chapter 15)
-  - Assertions (Chapter 16)
-  - Constrained random value generation (Chapter 18)
-  - Utility system functions and tasks (Chapter 20)
-  - Input/output system tasks (Chapter 21)
-  - Compiler directives (Chapter 22)
-  - Modules and hierarchy (Chapter 23)
-  - Programs (Chapter 24)
-  - Interfaces (Chapter 25)
-  - Packages (Chapter 26)
+### Enhanced Syntax Highlighting
+
+This extension leverages an advanced tmLanguage grammar to provide accurate and visually appealing syntax highlighting, covering essential SystemVerilog concepts such as lexical conventions, data types, classes, processes, statements, expressions, synchronization, assertions, random value generation, system functions, input/output tasks, compiler directives, and structural elements.
+
+### Resilient Syntax Highlighting
+
+To ensure readability under various coding conditions, including incomplete or unconventional code, the following strategies are employed:
+
+- **Immediate Highlighting:** Begins highlighting as soon as recognizable syntax elements are detected, improving readability for partially written code.
+- **Intelligent Parsing:** Capable of handling improperly terminated code structures, such as missing `endfunction`, by maintaining consistent highlighting.
+- **Macro Compatibility:** Designed to accommodate SystemVerilog macros, ensuring swift recovery from syntax disruptions for uninterrupted highlighting.
 
 ## Contributing
 
-We welcome contributions! To contribute:
+Contributions are welcome. To contribute:
 
 1. Fork the repository.
 2. Create a feature branch.
@@ -38,8 +28,8 @@ We welcome contributions! To contribute:
 
 ## Feedback
 
-Encounter an issue or have a suggestion? Please submit them as issues in the project repository.
+For issues or suggestions, please file them as issues in the project repository.
 
 ## License
 
-This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for details.
+Licensed under the MIT License. See [LICENSE.md](LICENSE.md) for full details.
