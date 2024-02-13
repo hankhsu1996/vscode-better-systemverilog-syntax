@@ -30,10 +30,9 @@ export class TmLanguageProcessor {
   }
 
   private buildSymbolTable(): void {
-    for (const [key, value] of Object.entries(
-      this.tmLanguage.variables ?? {}
-    )) {
-      this.symbolTable[key] = interpolate(value, this.tmLanguage.variables!);
+    const variables = this.tmLanguage.variables ?? {};
+    for (const [key, value] of Object.entries(variables)) {
+      this.symbolTable[key] = interpolate(value, this.symbolTable);
     }
   }
 
