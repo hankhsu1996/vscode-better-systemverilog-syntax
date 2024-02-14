@@ -5,6 +5,7 @@ import {
 } from "./minify";
 import { IncludePrependVisitor } from "./includePrepend";
 import { InterpolationVisitor, interpolate } from "./interpolation";
+import { PatternChecker } from "./checker";
 import {
   TmLanguage,
   TmLanguagePattern,
@@ -23,6 +24,7 @@ export class TmLanguageProcessor {
 
   public process(): void {
     this.buildSymbolTable();
+    this.applyVisitorsToRepository(new PatternChecker());
     this.applyVisitorsToRepository(new InterpolationVisitor(this.symbolTable));
     this.applyVisitorsToRepository(new IncludePrependVisitor());
     delete this.tmLanguage.variables;

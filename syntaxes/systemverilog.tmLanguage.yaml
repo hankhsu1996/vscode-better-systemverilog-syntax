@@ -22,8 +22,10 @@ variables:
   blocksFailSafe: (?=\b(?:endmodule|endprogram|endinterface|endchecker|endpackage|endprimitive|endconfig)\b)
   # When there is an end of block, the statement should be ended
   itemsFailSafe: (?=\b(?:endmodule|endprimitive|endinterface|endpackage|endconfig|endtask|endfunction|endchecker|endclass|endgroup|endproperty|endsequence|endgenerate|endtable|endclocking|endspecify)\b)|${blocksFailSafe}
-  bracketsFailSafe: (?=\b(?:end|endcase)\b)|${itemsFailSafe}
-  assignmentEnd: (?=\,|\)|\;)|${itemsFailSafe}
+  statementStart: \b(?:assign|deassign|force|release|case|casez|casex|if|else|disable(?!\s*\biff\b)|forever|repeat|while|for|do|foreach|return|break|continue|fork|begin|wait|wait_order|assert|assume|cover|randsequence|randcase|expect)\b
+  statementsFailSafe: ${itemsFailSafe}|(?=${statementStart})
+  bracketsFailSafe: (?=\b(?:end|endcase)\b)|${itemsFailSafe}|(?=${statementStart})
+  assignmentEnd: (?=\,|\)|\;)|${bracketsFailSafe}|(?=${statementStart})
 
 patterns:
   - include: "#comment"
@@ -151,8 +153,8 @@ repository:
           "1": { name: storage.type.checker.sv }
           "2": { name: entity.name.type.sv }
         patterns:
-          - begin: (\()\]\s*
-            end: (\))\s*
+          - begin: (\()\s*
+            end: (\))\s*|${bracketsFailSafe}
             beginCaptures:
               "1": { name: punctuation.section.group.begin.sv }
             endCaptures:
@@ -349,7 +351,7 @@ repository:
     patterns:
       - name: meta.port.sv
         begin: (\.)(${identifier})\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.definition.named-port.sv }
           "2": { name: variable.other.sv }
@@ -363,12 +365,12 @@ repository:
     patterns:
       - include: "#port-reference"
       - name: meta.port-expression.sv
-        begin: \{
-        end: \}
+        begin: (\{)\s*
+        end: (\})\s*|${bracketsFailSafe}
         beginCaptures:
-          "0": { name: punctuation.section.group.begin.sv }
+          "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
-          "0": { name: punctuation.section.group.end.sv }
+          "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#port-reference"
           - include: "#comma"
@@ -424,7 +426,7 @@ repository:
       # Conflict: The 'generate for' and 'for' statements have the same beginning. Therefore, they are combined here:
       - name: meta.for.sv
         begin: \b(for)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.for.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -695,7 +697,7 @@ repository:
       "1": { name: punctuation.terminator.semicolon.sv }
     patterns:
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -738,7 +740,7 @@ repository:
   constraint-declaration:
     name: meta.constraint-declaration.sv
     begin: (?=(?:\b(static)\b\s+)?\b(constraint)\b)
-    end: (\})\s*
+    end: (\})\s*|${bracketsFailSafe}
     beginCaptures:
       "1": { name: storage.modifier.static.sv }
       "2": { name: storage.type.constraint.sv }
@@ -805,7 +807,7 @@ repository:
       - include: "#expression"
       - include: "#constraint-set"
       - begin: \b(if)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.if.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -817,7 +819,7 @@ repository:
         captures:
           "1": { name: keyword.control.else.sv }
       - begin: \b(foreach)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.foreach.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -826,7 +828,7 @@ repository:
         patterns:
           - include: "#ps-or-hierarchical-array-identifier"
           - begin: (\[)\s*
-            end: (\])\s*
+            end: (\])\s*|${bracketsFailSafe}
             beginCaptures:
               "1": { name: punctuation.section.brackets.begin.sv }
             endCaptures:
@@ -845,7 +847,7 @@ repository:
   uniqueness-constraint:
     patterns:
       - begin: \b(unique)\b\s*(\{)\s*
-        end: (\})\s*
+        end: (\})\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.other.unique.sv }
           "2": { name: punctuation.section.braces.begin.sv }
@@ -857,7 +859,7 @@ repository:
   constraint-set:
     patterns:
       - begin: (\{)\s*
-        end: (\})\s*
+        end: (\})\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.braces.begin.sv }
         endCaptures:
@@ -1212,33 +1214,32 @@ repository:
       - include: "#integer-vector-type"
       - include: "#integer-atom-type"
       - include: "#non-integer-type"
-      - begin: \b(struct|union(?:\s+tagged)?)\b\s*(?:(?:(packed)\b(?:\s+(signed|unsigned))?)\b\s*)?
-        end: (?<=\})\s*((?:\[.*?\])*)\s*
+      - begin: (?=\b(struct|union)\b)
+        end: (\})\s*|${bracketsFailSafe}
         name: meta.struct.sv
-        beginCaptures:
-          "1":
-            patterns:
-              - include: "#struct-union"
-          "2": { name: storage.modifier.packed.sv }
-          "3":
-            patterns:
-              - include: "#signing"
         endCaptures:
-          "1":
-            patterns:
-              - include: "#dimension"
+          "1": { name: punctuation.section.braces.end.sv }
         patterns:
-          - begin: \{
-            end: \}
-            name: meta.struct.body.sv
+          - name: meta.struct-header.sv
+            begin: \b(struct|union)\b\s*(?:\b(tagged)\b\s*)?
+            end: (?=\{)
             beginCaptures:
-              "0": { name: punctuation.section.braces.begin.sv }
-            endCaptures:
-              "0": { name: punctuation.section.braces.end.sv }
+              "1": { name: storage.type.$1.sv }
+              "2": { name: storage.modifier.tagged.sv }
+            patterns:
+              - match: \b(packed)\b\s*
+                captures:
+                  "1": { name: storage.modifier.packed.sv }
+              - include: "#signing"
+          - name: meta.struct-body.sv
+            begin: (\{)\s*
+            end: (?=\})
+            beginCaptures:
+              "1": { name: punctuation.section.braces.begin.sv }
             patterns:
               - include: "#struct-union-member"
       - begin: (?=\benum\b)
-        end: (\})\s*
+        end: (\})\s*|${bracketsFailSafe}
         name: meta.enum.sv
         endCaptures:
           "1": { name: punctuation.section.braces.end.sv }
@@ -1305,7 +1306,7 @@ repository:
     patterns:
       - name: meta.enum-range.sv
         begin: (\[)\s*
-        end: (\])\s*
+        end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.brackets.begin.sv }
         endCaptures:
@@ -1418,7 +1419,7 @@ repository:
   type-reference:
     name: meta.type-reference.sv
     begin: \b(type)\s*(\()\s*
-    end: (\))\s*
+    end: (\))\s*|${bracketsFailSafe}
     beginCaptures:
       "1": { name: entity.name.function.$1.sv }
       "2": { name: punctuation.section.group.begin.sv }
@@ -1454,7 +1455,7 @@ repository:
     patterns:
       - name: meta.delay3.sv
         begin: (\#)\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.definition.delay.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -1475,7 +1476,7 @@ repository:
     patterns:
       - name: meta.delay2.sv
         begin: (\#)\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.definition.delay.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -1639,7 +1640,7 @@ repository:
           "1": { name: entity.name.function.sv }
       - name: meta.class-new.sv
         begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -1702,7 +1703,7 @@ repository:
           - include: "#interface-identifier"
           - include: "#class-scope"
           - begin: (\()\s*
-            end: (\))\s*
+            end: (\))\s*|${bracketsFailSafe}
             beginCaptures:
               "1": { name: punctuation.section.group.begin.sv }
             endCaptures:
@@ -1725,7 +1726,7 @@ repository:
               "1": { name: punctuation.terminator.semicolon.sv }
             patterns:
               - begin: (\()\s*
-                end: (\))\s*
+                end: (\))\s*|${bracketsFailSafe}
                 beginCaptures:
                   "1": { name: punctuation.section.group.begin.sv }
                 endCaptures:
@@ -1744,7 +1745,7 @@ repository:
       - include: "#function-data-type-or-implicit"
       - include: "#function-identifier"
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -1805,7 +1806,7 @@ repository:
           - include: "#interface-identifier"
           - include: "#class-scope"
           - begin: (\()\s*
-            end: (\))\s*
+            end: (\))\s*|${bracketsFailSafe}
             beginCaptures:
               "1": { name: punctuation.section.group.begin.sv }
             endCaptures:
@@ -1871,7 +1872,7 @@ repository:
     patterns:
       - include: "#task-identifier"
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -1944,7 +1945,7 @@ repository:
   expect-property-statement:
     patterns:
       - begin: \b(expect)\b\s*(?:(\()\s*)?
-        end: (\))\s*|${blocksFailSafe}
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.expect.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -1966,7 +1967,7 @@ repository:
         patterns:
           - include: "#clocking-event"
           - begin: \b(disable)\b\s+\b(iff)\b\s*(?:(\()\s*)?
-            end: (\))\s*
+            end: (\))\s*|${bracketsFailSafe}
             beginCaptures:
               "1": { name: keyword.control.disable.sv }
               "2": { name: keyword.control.iff.sv }
@@ -1994,7 +1995,7 @@ repository:
       - include: "#ps-or-hierarchical-property-identifier"
       - name: meta.property-instance.sv
         begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -2004,7 +2005,7 @@ repository:
   property-list-of-arguments:
     patterns:
       - begin: (\.)\s*(${identifier})\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.separator.dot.sv }
           "2": { name: entity.name.function.$2.sv }
@@ -2040,7 +2041,7 @@ repository:
         patterns:
           - include: "#property-identifier"
           - begin: (\()\s*
-            end: (\))\s*
+            end: (\))\s*|${bracketsFailSafe}
             beginCaptures:
               "1": { name: punctuation.section.group.begin.sv }
             endCaptures:
@@ -2088,9 +2089,9 @@ repository:
           "1": { name: entity.name.type.$1.sv }
   property-spec:
     patterns:
-      - include: "#clocking-event"
-      - begin: \b(disable)\b\s+\b(iff)\b\s*(\()\s*
-        end: (\))\s*
+      - name: meta.property-spec.sv
+        begin: \b(disable)\b\s+\b(iff)\b\s*(\()\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.disable.sv }
           "2": { name: keyword.control.iff.sv }
@@ -2099,12 +2100,13 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#expression-or-dist"
+      - include: "#clocking-event"
       - include: "#property-expr"
   property-expr:
     patterns:
       - include: "#sequence-expr"
       - begin: \b(strong)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.operator.strong.sv }
           "2": { name: punctuation.section.braces.begin.sv }
@@ -2113,7 +2115,7 @@ repository:
         patterns:
           - include: "#sequence-expr"
       - begin: \b(weak)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.operator.weak.sv }
           "2": { name: punctuation.section.braces.begin.sv }
@@ -2122,7 +2124,7 @@ repository:
         patterns:
           - include: "#sequence-expr"
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -2145,7 +2147,7 @@ repository:
         captures:
           "1": { name: keyword.operator.property.sv }
       - begin: \b(if)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -2171,7 +2173,7 @@ repository:
               "2": { name: punctuation.section.group.begin.sv }
             patterns:
               - include: "#expression-or-dist"
-          - begin: (\))\s*
+          - begin: (\))\s*|${bracketsFailSafe}
             end: (?=\b(endcase)\b)
             beginCaptures:
               "1": { name: punctuation.section.group.end.sv }
@@ -2184,7 +2186,7 @@ repository:
         captures:
           "1": { name: keyword.operator.property.sv }
       - begin: \b(nexttime)\b\s*(\[)\s*
-        end: (\])\s*
+        end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.other.nexttime.sv }
           "2": { name: punctuation.section.brackets.begin.sv }
@@ -2196,7 +2198,7 @@ repository:
         captures:
           "1": { name: keyword.other.nexttime.sv }
       - begin: \b(s_nexttime)\b\s*(\[)\s*
-        end: (\])\s*
+        end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.other.s_nexttime.sv }
           "2": { name: punctuation.section.brackets.begin.sv }
@@ -2208,7 +2210,7 @@ repository:
         captures:
           "1": { name: keyword.other.s_nexttime.sv }
       - begin: \b(always)\b\s*(\[)\s*
-        end: (\])\s*
+        end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.other.always.sv }
           "2": { name: punctuation.section.brackets.begin.sv }
@@ -2220,7 +2222,7 @@ repository:
         captures:
           "1": { name: keyword.other.always.sv }
       - begin: \b(s_always)\b\s*(\[)\s*
-        end: (\])\s*
+        end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.other.s_always.sv }
           "2": { name: punctuation.section.brackets.begin.sv }
@@ -2229,7 +2231,7 @@ repository:
         patterns:
           - include: "#constant-range"
       - begin: \b(s_eventually)\b\s*(\[)\s*
-        end: (\])\s*
+        end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.other.s_eventually.sv }
           "2": { name: punctuation.section.brackets.begin.sv }
@@ -2241,7 +2243,7 @@ repository:
         captures:
           "1": { name: keyword.other.eventually.sv }
       - begin: \b(eventually)\b\s*(\[)\s*
-        end: (\])\s*
+        end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.other.eventually.sv }
           "2": { name: punctuation.section.brackets.begin.sv }
@@ -2268,7 +2270,7 @@ repository:
         captures:
           "1": { name: keyword.control.iff.sv }
       - begin: \b(accept_on)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.accept_on.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -2277,7 +2279,7 @@ repository:
         patterns:
           - include: "#expression-or-dist"
       - begin: \b(reject_on)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.reject_on.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -2286,7 +2288,7 @@ repository:
         patterns:
           - include: "#expression-or-dist"
       - begin: \b(sync_accept_on)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.sync_accept_on.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -2295,7 +2297,7 @@ repository:
         patterns:
           - include: "#expression-or-dist"
       - begin: \b(sync_reject_on)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.sync_reject_on.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -2336,7 +2338,7 @@ repository:
         patterns:
           - include: "#sequence-identifier"
           - begin: (\()\s*
-            end: (\))\s*
+            end: (\))\s*|${bracketsFailSafe}
             beginCaptures:
               "1": { name: punctuation.section.group.begin.sv }
             endCaptures:
@@ -2389,7 +2391,7 @@ repository:
     patterns:
       - name: meta.sequence-expr-parenthesis.sv
         begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -2407,7 +2409,7 @@ repository:
         captures:
           "1": { name: keyword.other.or.sv }
       - begin: \b(first_match)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.other.first_match.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -2431,7 +2433,7 @@ repository:
   cycle-delay-range:
     patterns:
       - begin: (\#\#)\s*(\[)\s*
-        end: (\])\s*
+        end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.operator.cycle-delay.sv }
           "2": { name: punctuation.section.brackets.begin.sv }
@@ -2464,7 +2466,7 @@ repository:
       - include: "#ps-or-hierarchical-sequence-identifier"
       - name: meta.sequence-instance.sv
         begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -2474,7 +2476,7 @@ repository:
   sequence-list-of-arguments:
     patterns:
       - begin: (\.)\s*(${identifier})\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.definition.named-parameter-assignment.sv }
           "2": { name: variable.parameter.sv }
@@ -2513,7 +2515,7 @@ repository:
           "3": { name: punctuation.section.brackets.end.sv }
       - name: meta.consecutive-repetition.sv
         begin: (\[)\s*(\*)\s*
-        end: (\])\s*
+        end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.brackets.begin.sv }
           "2": { name: keyword.operator.consecutive-repetition.sv }
@@ -2525,7 +2527,7 @@ repository:
     patterns:
       - name: meta.non-consecutive-repetition.sv
         begin: (\[)\s*(\=)\s*
-        end: (\])\s*
+        end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.brackets.begin.sv }
           "2": { name: keyword.operator.non-consecutive-repetition.sv }
@@ -2537,7 +2539,7 @@ repository:
     patterns:
       - name: meta.goto-repetition.sv
         begin: (\[)\s*(\-\>)\s*
-        end: (\])\s*
+        end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.brackets.begin.sv }
           "2": { name: keyword.operator.goto-repetition.sv }
@@ -2562,7 +2564,7 @@ repository:
     patterns:
       - include: "#expression"
       - begin: \b(dist)\b\s*(\{)\s*
-        end: (\})\s*
+        end: (\})\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.other.dist.sv }
           "2": { name: punctuation.section.braces.begin.sv }
@@ -2594,7 +2596,7 @@ repository:
         patterns:
           - include: "#covergroup-identifier"
           - begin: (\()\s*
-            end: (\))\s*
+            end: (\))\s*|${bracketsFailSafe}
             beginCaptures:
               "1": { name: punctuation.section.group.begin.sv }
             endCaptures:
@@ -2646,7 +2648,7 @@ repository:
     patterns:
       - include: "#clocking-event"
       - begin: \b(with)\s+\b(function)\s+\b(sample)\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.with.sv }
           "2": { name: storage.type.function.sv }
@@ -2657,7 +2659,7 @@ repository:
         patterns:
           - include: "#tf-port-list"
       - begin: (\@\@)\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.definition.block-event.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -2698,7 +2700,7 @@ repository:
           "1": { name: storage.type.coverpoint.sv }
         patterns:
           - begin: \b(iff)\b\s*(\()\s*
-            end: (\))\s*
+            end: (\))\s*|${bracketsFailSafe}
             beginCaptures:
               "1": { name: keyword.control.iff.sv }
               "2": { name: punctuation.section.group.begin.sv }
@@ -2713,7 +2715,7 @@ repository:
     patterns:
       - name: meta.bins-or-empty.sv
         begin: (\{)\s*
-        end: (\})\s*
+        end: (\})\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.braces.begin.sv }
         endCaptures:
@@ -2742,7 +2744,7 @@ repository:
               "4": { name: keyword.operator.assignment.sv }
             patterns:
               - begin: (\[)\s*
-                end: (\])\s*
+                end: (\])\s*|${bracketsFailSafe}
                 beginCaptures:
                   "1": { name: punctuation.section.brackets.begin.sv }
                 endCaptures:
@@ -2757,7 +2759,7 @@ repository:
             patterns:
               - name: meta.covergroup-range-list.sv
                 begin: (\{)\s*
-                end: (\})\s*
+                end: (\})\s*|${bracketsFailSafe}
                 beginCaptures:
                   "1": { name: punctuation.section.braces.begin.sv }
                 endCaptures:
@@ -2771,7 +2773,7 @@ repository:
                   "1": { name: keyword.control.default.sv }
                   "2": { name: keyword.control.sequence.sv }
               - begin: \b(with)\b\s*(\()\s*
-                end: (\))\s*
+                end: (\))\s*|${bracketsFailSafe}
                 beginCaptures:
                   "1": { name: keyword.control.with.sv }
                   "2": { name: punctuation.section.group.begin.sv }
@@ -2780,7 +2782,7 @@ repository:
                 patterns:
                   - include: "#with-covergroup-expression"
               - begin: \b(iff)\b\s*(\()\s*
-                end: (\))\s*
+                end: (\))\s*|${bracketsFailSafe}
                 beginCaptures:
                   "1": { name: keyword.control.iff.sv }
                   "2": { name: punctuation.section.group.begin.sv }
@@ -2795,7 +2797,7 @@ repository:
   trans-list:
     patterns:
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -2812,7 +2814,7 @@ repository:
   trans-range-list:
     patterns:
       - begin: (\[)\s*(\*)\s*
-        end: (\])\s*
+        end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.brackets.begin.sv }
           "2": { name: keyword.operator.trans-range.sv }
@@ -2821,7 +2823,7 @@ repository:
         patterns:
           - include: "#repeat-range"
       - begin: (\[)\s*(\-\>)\s*
-        end: (\])\s*
+        end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.brackets.begin.sv }
           "2": { name: keyword.operator.trans-range.sv }
@@ -2830,7 +2832,7 @@ repository:
         patterns:
           - include: "#repeat-range"
       - begin: (\[)\s*(\=)\s*
-        end: (\])\s*
+        end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.brackets.begin.sv }
           "2": { name: keyword.operator.trans-range.sv }
@@ -2855,7 +2857,7 @@ repository:
         patterns:
           - include: "#list-of-cross-items"
           - begin: \b(iff)\b\s*(\()\s*
-            end: (\))\s*
+            end: (\))\s*|${bracketsFailSafe}
             beginCaptures:
               "1": { name: keyword.control.iff.sv }
               "2": { name: punctuation.section.group.begin.sv }
@@ -2878,7 +2880,7 @@ repository:
     patterns:
       - name: meta.cross-body.sv
         begin: (\{)\s*
-        end: (\})\s*
+        end: (\})\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.braces.begin.sv }
         endCaptures:
@@ -2904,7 +2906,7 @@ repository:
       - include: "#equal"
       - include: "#select-expression"
       - begin: \b(iff)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.iff.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -2925,7 +2927,7 @@ repository:
         captures:
           "1": { name: keyword.operator.binary.sv }
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -2933,7 +2935,7 @@ repository:
         patterns:
           - include: "#select-expression"
       - begin: \b(with)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.with.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -2952,7 +2954,7 @@ repository:
   select-condition:
     patterns:
       - begin: \b(binsof)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.binsof.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -2961,7 +2963,7 @@ repository:
         patterns:
           - include: "#bins-expression"
       - begin: \b(intersect)\b\s*(\{)\s*
-        end: (\})\s*
+        end: (\})\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.other.intersect.sv }
           "2": { name: punctuation.section.braces.begin.sv }
@@ -2983,7 +2985,7 @@ repository:
     patterns:
       - include: "#covergroup-expression"
       - begin: (\[)\s*
-        end: (\])\s*
+        end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.brackets.begin.sv }
         endCaptures:
@@ -3018,7 +3020,7 @@ repository:
     patterns:
       - name: meta.let-declaration-header.sv
         begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -3064,7 +3066,7 @@ repository:
       - include: "#let-identifier"
       - name: meta.let-expression.sv
         begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -3074,7 +3076,7 @@ repository:
   let-list-of-arguments:
     patterns:
       - begin: (?<!\w)(\.)\s*(${identifier})\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.definition.named-parameter-assignment.sv }
           "2": { name: variable.parameter.sv }
@@ -3188,7 +3190,7 @@ repository:
     patterns:
       - include: "#name-of-instance"
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -3203,7 +3205,7 @@ repository:
     patterns:
       - include: "#name-of-instance"
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -3217,7 +3219,7 @@ repository:
     patterns:
       - include: "#name-of-instance"
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -3231,7 +3233,7 @@ repository:
     patterns:
       - include: "#name-of-instance"
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -3244,7 +3246,7 @@ repository:
     patterns:
       - include: "#name-of-instance"
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -3257,7 +3259,7 @@ repository:
     patterns:
       - include: "#name-of-instance"
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -3269,7 +3271,7 @@ repository:
     patterns:
       - include: "#name-of-instance"
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -3282,7 +3284,7 @@ repository:
     patterns:
       - include: "#name-of-instance"
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -3410,7 +3412,7 @@ repository:
           - include: "#comma"
   parameter-value-assignment:
     begin: (\#)\s*(\()
-    end: (\))\s*
+    end: (\))\s*|${bracketsFailSafe}
     beginCaptures:
       "1": { name: punctuation.definition.parameter-assignment-or-delay.sv }
       "2": { name: punctuation.section.group.begin.sv }
@@ -3436,7 +3438,7 @@ repository:
     patterns:
       - name: meta.named-parameter-assignment.sv
         begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -3478,7 +3480,7 @@ repository:
     patterns:
       - name: meta.named-port-connection.sv
         begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -3500,7 +3502,7 @@ repository:
     patterns:
       - name: meta.loop-generate-construct.sv
         begin: \b(for)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.for.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -3530,7 +3532,7 @@ repository:
   if-generate-construct:
     patterns:
       - begin: \b(if)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -3558,7 +3560,7 @@ repository:
           - include: "#constant-expression"
       # Body
       - name: meta.case-generate-construct-body.sv
-        begin: (\))\s*
+        begin: (\))\s*|${bracketsFailSafe}
         end: (?=\b(endcase)\b)
         beginCaptures:
           "1": { name: punctuation.section.group.end.sv }
@@ -3746,7 +3748,7 @@ repository:
       # Conflict: The 'generate for' and 'for' statements have the same beginning. Therefore, they are combined here:
       - name: meta.for.sv
         begin: \b(for)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.for.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -3793,7 +3795,7 @@ repository:
       - include: "#delay-control"
       - include: "#event-control"
       - begin: \b(repeat)\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -3805,13 +3807,14 @@ repository:
     patterns:
       - name: meta.delay-control.sv
         begin: (\#)\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
-          "1": { name: punctuation.definition.delay.sv }
+          "1": { name: punctuation.definition.parameter-assignment-or-delay.sv }
           "2": { name: punctuation.section.group.begin.sv }
         endCaptures:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
+          - include: "#list-of-parameter-assignments"
           - include: "#mintypmax-expression"
       - match: (\#)\s*
         captures:
@@ -3932,10 +3935,10 @@ repository:
           - include: "#hierarchical-event-identifier"
   disable-statement:
     patterns:
-      - begin: \b(disable)\s*
-        end: (\;)\s*|${itemsFailSafe}
+      - begin: \b(disable)\s*(?!\s*\biff\b)
+        end: (\;)\s*|${statementsFailSafe}
         beginCaptures:
-          "1": { name: keyword.control.$1.sv }
+          "1": { name: keyword.control.disable.sv }
         endCaptures:
           "1": { name: punctuation.terminator.semicolon.sv }
         patterns:
@@ -4002,7 +4005,7 @@ repository:
             patterns:
               - include: "#case-expression"
           # Body
-          - begin: (\))\s*
+          - begin: (\))\s*|${bracketsFailSafe}
             beginCaptures:
               "1": { name: punctuation.section.group.end.sv }
             end: (?=\b(endcase)\b)|${itemsFailSafe}
@@ -4095,7 +4098,7 @@ repository:
   assignment-pattern:
     name: meta.pattern.sv
     begin: (\'\{)\s*
-    end: (\})\s*
+    end: (\})\s*|${bracketsFailSafe}
     beginCaptures:
       "1": { name: punctuation.section.braces.begin.sv }
     endCaptures:
@@ -4104,12 +4107,12 @@ repository:
       - include: "#pattern"
       # Replication case
       - name: meta.assignment-pattern-replication.sv
-        begin: (?<=[^{,'\s])\s*\{
-        end: \}
+        begin: (?<=[^{,'\s])\s*(\{)\s*
+        end: (\})\s*|${bracketsFailSafe}
         beginCaptures:
-          "0": { name: punctuation.section.braces.begin.sv }
+          "1": { name: punctuation.section.braces.begin.sv }
         endCaptures:
-          "0": { name: punctuation.section.braces.end.sv }
+          "1": { name: punctuation.section.braces.end.sv }
         patterns:
           - include: "#comma"
           - include: "#expression"
@@ -4157,20 +4160,20 @@ repository:
   assignment-pattern-net-lvalue:
     patterns:
       - name: meta.assignment-pattern-net-lvalue.sv
-        begin: \'\{
-        end: \}
+        begin: (\'\{)\s*
+        end: (\})\s*|${bracketsFailSafe}
         beginCaptures:
-          "0": { name: punctuation.section.braces.begin.sv }
+          "1": { name: punctuation.section.braces.begin.sv }
         endCaptures:
-          "0": { name: punctuation.section.braces.end.sv }
+          "1": { name: punctuation.section.braces.end.sv }
         patterns:
           - include: "#net-lvalue"
           - include: "#comma"
   assignment-pattern-variable-lvalue:
     patterns:
       - name: meta.assignment-pattern-variable-lvalue.sv
-        begin: \'\{
-        end: \}
+        begin: (\'\{)\s*
+        end: (\})\s*|${bracketsFailSafe}
         beginCaptures:
           "0": { name: punctuation.section.braces.begin.sv }
         endCaptures:
@@ -4433,7 +4436,7 @@ repository:
           "2": { name: variable.other.sv }
       - name: meta.clocking-event.sv
         begin: (\@)\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.definition.event.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -4506,7 +4509,7 @@ repository:
       - include: "#integral-number"
       - include: "#identifier"
       - begin: (\#\#)\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.operator.cycle-delay.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -4535,7 +4538,7 @@ repository:
           "2": { name: punctuation.section.group.begin.sv }
         patterns:
           - include: "#production-identifier"
-      - begin: (\))\s*
+      - begin: (\))\s*|${bracketsFailSafe}
         end: (?=\b(endsequence)\b)|${itemsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.end.sv }
@@ -4555,7 +4558,7 @@ repository:
               "1": { name: punctuation.separator.bar.sv }
           - include: "#rs-rule"
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -4582,7 +4585,7 @@ repository:
           "2": { name: keyword.control.join.sv }
       - include: "#rs-prod"
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -4595,7 +4598,7 @@ repository:
       - include: "#integral-number"
       - include: "#ps-identifier"
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -4604,8 +4607,9 @@ repository:
           - include: "#expression"
   rs-code-block:
     patterns:
+      # RS code block might contain statements. Cannot use bracketsFailSafe
       - begin: (\{)\s*
-        end: (\})\s*
+        end: (\})\s*|${itemsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.braces.begin.sv }
         endCaptures:
@@ -4624,7 +4628,7 @@ repository:
     patterns:
       - include: "#production-identifier"
       - begin: (\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
@@ -4635,7 +4639,7 @@ repository:
     patterns:
       - name: meta.rs-if-else.sv
         begin: \b(if)\b\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -4652,7 +4656,7 @@ repository:
     patterns:
       - name: meta.rs-repeat.sv
         begin: \b(repeat)\b\s*(?:(\()\s*)?
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -4674,7 +4678,7 @@ repository:
           "2": { name: punctuation.section.group.begin.sv }
         patterns:
           - include: "#case-expression"
-      - begin: (\))\s*
+      - begin: (\))\s*|${bracketsFailSafe}
         end: (?=\b(endcase)\b)
         beginCaptures:
           "1": { name: punctuation.section.group.end.sv }
@@ -4704,7 +4708,7 @@ repository:
   concatenation:
     name: meta.concatenation.sv
     begin: (\{)\s*
-    end: (\})\s*
+    end: (\})\s*|${bracketsFailSafe}
     beginCaptures:
       "1": { name: punctuation.section.braces.begin.sv }
     endCaptures:
@@ -4728,7 +4732,7 @@ repository:
       - include: "#constant-concatenation"
   module-path-concatenation:
     begin: (\{)\s*
-    end: (\})\s*
+    end: (\})\s*|${bracketsFailSafe}
     beginCaptures:
       "1": { name: punctuation.section.braces.begin.sv }
     endCaptures:
@@ -5135,7 +5139,7 @@ repository:
       - include: "#empty-unpacked-array-concatenation"
       - include: "#concatenation"
       - begin: (\[)\s*
-        end: (\])\s*
+        end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.section.brackets.begin.sv }
         endCaptures:
@@ -5231,7 +5235,7 @@ repository:
     patterns:
       - include: "#casting-type"
       - begin: (\')\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.definition.casting.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -5246,7 +5250,7 @@ repository:
     patterns:
       - include: "#casting-type"
       - begin: (\')\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.definition.casting.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -5505,7 +5509,7 @@ repository:
       # 5. Array reduction: sum, product, and, or, xor
       # 6. Iterator index querying: index
       # 7. randomize method: randomize, pre_randomize, post_randomize, rand_mode, constraint_mode, srandom, get_randstate, set_randstate
-      - match: (?<=\.)\b(num|size|delete|exists|first|last|next|prev|insert|pop_front|pop_back|push_front|push_back|find|find_index|find_first|find_first_index|find_last|find_last_index|min|max|unique|unique_index|reverse|sort|rsort|shuffle|sum|product|and|or|xor|index|randomize|pre_randomize|post_randomize|rand_mode|constraint_mode|srandom|get_randstate|set_randstate)\b(?!\b(if|case|casez|casex)\b)
+      - match: (?<=\.)\b(num|size|delete|exists|first|last|next|prev|insert|pop_front|pop_back|push_front|push_back|find|find_index|find_first|find_first_index|find_last|find_last_index|min|max|unique|unique_index|reverse|sort|rsort|shuffle|sum|product|and|or|xor|index|randomize|pre_randomize|post_randomize|rand_mode|constraint_mode|srandom|get_randstate|set_randstate)\b(?!\s*\=)
         captures:
           "1": { name: entity.name.function.sv }
       - match: \b([A-Z][a-zA-Z0-9_$]*)\b(?!\s*(${identifier}|\(|\'|::|\#))
@@ -5748,7 +5752,7 @@ repository:
           "3":
             patterns:
               - begin: (\()\s*
-                end: (\))\s*
+                end: (\))\s*|${bracketsFailSafe}
                 beginCaptures:
                   "1": { name: punctuation.section.group.begin.sv }
                 endCaptures:
@@ -5766,12 +5770,12 @@ repository:
           "1": { name: keyword.control.define.sv }
           "2": { name: meta.preprocessor.macro-name.sv }
         patterns:
-          - begin: \(
-            end: \)
+          - begin: (\()\s*
+            end: (\))\s*|${bracketsFailSafe}
             beginCaptures:
-              "0": { name: punctuation.section.group.begin.sv }
+              "1": { name: punctuation.section.group.begin.sv }
             endCaptures:
-              "0": { name: punctuation.section.group.end.sv }
+              "1": { name: punctuation.section.group.end.sv }
             patterns:
               - include: "#formal-argument"
               - include: "#comma"
@@ -5834,7 +5838,7 @@ repository:
     patterns:
       # Macro function
       - begin: (${macro})\s*(\()\s*
-        end: (\))\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: meta.preprocessor.macro-name.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -5925,12 +5929,12 @@ repository:
       - include: "#pragma-value"
   pragma-value:
     patterns:
-      - begin: \(
-        end: \)
+      - begin: (\()\s*
+        end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
-          "0": { name: punctuation.section.group.begin.sv }
+          "1": { name: punctuation.section.group.begin.sv }
         endCaptures:
-          "0": { name: punctuation.section.group.end.sv }
+          "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#comma"
           - include: "#pragma-expression"
