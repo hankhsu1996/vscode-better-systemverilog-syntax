@@ -28,10 +28,12 @@ export type TmLanguagePatternMatch = {
 };
 
 export type TmLanguagePatternPatterns = {
+  name?: string;
   patterns: TmLanguagePattern[];
 };
 
 export type TmLanguagePatternInclude = {
+  name?: string;
   include: string;
 };
 
