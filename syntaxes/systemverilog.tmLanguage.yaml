@@ -1,11 +1,13 @@
 name: SystemVerilog
 scopeName: source-text.sv
 variables:
-  simpleIdentifier: \b[a-zA-Z_][a-zA-Z0-9_\$]*\b
-  identifier: (?:(?<!\\|\$|\`)\b[a-zA-Z_][a-zA-Z0-9_\$]*\b|\\\S+(?=\s|$))(?<!\b(?:accept_on|alias|always|always_comb|always_ff|always_latch|and|assert|assign|assume|automatic|before|begin|bind|bins|binsof|bit|break|buf|bufif0|bufif1|byte|case|casex|casez|cell|chandle|checker|class|clocking|cmos|config|const|constraint|context|continue|cover|covergroup|coverpoint|cross|deassign|default|defparam|design|disable|dist|do|edge|else|end|endcase|endchecker|endclass|endclocking|endconfig|endfunction|endgenerate|endgroup|endinterface|endmodule|endpackage|endprimitive|endprogram|endproperty|endspecify|endsequence|endtable|endtask|enum|event|eventually|expect|export|extends|extern|final|first_match|for|force|foreach|forever|fork|forkjoin|function|generate|genvar|global|highz0|highz1|if|iff|ifnone|ignore_bins|illegal_bins|implements|implies|import|incdir|include|initial|inout|input|inside|instance|int|integer|interconnect|interface|intersect|join|join_any|join_none|large|let|liblist|library|local|localparam|logic|longint|macromodule|matches|medium|modport|module|nand|negedge|nettype|new|nexttime|nmos|nor|noshowcancelled|not|notif0|notif1|null|or|output|package|packed|parameter|pmos|posedge|primitive|priority|program|property|protected|pull0|pull1|pulldown|pullup|pulsestyle_ondetect|pulsestyle_onevent|pure|rand|randc|randcase|randsequence|rcmos|real|realtime|ref|reg|reject_on|release|repeat|restrict|return|rnmos|rpmos|rtran|rtranif0|rtranif1|s_always|s_eventually|s_nexttime|s_until|s_until_with|scalared|sequence|shortint|shortreal|showcancelled|signed|small|soft|solve|specify|specparam|static|string|strong|strong0|strong1|struct|super|supply0|supply1|sync_accept_on|sync_reject_on|table|tagged|task|this|throughout|time|timeprecision|timeunit|tran|tranif0|tranif1|tri|tri0|tri1|triand|trior|trireg|type|typedef|union|unique|unique0|unsigned|until|until_with|untyped|use|uwire|var|vectored|virtual|void|wait|wait_order|wand|weak|weak0|weak1|while|wildcard|wire|with|within|wor|xnor|xor)\b|`(?:__FILE__|__LINE__|begin_keywords|celldefine|default_nettype|define|else|elsif|end_keywords|endcelldefine|endif|ifdef|ifndef|include|line|nounconnected_drive|pragma|resetall|timescale|unconnected_drive|undef|undefineall)\b)
+  simpleIdentifier: (?<!\\|\$|\`)\b[a-zA-Z_](?:[a-zA-Z0-9_\$]|``)*\b
+  escapeIdentifier: \\\S+(?=\s|$))
+  keywords: \b(?:accept_on|alias|always|always_comb|always_ff|always_latch|and|assert|assign|assume|automatic|before|begin|bind|bins|binsof|bit|break|buf|bufif0|bufif1|byte|case|casex|casez|cell|chandle|checker|class|clocking|cmos|config|const|constraint|context|continue|cover|covergroup|coverpoint|cross|deassign|default|defparam|design|disable|dist|do|edge|else|end|endcase|endchecker|endclass|endclocking|endconfig|endfunction|endgenerate|endgroup|endinterface|endmodule|endpackage|endprimitive|endprogram|endproperty|endspecify|endsequence|endtable|endtask|enum|event|eventually|expect|export|extends|extern|final|first_match|for|force|foreach|forever|fork|forkjoin|function|generate|genvar|global|highz0|highz1|if|iff|ifnone|ignore_bins|illegal_bins|implements|implies|import|incdir|include|initial|inout|input|inside|instance|int|integer|interconnect|interface|intersect|join|join_any|join_none|large|let|liblist|library|local|localparam|logic|longint|macromodule|matches|medium|modport|module|nand|negedge|nettype|new|nexttime|nmos|nor|noshowcancelled|not|notif0|notif1|null|or|output|package|packed|parameter|pmos|posedge|primitive|priority|program|property|protected|pull0|pull1|pulldown|pullup|pulsestyle_ondetect|pulsestyle_onevent|pure|rand|randc|randcase|randsequence|rcmos|real|realtime|ref|reg|reject_on|release|repeat|restrict|return|rnmos|rpmos|rtran|rtranif0|rtranif1|s_always|s_eventually|s_nexttime|s_until|s_until_with|scalared|sequence|shortint|shortreal|showcancelled|signed|small|soft|solve|specify|specparam|static|string|strong|strong0|strong1|struct|super|supply0|supply1|sync_accept_on|sync_reject_on|table|tagged|task|this|throughout|time|timeprecision|timeunit|tran|tranif0|tranif1|tri|tri0|tri1|triand|trior|trireg|type|typedef|union|unique|unique0|unsigned|until|until_with|untyped|use|uwire|var|vectored|virtual|void|wait|wait_order|wand|weak|weak0|weak1|while|wildcard|wire|with|within|wor|xnor|xor)\b|`(?:__FILE__|__LINE__|begin_keywords|celldefine|default_nettype|define|else|elsif|end_keywords|endcelldefine|endif|ifdef|ifndef|include|line|nounconnected_drive|pragma|resetall|timescale|unconnected_drive|undef|undefineall)\b
+  identifier: (?:${simpleIdentifier}|${escapeIdentifier}(?<!${keywords})
   macro: (?:`[a-zA-Z_][a-zA-Z0-9_\$]*\b(?:\(.*?\))?)(?<!`(?:__FILE__|__LINE__|begin_keywords|celldefine|default_nettype|define|else|elsif|end_keywords|endcelldefine|endif|ifdef|ifndef|include|line|nounconnected_drive|pragma|resetall|timescale|unconnected_drive|undef|undefineall)\b)
   # Remove array method name: unique, and, or, xor
-  functionIdentifier: (?:(?<!\\|\$)(?:\b[a-zA-Z_]|\$)[a-zA-Z0-9_\$]*\b|\\\S+(?=\s|$))(?<!\b(?:accept_on|alias|always|always_comb|always_ff|always_latch|assert|assign|assume|automatic|before|begin|bind|bins|binsof|bit|break|buf|bufif0|bufif1|byte|case|casex|casez|cell|chandle|checker|class|clocking|cmos|config|const|constraint|context|continue|cover|covergroup|coverpoint|cross|deassign|default|defparam|design|disable|dist|do|edge|else|end|endcase|endchecker|endclass|endclocking|endconfig|endfunction|endgenerate|endgroup|endinterface|endmodule|endpackage|endprimitive|endprogram|endproperty|endspecify|endsequence|endtable|endtask|enum|event|eventually|expect|export|extends|extern|final|first_match|for|force|foreach|forever|fork|forkjoin|function|generate|genvar|global|highz0|highz1|if|iff|ifnone|ignore_bins|illegal_bins|implements|implies|import|incdir|include|initial|inout|input|inside|instance|int|integer|interconnect|interface|intersect|join|join_any|join_none|large|let|liblist|library|local|localparam|logic|longint|macromodule|matches|medium|modport|module|nand|negedge|nettype|new|nexttime|nmos|nor|noshowcancelled|not|notif0|notif1|null|output|package|packed|parameter|pmos|posedge|primitive|priority|program|property|protected|pull0|pull1|pulldown|pullup|pulsestyle_ondetect|pulsestyle_onevent|pure|rand|randc|randcase|randsequence|rcmos|real|realtime|ref|reg|reject_on|release|repeat|restrict|return|rnmos|rpmos|rtran|rtranif0|rtranif1|s_always|s_eventually|s_nexttime|s_until|s_until_with|scalared|sequence|shortint|shortreal|showcancelled|signed|small|soft|solve|specify|specparam|static|string|strong|strong0|strong1|struct|super|supply0|supply1|sync_accept_on|sync_reject_on|table|tagged|task|this|throughout|time|timeprecision|timeunit|tran|tranif0|tranif1|tri|tri0|tri1|triand|trior|trireg|type|typedef|union|unique0|unsigned|until|until_with|untyped|use|uwire|var|vectored|virtual|void|wait|wait_order|wand|weak|weak0|weak1|while|wildcard|wire|with|within|wor|xnor)\b)
+  functionIdentifier: ${identifier}
   classScope: (?:${identifier}\s*(?:\#\(.*?\)\s*)?::\s*)+
   # Identifier can be followed by ":" (ternary statement, label, etc.)
   identifierEnd: (?!\s*(${identifier}|#(?!\#|\-\#|\=\#)|\(|\'|::))
@@ -21,9 +23,8 @@ variables:
   # When there is a new design element, the current design element should be ended
   designElementsFailSafe: (?=\b(?:module|program|interface|checker|package|primitive|config)\b)
   blocksFailSafe: (?=\b(?:endmodule|endprogram|endinterface|endchecker|endpackage|endprimitive|endconfig)\b)
-  itemStart: (?=\b(?:const|var|typedef|nettype|import|export|property|sequence|let|genvar|clocking|bind|alias|initial|always|always_comb|always_latch|always_ff)\b)
   # When there is an end of block, the statement should be ended
-  itemsFailSafe: (?=\b(?:endmodule|endprimitive|endinterface|endpackage|endconfig|endtask|endfunction|endchecker|endclass|endgroup|endproperty|endsequence|endgenerate|endtable|endclocking|endspecify)\b)|${blocksFailSafe}|(?=${itemStart})
+  itemsFailSafe: (?=\b(?:endmodule|endprimitive|endinterface|endpackage|endconfig|endtask|endfunction|endchecker|endclass|endgroup|endproperty|endsequence|endgenerate|endtable|endclocking|endspecify)\b)|${blocksFailSafe}
   statementStart: \b(?:assign|deassign|force|release|case|casez|casex|if|else|disable(?!\s*\biff\b)|forever|repeat|while|for|do|foreach|return|break|continue|fork|begin|wait|wait_order|assert|assume|cover|randsequence|randcase|expect)\b
   statementsFailSafe: ${itemsFailSafe}|(?=${statementStart})
   bracketsFailSafe: (?=\b(?:end|endcase)\b)|${itemsFailSafe}|(?=${statementStart})
@@ -34,6 +35,8 @@ patterns:
   - include: "#comment"
   - include: "#compiler-directive"
   - include: "#description"
+  # Sometimes, the file might be a fragment of a larger file.
+  # Therefore, we add some common elements to the top level patterns.
   - include: "#module-item"
   - include: "#interface-item"
   - include: "#program-item"
@@ -2053,7 +2056,9 @@ repository:
     patterns:
       - match: (${identifier})\s*(\:\s*)?
         captures:
-          "1": { name: variable.other.block.sv }
+          "1":
+            patterns:
+              - include: "#block-identifier"
           "2": { name: punctuation.separator.colon.sv }
       - include: "#concurrent-assertion-statement"
       - include: "#checker-instantiation"
@@ -3766,7 +3771,9 @@ repository:
       - include: "#generate-item"
       - match: \b(${identifier})\s*(\:)\s*
         captures:
-          "1": { name: variable.other.block.sv }
+          "1":
+            patterns:
+              - include: "#block-identifier"
           "2": { name: punctuation.separator.colon.sv }
       - match: ${keywordStart}\b(begin)\b\s*
         captures:
@@ -3777,7 +3784,9 @@ repository:
       - match: (\:)\s*(${identifier})\s*
         captures:
           "1": { name: punctuation.separator.colon.sv }
-          "2": { name: variable.other.block.sv }
+          "2":
+            patterns:
+              - include: "#block-identifier"
   generate-item:
     patterns:
       - include: "#module-or-generate-item"
@@ -3869,11 +3878,15 @@ repository:
     beginCaptures:
       "1": { name: keyword.control.begin.sv }
       "2": { name: punctuation.separator.colon.sv }
-      "3": { name: variable.other.block.sv }
+      "3":
+        patterns:
+          - include: "#block-identifier"
     endCaptures:
       "1": { name: keyword.control.end.sv }
       "2": { name: punctuation.separator.colon.sv }
-      "3": { name: variable.other.block.sv }
+      "3":
+        patterns:
+          - include: "#block-identifier"
     patterns:
       - include: "#generate-item"
       - include: "#block-item-declaration"
@@ -3884,11 +3897,15 @@ repository:
     beginCaptures:
       "1": { name: keyword.control.fork.sv }
       "2": { name: punctuation.separator.colon.sv }
-      "3": { name: variable.other.block.sv }
+      "3":
+        patterns:
+          - include: "#block-identifier"
     endCaptures:
       "1": { name: keyword.control.$1.sv }
       "2": { name: punctuation.separator.colon.sv }
-      "3": { name: variable.other.block.sv }
+      "3":
+        patterns:
+          - include: "#block-identifier"
     patterns:
       - include: "#block-item-declaration"
       - include: "#statement-or-null"
@@ -4460,7 +4477,9 @@ repository:
     patterns:
       - match: (?<!\.)(${identifier})\s*(\:)\s*
         captures:
-          "1": { name: variable.other.block.sv }
+          "1":
+            patterns:
+              - include: "#block-identifier"
           "2": { name: punctuation.separator.colon.sv }
       - include: "#deferred-immediate-assertion-statement"
   procedural-assertion-statement:
@@ -5589,8 +5608,13 @@ repository:
     patterns:
       - include: "#identifier"
   block-identifier:
-    patterns:
-      - include: "#identifier"
+    match: (${identifier})\s*${identifierEnd}
+    captures:
+      "1":
+        name: variable.other.block.sv
+        patterns:
+            - match: \`\`
+              name: constant.character.escape.sv
   bin-identifier:
     patterns:
       - include: "#identifier"
@@ -5723,7 +5747,11 @@ repository:
           "1": { name: entity.name.type.sv }
       - match: (${identifier})\s*${identifierEnd}
         captures:
-          "1": { name: variable.other.sv }
+          "1":
+            name: variable.other.sv
+            patterns:
+                - match: \`\`
+                  name: constant.character.escape.sv
   index-variable-identifier:
     patterns:
       - include: "#identifier"
@@ -5905,6 +5933,7 @@ repository:
   # Compiler directives
   compiler-directive:
     patterns:
+      - include: "#macro-continuation"
       - include: "#macro-resetall"
       - include: "#macro-include"
       - include: "#macro-define"
@@ -5991,7 +6020,7 @@ repository:
         captures:
           "1": { name: keyword.control.define.sv }
   macro-continuation:
-    match: \\
+    match: \\$
     name: punctuation.separator.continuation.sv
   macro-text:
     patterns:
@@ -6027,6 +6056,7 @@ repository:
             patterns:
               - match: \`\`
                 name: constant.character.escape.sv
+      - include: "#attribute-instance"
       - include: "#module-item"
       - include: "#interface-item"
       - include: "#program-item"

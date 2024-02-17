@@ -18,3 +18,17 @@
   @(posedge clk);
 //  ^^^^^^^ keyword.other.posedge.sv
 )
+
+
+`define MACRO_FUNC(name) \
+  logic \escapeIdentifier ;
+//^^^^^ entity.name.type.logic.sv
+//      ^^^^^^^^^^^^^^^^^ variable.other.sv
+
+`define MACRO_FUNC(name) \
+  logic \escapeIdentifier``name`` ;
+//^^^^^ entity.name.type.logic.sv
+//      ^^^^^^^^^^^^^^^^^ variable.other.sv
+//                       ^^ constant.character.escape.sv
+//                         ^^^^ variable.other.sv
+//                             ^^ constant.character.escape.sv
