@@ -16,7 +16,7 @@ module top();
 
 initial begin
   #(100:200:300) $display("Done");
-//^ punctuation.definition.delay.sv
+//^ punctuation.definition.parameter-assignment-or-delay.sv
 // ^ punctuation.section.group.begin.sv
 //  ^^^ constant.numeric.integer.sv
 //     ^ punctuation.separator.colon.sv

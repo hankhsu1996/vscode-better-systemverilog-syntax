@@ -18,7 +18,7 @@ module top();
   var type(a+b) c;
 //^^^ storage.modifier.var.sv
 //    ^^^^^^^^^ meta.type-reference.sv
-//    ^^^^ entity.name.function.type.sv
+//    ^^^^ entity.name.function.sv
 //        ^ punctuation.section.group.begin.sv
 //         ^ variable.other.sv
 //          ^ keyword.operator.binary.sv

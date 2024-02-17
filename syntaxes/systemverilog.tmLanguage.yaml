@@ -9,10 +9,10 @@ variables:
   classScope: (?:${identifier}\s*(?:\#\(.*?\)\s*)?::\s*)+
   # Identifier can be followed by ":" (ternary statement, label, etc.)
   identifierEnd: (?!\s*(${identifier}|#(?!\#)|\(|\'|::))
+  instanceIdentifierEnd: (?!\s*(${identifier}|#(?!\#)|\'|::))
   typeIdentifierStart: (?<!\#\s*)
-  # Type identifier can be followed by "#" (class, module, etc.)
   # Type identifier can be followed by "[" (unpacked dimension)
-  typeIdentifierEnd: (?!\s*(\(|\.|\=|::|:|${identifier}\s*\())
+  typeIdentifierEnd: (?!\s*(\(|\.|\=|::|:|#|${identifier}\s*\())
   functionIdentifierStart: (?<!(?:\))\s+)
   functionIdentifierEnd: (?!\s*(\b\w+\b|\.|\[|#|::))
   classIdentifierStart: (?<!\#\s*)
@@ -456,8 +456,53 @@ repository:
       - include: "#elaboration-system-task"
   module-item:
     patterns:
-      - include: "#port-declaration"
+      # Handle a tricky case:
+      # Data (class/interface/program) declaration / module instantiation
+      # Begin with identifier #...
+      # End with ;
+      # Module instantiation: id #(param-assignment) ( id ( dimension ) '(' list-of-port ')' )* ;
+      # Data declaration: id #(param-assignment) ( id ( dimention ) [ = ... ] )* ;
+      - name: meta.data-declaration-or-module-instantiation.sv
+        begin: (${identifier})\s*(?=\#)
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: entity.name.type.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#parameter-value-assignment"
+          # The first identifier is the instance name or the variable name.
+          # If it is followed by a parenthesis, it is a module instantiation.
+          - begin: (${identifier})\s*
+            end: (?=\,|\)|\;)
+            beginCaptures:
+              "1": { name: variable.other.sv }
+              "2": { name: punctuation.section.group.begin.sv }
+            endCaptures:
+              "1": { name: punctuation.section.group.end.sv }
+            patterns:
+              - include: "#dimension"
+              # If it's a module instantiation, the next token should be "("
+              - begin: (\()\s*
+                end: (\))\s*|${bracketsFailSafe}
+                beginCaptures:
+                  "1": { name: punctuation.section.group.begin.sv }
+                endCaptures:
+                  "1": { name: punctuation.section.group.end.sv }
+                patterns:
+                  - include: "#list-of-port-connections"
+              # Otherwise, it's a data declaration
+              - begin: (\=)\s*
+                end: ${assignmentEnd}
+                beginCaptures:
+                  "1": { name: keyword.operator.assignment.sv }
+                patterns:
+                  - include: "#expression"
+                  - include: "#dynamic-array-new"
+                  - include: "#class-new"
+      # The original include items in LRM
       - include: "#non-port-module-item"
+      - include: "#port-declaration"
   module-or-generate-item:
     patterns:
       - include: "#attribute-instance"
@@ -499,6 +544,65 @@ repository:
       - include: "#module-declaration"
       - include: "#interface-declaration"
       - include: "#timeunits-declaration"
+  parameter-overrides:
+    begin: \b(defparam)\b\s*
+    end: (\;)\s*
+    beginCaptures:
+      "1": { name: keyword.control.defparam.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - include: "#list-of-defparam-assignments"
+  bind-directive:
+    name: meta.bind-directive.sv
+    begin: \b(bind)\b\s*
+    end: (\;)\s*
+    beginCaptures:
+      "1": { name: keyword.control.bind.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - match: (${identifier})\s*(?=\s*(\:))
+        captures:
+          "1": { name: entity.name.type.sv }
+      - include: "#bind-instantiation"
+      - include: "#bind-target-instance-list"
+      - include: "#bind-target-scope"
+  bind-target-scope:
+    patterns:
+      - include: "#module-identifier"
+      - include: "#interface-identifier"
+  bind-target-instance:
+    patterns:
+      # ',' hierarchical-identifier
+      - begin: (\,)\s*
+        end: \s
+        beginCaptures:
+          "1": { name: punctuation.separator.comma.sv }
+        patterns:
+          - include: "#hierarchical-identifier"
+      - match: (\$root)\s*(\.)\s*
+        captures:
+          "1": { name: variable.language.root.sv }
+          "2": { name: punctuation.accessor.dot.sv }
+      - match: (\$root)\s*
+        captures:
+          "1": { name: variable.language.root.sv }
+      - include: "#dot"
+      - match: (${identifier})\s*
+        captures:
+          "1": { name: variable.other.sv }
+      - include: "#constant-bit-select"
+  bind-target-instance-list:
+    patterns:
+      - include: "#bind-target-instance"
+      - include: "#comma"
+  bind-instantiation:
+    patterns:
+      - include: "#program-instantiation"
+      - include: "#module-instantiation"
+      - include: "#interface-instantiation"
+      - include: "#checker-instantiation"
   # A.1.6 Interface items
   interface-or-generate-item:
     patterns:
@@ -1110,6 +1214,7 @@ repository:
           "2": { name: punctuation.separator.scope-resolution.sv }
           "3": { name: keyword.operator.wildcard.sv }
   package-export-declaration:
+    name: meta.package-export-declaration.sv
     begin: \b(export)\b\s*
     end: (\;)\s*
     beginCaptures:
@@ -1459,7 +1564,7 @@ repository:
     begin: \b(type)\b\s*(\()\s*
     end: (\))\s*|${bracketsFailSafe}
     beginCaptures:
-      "1": { name: entity.name.function.$1.sv }
+      "1": { name: entity.name.function.sv }
       "2": { name: punctuation.section.group.begin.sv }
     endCaptures:
       "1": { name: punctuation.section.group.end.sv }
@@ -1495,13 +1600,14 @@ repository:
         begin: (\#)\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
-          "1": { name: punctuation.definition.delay.sv }
+          "1": { name: punctuation.definition.parameter-assignment-or-delay.sv }
           "2": { name: punctuation.section.group.begin.sv }
         endCaptures:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#comma"
           - include: "#mintypmax-expression"
+          - include: "#list-of-parameter-assignments"
       - match: (\#)\s*(${identifier})\s*
         captures:
           "1": { name: punctuation.definition.delay.sv }
@@ -1516,13 +1622,14 @@ repository:
         begin: (\#)\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
-          "1": { name: punctuation.definition.delay.sv }
+          "1": { name: punctuation.definition.parameter-assignment-or-delay.sv }
           "2": { name: punctuation.section.group.begin.sv }
         endCaptures:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#comma"
           - include: "#mintypmax-expression"
+          - include: "#list-of-parameter-assignments"
       - match: (\#)\s*(${identifier})\s*
         captures:
           "1": { name: punctuation.definition.delay.sv }
@@ -1801,7 +1908,8 @@ repository:
         patterns:
           - include: "#tf-port-list"
   dpi-import-export:
-    begin: \b(import|export)\b\s*
+    name: meta.dpi-import-export.sv
+    begin: \b(import|export)\b\s*(?=\"(DPI\-C|DPI)\")
     end: (\;)\s*
     beginCaptures:
       "1": { name: keyword.control.$1.sv }
@@ -2059,7 +2167,7 @@ repository:
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: punctuation.separator.dot.sv }
-          "2": { name: entity.name.function.$2.sv }
+          "2": { name: entity.name.function.sv }
           "3": { name: punctuation.section.group.begin.sv }
         endCaptures:
           "1": { name: punctuation.section.group.end.sv }
@@ -3442,7 +3550,7 @@ repository:
     patterns:
       - name: meta.module-instantiation.sv
         begin: (${identifier})\s*(?=\#)
-        end: (\;)\s*|${itemsFailSafe}
+        end: (?=\;)|${itemsFailSafe}
         beginCaptures:
           "1": { name: entity.name.type.sv }
         endCaptures:
@@ -3453,7 +3561,7 @@ repository:
           - include: "#comma"
       - name: meta.module-instantiation.sv
         begin: (${identifier})\s*(?=${identifier}\s*\()
-        end: (\;)\s*|${bracketsFailSafe}
+        end: (?=\;)|${bracketsFailSafe}
         beginCaptures:
           "1": { name: entity.name.type.sv }
         endCaptures:
@@ -3522,22 +3630,39 @@ repository:
       - include: "#attribute-instance"
       - include: "#expression"
   named-port-connection:
-    name: meta.named-port-connection.sv
-    begin: (\.)\s*(${identifier})\s*
-    end: (?=\)|,)
-    beginCaptures:
-      "1": { name: punctuation.definition.named-port-connection.sv }
-      "2": { name: variable.parameter.sv }
     patterns:
+      # .*
+      - match: (\.\*)\s*
+        captures:
+          "1": { name: punctuation.definition.wildcard.sv }
       - name: meta.named-port-connection.sv
-        begin: (\()\s*
-        end: (\))\s*|${bracketsFailSafe}
+        begin: (\.)\s*(${identifier})\s*
+        end: (?=\)|,)
         beginCaptures:
-          "1": { name: punctuation.section.group.begin.sv }
-        endCaptures:
-          "1": { name: punctuation.section.group.end.sv }
+          "1": { name: punctuation.definition.named-port-connection.sv }
+          "2": { name: variable.parameter.sv }
         patterns:
-          - include: "#expression"
+          - name: meta.named-port-connection.sv
+            begin: (\()\s*
+            end: (\))\s*|${bracketsFailSafe}
+            beginCaptures:
+              "1": { name: punctuation.section.group.begin.sv }
+            endCaptures:
+              "1": { name: punctuation.section.group.end.sv }
+            patterns:
+              - include: "#expression"
+  # A.4.1.2 Interface instantiation
+  interface-instantiation:
+    patterns:
+      - include: "#module-instantiation"
+  # A.4.1.3 Program instantiation
+  program-instantiation:
+    patterns:
+      - include: "#module-instantiation"
+  # A.4.1.4 Checker instantiation
+  checker-instantiation:
+    patterns:
+      - include: "#module-instantiation"
   # A.4.2 Generated instantiation
   generate-region:
     name: meta.generate-region.sv
@@ -4137,7 +4262,7 @@ repository:
         captures:
           "1": { name: punctuation.definition.pattern.sv }
           "2": { name: variable.other.sv }
-      - match: (\.\*)
+      - match: (\.\*)\s*
         captures:
           "1": { name: punctuation.definition.wildcard.sv }
       - include: "#constant-expression"
@@ -4908,7 +5033,7 @@ repository:
       - include: "#randomize-call"
   array-manipulation-call:
     patterns:
-      - begin: (${functionIdentifier}|\b(?:unique|and|or|xor))\b\s*(\()\s*
+      - begin: ${functionIdentifierStart}(${functionIdentifier}|\b(?:unique|and|or|xor))\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: entity.name.function.sv }
@@ -5903,6 +6028,7 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#expression"
+          - include: "#statement-item"
           - include: "#comma"
       # Macro variable
       - match: (${macro})\s*(?!\s*[(])
