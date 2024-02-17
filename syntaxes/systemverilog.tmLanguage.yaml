@@ -8,7 +8,7 @@ variables:
   functionIdentifier: (?:(?<!\\|\$)(?:\b[a-zA-Z_]|\$)[a-zA-Z0-9_\$]*\b|\\\S+(?=\s|$))(?<!\b(?:accept_on|alias|always|always_comb|always_ff|always_latch|assert|assign|assume|automatic|before|begin|bind|bins|binsof|bit|break|buf|bufif0|bufif1|byte|case|casex|casez|cell|chandle|checker|class|clocking|cmos|config|const|constraint|context|continue|cover|covergroup|coverpoint|cross|deassign|default|defparam|design|disable|dist|do|edge|else|end|endcase|endchecker|endclass|endclocking|endconfig|endfunction|endgenerate|endgroup|endinterface|endmodule|endpackage|endprimitive|endprogram|endproperty|endspecify|endsequence|endtable|endtask|enum|event|eventually|expect|export|extends|extern|final|first_match|for|force|foreach|forever|fork|forkjoin|function|generate|genvar|global|highz0|highz1|if|iff|ifnone|ignore_bins|illegal_bins|implements|implies|import|incdir|include|initial|inout|input|inside|instance|int|integer|interconnect|interface|intersect|join|join_any|join_none|large|let|liblist|library|local|localparam|logic|longint|macromodule|matches|medium|modport|module|nand|negedge|nettype|new|nexttime|nmos|nor|noshowcancelled|not|notif0|notif1|null|output|package|packed|parameter|pmos|posedge|primitive|priority|program|property|protected|pull0|pull1|pulldown|pullup|pulsestyle_ondetect|pulsestyle_onevent|pure|rand|randc|randcase|randsequence|rcmos|real|realtime|ref|reg|reject_on|release|repeat|restrict|return|rnmos|rpmos|rtran|rtranif0|rtranif1|s_always|s_eventually|s_nexttime|s_until|s_until_with|scalared|sequence|shortint|shortreal|showcancelled|signed|small|soft|solve|specify|specparam|static|string|strong|strong0|strong1|struct|super|supply0|supply1|sync_accept_on|sync_reject_on|table|tagged|task|this|throughout|time|timeprecision|timeunit|tran|tranif0|tranif1|tri|tri0|tri1|triand|trior|trireg|type|typedef|union|unique0|unsigned|until|until_with|untyped|use|uwire|var|vectored|virtual|void|wait|wait_order|wand|weak|weak0|weak1|while|wildcard|wire|with|within|wor|xnor)\b)
   classScope: (?:${identifier}\s*(?:\#\(.*?\)\s*)?::\s*)+
   # Identifier can be followed by ":" (ternary statement, label, etc.)
-  identifierEnd: (?!\s*(${identifier}|#(?!\#)|\(|\'|::))
+  identifierEnd: (?!\s*(${identifier}|#(?!\#|\-\#|\=\#)|\(|\'|::))
   instanceIdentifierEnd: (?!\s*(${identifier}|#(?!\#)|\'|::))
   typeIdentifierStart: (?<!\#\s*)
   # Type identifier can be followed by "[" (unpacked dimension)
@@ -27,6 +27,7 @@ variables:
   statementsFailSafe: ${itemsFailSafe}|(?=${statementStart})
   bracketsFailSafe: (?=\b(?:end|endcase)\b)|${itemsFailSafe}|(?=${statementStart})
   assignmentEnd: (?=\,|\)|\;)|${bracketsFailSafe}|(?=${statementStart})
+  keywordStart: (?<!(?:\.|\=))
 
 patterns:
   - include: "#comment"
@@ -316,7 +317,7 @@ repository:
       - include: "#comma"
   parameter-port-declaration:
     patterns:
-      - begin: \b(type)\b\s*
+      - begin: ${keywordStart}\b(type)\b\s*
         end: (?=\;|\,|\))
         name: meta.parameter-port-declaration.sv
         beginCaptures:
@@ -426,7 +427,7 @@ repository:
     patterns:
       # Conflict: The 'generate for' and 'for' statements have the same beginning. Therefore, they are combined here:
       - name: meta.for.sv
-        begin: \b(for)\b\s*(\()\s*
+        begin: ${keywordStart}\b(for)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.for.sv }
@@ -516,7 +517,7 @@ repository:
       - include: "#package-or-generate-item-declaration"
       - include: "#genvar-declaration"
       - include: "#clocking-declaration"
-      - match: \b(default)\b\s+\b(clocking)\b\s+(${identifier})\s*\;
+      - match: ${keywordStart}\b(default)\b\s+\b(clocking)\b\s+(${identifier})\s*\;
         captures:
           "1": { name: keyword.control.$1.sv }
           "2": { name: storage.type.$2.sv }
@@ -524,7 +525,7 @@ repository:
             patterns:
               - include: "#clocking-identifier"
       - name: meta.default-disable.sv
-        begin: \b(default)\b\s+\b(disable)\b\s+\b(iff)\b\s*
+        begin: ${keywordStart}\b(default)\b\s+\b(disable)\b\s+\b(iff)\b\s*
         end: (\;)\s*
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
@@ -545,7 +546,7 @@ repository:
       - include: "#interface-declaration"
       - include: "#timeunits-declaration"
   parameter-overrides:
-    begin: \b(defparam)\b\s*
+    begin: ${keywordStart}\b(defparam)\b\s*
     end: (\;)\s*
     beginCaptures:
       "1": { name: keyword.control.defparam.sv }
@@ -555,7 +556,7 @@ repository:
       - include: "#list-of-defparam-assignments"
   bind-directive:
     name: meta.bind-directive.sv
-    begin: \b(bind)\b\s*
+    begin: ${keywordStart}\b(bind)\b\s*
     end: (\;)\s*
     beginCaptures:
       "1": { name: keyword.control.bind.sv }
@@ -610,7 +611,7 @@ repository:
       - include: "#module-common-item"
       - include: "#extern-tf-declaration"
   extern-tf-declaration:
-    begin: \b(extern)\b\s*(?:\b(forkjoin)\b\s+)?
+    begin: ${keywordStart}\b(extern)\b\s*(?:\b(forkjoin)\b\s+)?
     end: (\;)\s*
     beginCaptures:
       "1": { name: storage.modifier.extern.sv }
@@ -686,7 +687,7 @@ repository:
       - include: "#checker-generate-item"
   checker-or-generate-item-declaration:
     patterns:
-      - match: \b(rand)\b\s*
+      - match: ${keywordStart}\b(rand)\b\s*
         captures:
           "1": { name: storage.modifier.rand.sv }
       - include: "#data-declaration"
@@ -696,14 +697,14 @@ repository:
       - include: "#covergroup-declaration"
       - include: "#genvar-declaration"
       - include: "#clocking-declaration"
-      - match: \b(default)\b\s*(?:\b(clocking)\b\s*)?:(?:(${identifier})\s*)?(?:(\;)\s*)?
+      - match: ${keywordStart}\b(default)\b\s*(?:\b(clocking)\b\s*)?:(?:(${identifier})\s*)?(?:(\;)\s*)?
         captures:
           "1": { name: keyword.control.default.sv }
           "2": { name: storage.type.clocking.sv }
           "3": { name: entity.name.type.sv }
           "4": { name: punctuation.terminator.semicolon.sv }
       - name: meta.default-disable.sv
-        begin: \b(default)\b\s*\b(disable)\b\s*(?:\b(iff)\b\s*)?
+        begin: ${keywordStart}\b(default)\b\s*\b(disable)\b\s*(?:\b(iff)\b\s*)?
         end: (\;)\s*
         beginCaptures:
           "1": { name: keyword.control.default.sv }
@@ -737,7 +738,7 @@ repository:
     patterns:
       - include: "#property-qualifier"
       - include: "#data-declaration"
-      - begin: \b(const)\b\s*
+      - begin: ${keywordStart}\b(const)\b\s*
         end: (\;)\s*
         beginCaptures:
           "1": { name: storage.modifier.const.sv }
@@ -769,7 +770,7 @@ repository:
       - include: "#task-declaration"
       - include: "#function-declaration"
       - name: meta.abstract-class-function-protoype.sv
-        begin: \b(pure)\b\s+\b(virtual)\b\s*
+        begin: ${keywordStart}\b(pure)\b\s+\b(virtual)\b\s*
         end: (\;)\s*
         beginCaptures:
           "1": { name: storage.modifier.pure.sv }
@@ -779,7 +780,7 @@ repository:
         patterns:
           - include: "#class-item-qualifier"
           - include: "#method-prototype"
-      - begin: \b(extern)\b\s*(?!\s*\b(constraint)\b)
+      - begin: ${keywordStart}\b(extern)\b\s*(?!\s*\b(constraint)\b)
         end: (\;)\s*
         beginCaptures:
           "1": { name: storage.modifier.extern.sv }
@@ -872,13 +873,13 @@ repository:
           - include: "#constraint-block-item"
   constraint-block-item:
     patterns:
-      - begin: \b(solve)\b\s*
+      - begin: ${keywordStart}\b(solve)\b\s*
         end: (?=\b(before)\b)
         beginCaptures:
           "1": { name: keyword.control.solve.sv }
         patterns:
           - include: "#solve-before-list"
-      - begin: \b(before)\b\s*
+      - begin: ${keywordStart}\b(before)\b\s*
         end: (\;)\s*
         beginCaptures:
           "1": { name: keyword.control.before.sv }
@@ -903,7 +904,7 @@ repository:
       - match: (\-\>)\s*
         captures:
           "1": { name: keyword.operator.constraint.sv }
-      - match: \b(soft)\b\s+
+      - match: ${keywordStart}\b(soft)\b\s+
         captures:
           "1": { name: keyword.other.soft.sv }
       - include: "#expression-or-dist"
@@ -911,7 +912,7 @@ repository:
       - include: "#semicolon"
       - include: "#expression"
       - include: "#constraint-set"
-      - begin: \b(if)\b\s*(\()\s*
+      - begin: ${keywordStart}\b(if)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.if.sv }
@@ -920,10 +921,10 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#expression"
-      - match: \b(else)\b\s*
+      - match: ${keywordStart}\b(else)\b\s*
         captures:
           "1": { name: keyword.control.else.sv }
-      - begin: \b(foreach)\b\s*(\()\s*
+      - begin: ${keywordStart}\b(foreach)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.foreach.sv }
@@ -940,7 +941,7 @@ repository:
               "1": { name: punctuation.section.brackets.end.sv }
             patterns:
               - include: "#loop-variables"
-      - begin: \b(disable)\b\s+\b(soft)\b\s*
+      - begin: ${keywordStart}\b(disable)\b\s+\b(soft)\b\s*
         end: (\;)\s*
         beginCaptures:
           "1": { name: keyword.control.disable.sv }
@@ -951,7 +952,7 @@ repository:
           - include: "#constraint-primary"
   uniqueness-constraint:
     patterns:
-      - begin: \b(unique)\b\s*(\{)\s*
+      - begin: ${keywordStart}\b(unique)\b\s*(\{)\s*
         end: (\})\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.other.unique.sv }
@@ -1067,7 +1068,7 @@ repository:
   local-parameter-declaration:
     patterns:
       - name: meta.local-parameter-declaration.sv
-        begin: \b(localparam)\b\s+\b(type)\b\s*
+        begin: ${keywordStart}\b(localparam)\b\s+\b(type)\b\s*
         end: (?=[,);])|${itemsFailSafe}
         beginCaptures:
           "1": { name: storage.modifier.localparam.sv }
@@ -1077,7 +1078,7 @@ repository:
         patterns:
           - include: "#list-of-type-assignments"
       - name: meta.local-parameter-declaration.sv
-        begin: \b(localparam)\b\s*
+        begin: ${keywordStart}\b(localparam)\b\s*
         end: (?=[,);])|${itemsFailSafe}
         beginCaptures:
           "1": { name: storage.modifier.localparam.sv }
@@ -1089,7 +1090,7 @@ repository:
   parameter-declaration:
     patterns:
       - name: meta.parameter-declaration.sv
-        begin: \b(parameter)\b\s+\b(type)\b\s*
+        begin: ${keywordStart}\b(parameter)\b\s+\b(type)\b\s*
         end: (?=[,);])|${itemsFailSafe}
         beginCaptures:
           "1": { name: storage.modifier.parameter.sv }
@@ -1099,7 +1100,7 @@ repository:
         patterns:
           - include: "#list-of-type-assignments"
       - name: meta.parameter-declaration.sv
-        begin: \b(parameter)\b\s*
+        begin: ${keywordStart}\b(parameter)\b\s*
         end: (?=[,);])|${itemsFailSafe}
         beginCaptures:
           "1": { name: storage.modifier.parameter.sv }
@@ -1110,7 +1111,7 @@ repository:
           - include: "#data-type-or-implicit"
   specparam-declaration:
     name: meta.specparam-declaration.sv
-    begin: \b(specparam)\b\s*
+    begin: ${keywordStart}\b(specparam)\b\s*
     end: (\;)\s*|${itemsFailSafe}
     beginCaptures:
       "1": { name: storage.modifier.specparam.sv }
@@ -1122,14 +1123,14 @@ repository:
   # A.2.1.2 Port declarations
   inout-declaration:
     patterns:
-      - match: \b(inout)\b\s*
+      - match: ${keywordStart}\b(inout)\b\s*
         captures:
           "1": { name: storage.modifier.$1.sv }
       - include: "#list-of-port-identifiers"
       - include: "#net-port-type"
   input-declaration:
     patterns:
-      - match: \b(input)\b\s*
+      - match: ${keywordStart}\b(input)\b\s*
         captures:
           "1": { name: storage.modifier.$1.sv }
       - include: "#net-port-type"
@@ -1138,7 +1139,7 @@ repository:
       - include: "#variable-port-type"
   output-declaration:
     patterns:
-      - match: \b(output)\b\s*
+      - match: ${keywordStart}\b(output)\b\s*
         captures:
           "1": { name: storage.modifier.$1.sv }
       - include: "#net-port-type"
@@ -1153,7 +1154,7 @@ repository:
       - include: "#dot"
   ref-declaration:
     patterns:
-      - match: \b(ref)\b\s*
+      - match: ${keywordStart}\b(ref)\b\s*
         captures:
           "1": { name: storage.modifier.$1.sv }
       - include: "#list-of-variable-identifiers"
@@ -1161,10 +1162,10 @@ repository:
   # A.2.1.3 Type declarations
   data-declaration:
     patterns:
-      - match: \b(const)\b\s*
+      - match: ${keywordStart}\b(const)\b\s*
         captures:
           "1": { name: storage.modifier.const.sv }
-      - match: \b(var)\b\s*
+      - match: ${keywordStart}\b(var)\b\s*
         captures:
           "1": { name: storage.modifier.var.sv }
       - include: "#lifetime"
@@ -1176,7 +1177,7 @@ repository:
       - include: "#data-type-or-implicit"
   package-import-declaration:
     name: meta.package-import-declaration.sv
-    begin: \b(import)\b\s*
+    begin: ${keywordStart}\b(import)\b\s*
     end: (\;)\s*|${itemsFailSafe}
     beginCaptures:
       "1": { name: keyword.control.import.sv }
@@ -1215,7 +1216,7 @@ repository:
           "3": { name: keyword.operator.wildcard.sv }
   package-export-declaration:
     name: meta.package-export-declaration.sv
-    begin: \b(export)\b\s*
+    begin: ${keywordStart}\b(export)\b\s*
     end: (\;)\s*
     beginCaptures:
       "1": { name: keyword.control.export.sv }
@@ -1231,7 +1232,7 @@ repository:
       - include: "#comma"
   genvar-declaration:
     name: meta.genvar-declaration.sv
-    begin: \b(genvar)\b\s*
+    begin: ${keywordStart}\b(genvar)\b\s*
     end: (\;)\s*
     beginCaptures:
       "1": { name: storage.modifier.genvar.sv }
@@ -1241,7 +1242,7 @@ repository:
       - include: "#list-of-genvar-identifiers"
   net-declaration:
     patterns:
-      - match: \b(interconnect)\b\s*
+      - match: ${keywordStart}\b(interconnect)\b\s*
         captures:
           "1": { name: entity.name.type.$1.sv }
       - include: "#net-type"
@@ -1255,7 +1256,7 @@ repository:
       - include: "#data-type-or-implicit"
   type-declaration:
     name: meta.type-declaration.sv
-    begin: \b(typedef)\b\s*
+    begin: ${keywordStart}\b(typedef)\b\s*
     end: (;)\s*|${itemsFailSafe}
     beginCaptures:
       "1": { name: keyword.control.typedef.sv }
@@ -1278,7 +1279,7 @@ repository:
       - include: "#data-type"
   net-type-declaration:
     name: meta.net-type-declaration.sv
-    begin: \b(nettype)\b\s*
+    begin: ${keywordStart}\b(nettype)\b\s*
     beginCaptures:
       "1": { name: keyword.control.nettype.sv }
     end: \;
@@ -1286,7 +1287,7 @@ repository:
       "0": { name: punctuation.terminator.semicolon.sv }
     patterns:
       - name: meta.net-type-declaration-with.sv
-        begin: \b(with)\b\s*
+        begin: ${keywordStart}\b(with)\b\s*
         beginCaptures:
           "1": { name: keyword.control.with.sv }
         end: (?=\;)
@@ -1790,7 +1791,7 @@ repository:
   class-new:
     patterns:
       - include: "#class-scope"
-      - match: \b(new)\b\s*
+      - match: ${keywordStart}\b(new)\b\s*
         captures:
           "1": { name: entity.name.function.sv }
       - name: meta.class-new.sv
@@ -1805,7 +1806,7 @@ repository:
       - include: "#expression"
   dynamic-array-new:
     patterns:
-      - match: \b(new)\b\s*
+      - match: ${keywordStart}\b(new)\b\s*
         captures:
           "1": { name: entity.name.function.sv }
       - include: "#dimension"
@@ -2125,7 +2126,7 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#clocking-event"
-          - begin: \b(disable)\b\s+\b(iff)\b\s*(?:(\()\s*)?
+          - begin: ${keywordStart}\b(disable)\b\s+\b(iff)\b\s*(?:(\()\s*)?
             end: (\))\s*|${bracketsFailSafe}
             beginCaptures:
               "1": { name: keyword.control.disable.sv }
@@ -2193,12 +2194,12 @@ repository:
       "3": { name: entity.name.type.property.sv }
     patterns:
       - name: meta.property-declaration-header.sv
-        begin: \b(property)\b\s*
+        begin: \b(property)\b\s*(?:(${identifier})\s*)?
         end: (?=\;)|${blocksFailSafe}
         beginCaptures:
-          "1": { name: storage.type.$1.sv }
+          "1": { name: storage.type.property.sv }
+          "2": { name: entity.name.type.sv }
         patterns:
-          - include: "#property-identifier"
           - begin: (\()\s*
             end: (\))\s*|${bracketsFailSafe}
             beginCaptures:
@@ -2213,8 +2214,8 @@ repository:
         beginCaptures:
           "1": { name: punctuation.terminator.semicolon.sv }
         patterns:
-          - include: "#assertion-variable-declaration"
           - include: "#property-spec"
+          - include: "#assertion-variable-declaration"
           - include: "#semicolon"
   property-port-list:
     patterns:
@@ -2249,7 +2250,7 @@ repository:
   property-spec:
     patterns:
       - name: meta.property-spec.sv
-        begin: \b(disable)\b\s+\b(iff)\b\s*(\()\s*
+        begin: ${keywordStart}\b(disable)\b\s+\b(iff)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.disable.sv }
@@ -2267,7 +2268,7 @@ repository:
       - begin: \b(strong)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
-          "1": { name: keyword.operator.strong.sv }
+          "1": { name: keyword.other.strong.sv }
           "2": { name: punctuation.section.braces.begin.sv }
         endCaptures:
           "1": { name: punctuation.section.braces.end.sv }
@@ -2276,7 +2277,7 @@ repository:
       - begin: \b(weak)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
-          "1": { name: keyword.operator.weak.sv }
+          "1": { name: keyword.other.weak.sv }
           "2": { name: punctuation.section.braces.begin.sv }
         endCaptures:
           "1": { name: punctuation.section.braces.end.sv }
@@ -2292,13 +2293,13 @@ repository:
           - include: "#property-expr"
       - match: \b(not)\b\s*
         captures:
-          "1": { name: keyword.other.logical.sv }
+          "1": { name: keyword.other.not.sv }
       - match: \b(or)\b\s*
         captures:
-          "1": { name: keyword.other.logical.sv }
+          "1": { name: keyword.other.or.sv }
       - match: \b(and)\b\s*
         captures:
-          "1": { name: keyword.other.logical.sv }
+          "1": { name: keyword.other.and.sv }
       - match: (\|->)\s*
         captures:
           "1": { name: keyword.operator.property.sv }
@@ -2398,6 +2399,9 @@ repository:
           "1": { name: punctuation.section.brackets.end.sv }
         patterns:
           - include: "#cycle-delay-const-range-expression"
+      - match: \b(s_eventually)\b\s*
+        captures:
+          "1": { name: keyword.other.s_eventually.sv }
       - match: \b(eventually)\b\s*
         captures:
           "1": { name: keyword.other.eventually.sv }
@@ -2412,22 +2416,22 @@ repository:
           - include: "#constant-range"
       - match: \b(until)\b\s*
         captures:
-          "1": { name: keyword.control.until.sv }
+          "1": { name: keyword.other.until.sv }
       - match: \b(s_until)\b\s*
         captures:
-          "1": { name: keyword.control.s_until.sv }
+          "1": { name: keyword.other.s_until.sv }
       - match: \b(until_with)\b\s*
         captures:
-          "1": { name: keyword.control.until_with.sv }
+          "1": { name: keyword.other.until_with.sv }
       - match: \b(s_until_with)\b\s*
         captures:
-          "1": { name: keyword.control.s_until_with.sv }
+          "1": { name: keyword.other.s_until_with.sv }
       - match: \b(implies)\b\s*
         captures:
-          "1": { name: keyword.control.implies.sv }
+          "1": { name: keyword.other.implies.sv }
       - match: \b(iff)\b\s*
         captures:
-          "1": { name: keyword.control.iff.sv }
+          "1": { name: keyword.other.iff.sv }
       - begin: \b(accept_on)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
@@ -2490,10 +2494,11 @@ repository:
       "3": { name: entity.name.type.sv }
     patterns:
       - name: meta.sequence-declaration-header.sv
-        begin: \b(sequence)\b\s*
+        begin: \b(sequence)\b\s*(?:(${identifier})\s*)?
         end: (?=\;)|${blocksFailSafe}
         beginCaptures:
           "1": { name: storage.type.$1.sv }
+          "2": { name: entity.name.type.sv }
         patterns:
           - include: "#sequence-identifier"
           - begin: (\()\s*
@@ -2557,6 +2562,9 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#sequence-expr"
+          # Sometimes it is difficult to distinguish between a sequence parenthesis and
+          # a property parenthesis. Therefore, we include the property-expr pattern here as well
+          - include: "#property-expr"
           - include: "#comma"
       - match: \b(and)\b\s*
         captures:
@@ -2717,7 +2725,7 @@ repository:
           "1": { name: punctuation.separator.colon.sv }
       - match: (\$)\s*
         captures:
-          "1": { name: keyword.operator.cycle-delay.sv }
+          "1": { name: constant.numeric.dollar.sv }
       - include: "#constant-expression"
   expression-or-dist:
     patterns:
@@ -2830,7 +2838,7 @@ repository:
     patterns:
       - match: \b(or)\b\s*
         captures:
-          "1": { name: keyword.other.logical.sv }
+          "1": { name: keyword.other.or.sv }
       - match: \b(begin)\b\s*
         captures:
           "1": { name: keyword.control.begin.sv }
@@ -3170,10 +3178,11 @@ repository:
   # A.2.12 Let declarations
   let-declaration:
     name: meta.let-declaration.sv
-    begin: \b(let)\b\s*
-    end: (\;)\s*
+    begin: \b(let)\b\s*(?:(${identifier})\s*)?
+    end: (\;)\s*|${blocksFailSafe}
     beginCaptures:
       "1": { name: storage.type.$1.sv }
+      "2": { name: entity.name.function.sv }
     endCaptures:
       "1": { name: punctuation.terminator.semicolon.sv }
     patterns:
@@ -3677,7 +3686,7 @@ repository:
   loop-generate-construct:
     patterns:
       - name: meta.loop-generate-construct.sv
-        begin: \b(for)\b\s*(\()\s*
+        begin: ${keywordStart}\b(for)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.for.sv }
@@ -3691,7 +3700,7 @@ repository:
           - include: "#semicolon"
   genvar-initialization:
     patterns:
-      - match: \b(genvar)\b\s*
+      - match: ${keywordStart}\b(genvar)\b\s*
         captures:
           "1": { name: entity.name.type.$1.sv }
       - include: "#genvar-identifier"
@@ -3707,7 +3716,7 @@ repository:
       - include: "#case-generate-construct"
   if-generate-construct:
     patterns:
-      - begin: \b(if)\b\s*(\()\s*
+      - begin: ${keywordStart}\b(if)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
@@ -3716,7 +3725,7 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#constant-expression"
-      - match: \b(else)\b\s*
+      - match: ${keywordStart}\b(else)\b\s*
         captures:
           "1": { name: keyword.control.$1.sv }
   case-generate-construct:
@@ -3727,7 +3736,7 @@ repository:
     patterns:
       # Header
       - name: meta.case-generate-construct-header.sv
-        begin: \b(case)\b\s*(\()\s*
+        begin: ${keywordStart}\b(case)\b\s*(\()\s*
         end: (?=\))
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
@@ -3758,10 +3767,10 @@ repository:
         captures:
           "1": { name: variable.other.block.sv }
           "2": { name: punctuation.separator.colon.sv }
-      - match: \b(begin)\b\s*
+      - match: ${keywordStart}\b(begin)\b\s*
         captures:
           "1": { name: keyword.control.begin.sv }
-      - match: \b(end)\b\s*
+      - match: ${keywordStart}\b(end)\b\s*
         captures:
           "1": { name: keyword.control.end.sv }
       - match: (\:)\s*(${identifier})\s*
@@ -3777,7 +3786,7 @@ repository:
   # A.6.1 Continuous assignment and net alias statements
   continuous-assign:
     patterns:
-      - match: \b(assign)\b\s*
+      - match: ${keywordStart}\b(assign)\b\s*
         captures:
           "1": { name: keyword.control.assign.sv }
       - include: "#drive-strength"
@@ -3788,19 +3797,19 @@ repository:
   # A.6.2 Procedural blocks and assignments
   initial-construct:
     patterns:
-      - match: \b(initial)\b\s*
+      - match: ${keywordStart}\b(initial)\b\s*
         captures:
           "1": { name: keyword.control.initial.sv }
       - include: "#statement-or-null"
   always-construct:
     patterns:
-      - match: \b(always|always_comb|always_latch|always_ff)\b\s*
+      - match: ${keywordStart}\b(always|always_comb|always_latch|always_ff)\b\s*
         captures:
           "1": { name: keyword.control.$1.sv }
       - include: "#statement"
   final-construct:
     patterns:
-      - match: \b(final)\b\s*
+      - match: ${keywordStart}\b(final)\b\s*
         captures:
           "1": { name: keyword.control.final.sv }
       - include: "#function_statement"
@@ -3825,16 +3834,16 @@ repository:
           "1": { name: keyword.operator.assignment.sv }
   procedural-continuous-assignment:
     patterns:
-      - match: \b(assign)\b\s*
+      - match: ${keywordStart}\b(assign)\b\s*
         captures:
           "1": { name: keyword.control.assign.sv }
-      - match: \b(deassign)\b\s*
+      - match: ${keywordStart}\b(deassign)\b\s*
         captures:
           "1": { name: keyword.control.deassign.sv }
-      - match: \b(force)\b\s*
+      - match: ${keywordStart}\b(force)\b\s*
         captures:
           "1": { name: keyword.control.force.sv }
-      - match: \b(release)\b\s*
+      - match: ${keywordStart}\b(release)\b\s*
         captures:
           "1": { name: keyword.control.release.sv }
       - include: "#variable-assignment"
@@ -3849,7 +3858,7 @@ repository:
   # A.6.3 Parallel and sequential blocks
   action-block:
     patterns:
-      - match: \b(else)\b\s*
+      - match: ${keywordStart}\b(else)\b\s*
         captures:
           "1": { name: keyword.control.$1.sv }
   seq-block:
@@ -3869,7 +3878,7 @@ repository:
       - include: "#block-item-declaration"
       - include: "#statement-or-null"
   par-block:
-    begin: \b(fork)\b\s*(?:(\:)\s*(${identifier})\s*)?
+    begin: ${keywordStart}\b(fork)\b\s*(?:(\:)\s*(${identifier})\s*)?
     end: \b(join|join_any|join_none)\b\s*(?:(\:)\s*(${identifier})\s*)?|${itemsFailSafe}
     beginCaptures:
       "1": { name: keyword.control.fork.sv }
@@ -3923,7 +3932,7 @@ repository:
       - include: "#disable-statement"
       # Conflict: The 'generate for' and 'for' statements have the same beginning. Therefore, they are combined here:
       - name: meta.for.sv
-        begin: \b(for)\b\s*(\()\s*
+        begin: ${keywordStart}\b(for)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.for.sv }
@@ -3970,7 +3979,7 @@ repository:
     patterns:
       - include: "#delay-control"
       - include: "#event-control"
-      - begin: \b(repeat)\b\s*(\()\s*
+      - begin: ${keywordStart}\b(repeat)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
@@ -4039,7 +4048,7 @@ repository:
       - include: "#sequence-instance"
       - match: \b(or)\b\s*
         captures:
-          "1": { name: keyword.other.logical.sv }
+          "1": { name: keyword.other.or.sv }
       - include: "#comma"
       - begin: \(\s*
         end: \)\s*
@@ -4111,7 +4120,7 @@ repository:
           - include: "#hierarchical-event-identifier"
   disable-statement:
     patterns:
-      - begin: \b(disable)\b\s*(?!\s*\biff\b)
+      - begin: ${keywordStart}\b(disable)\b\s*(?!\s*\biff\b)
         end: (\;)\s*|${statementsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.disable.sv }
@@ -4128,7 +4137,7 @@ repository:
     patterns:
       - include: "#unique-priority"
       - name: meta.conditional-statement.sv
-        begin: \b(if)\b\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(if)\b\s*(?:(\()\s*)?
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
           "2": { name: punctuation.section.group.begin.sv }
@@ -4138,7 +4147,7 @@ repository:
         patterns:
           - include: "#cond-predicate"
           - include: "#expression"
-      - match: \b(else)\b\s*
+      - match: ${keywordStart}\b(else)\b\s*
         captures:
           "1": { name: keyword.control.$1.sv }
   unique-priority:
@@ -4156,7 +4165,7 @@ repository:
       - include: "#cond-pattern"
   cond-pattern:
     name: meta.cond-pattern.sv
-    begin: \b(matches)\b\s*
+    begin: ${keywordStart}\b(matches)\b\s*
     end: (?=\&\&\&|\)|\?)
     beginCaptures:
       "1": { name: keyword.control.matches.sv }
@@ -4317,7 +4326,7 @@ repository:
       - include: "#assignment-pattern-key"
   assignment-pattern-key:
     patterns:
-      - match: \b(default)\b
+      - match: \b(default)\b\s*
         name: keyword.other.default.sv
       - include: "#simple-type"
   assignment-pattern-expression:
@@ -4360,11 +4369,11 @@ repository:
   # A.6.8 Looping statements
   loop-statement:
     patterns:
-      - match: \b(forever)\b\s*
+      - match: ${keywordStart}\b(forever)\b\s*
         captures:
           "1": { name: keyword.control.$1.sv }
       - name: meta.loop-statement.sv
-        begin: \b(repeat)\b\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(repeat)\b\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
@@ -4374,7 +4383,7 @@ repository:
         patterns:
           - include: "#expression"
       - name: meta.loop-statement.sv
-        begin: \b(while)\b\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(while)\b\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
@@ -4384,7 +4393,7 @@ repository:
         patterns:
           - include: "#expression"
       - name: meta.loop-statement.sv
-        begin: \b(for)\b\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(for)\b\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
@@ -4396,11 +4405,11 @@ repository:
           - include: "#expression"
           - include: "#for-step"
           - include: "#semicolon"
-      - match: \b(do)\b\s*
+      - match: ${keywordStart}\b(do)\b\s*
         captures:
           "1": { name: keyword.control.$1.sv }
       - name: meta.loop-statement.sv
-        begin: \b(foreach)\b\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(foreach)\b\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
@@ -4470,7 +4479,7 @@ repository:
   simple-immediate-assert-statement:
     patterns:
       - name: meta.assertion-statement.sv
-        begin: \b(assert)\b\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(assert)\b\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
@@ -4483,7 +4492,7 @@ repository:
   simple-immediate-assume-statement:
     patterns:
       - name: meta.assumption-statement.sv
-        begin: \b(assume)\b\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(assume)\b\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
@@ -4496,7 +4505,7 @@ repository:
   simple-immediate-cover-statement:
     patterns:
       - name: meta.cover-statement.sv
-        begin: \b(cover)\b\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(cover)\b\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
@@ -4513,7 +4522,7 @@ repository:
   deferred-immediate-assert-statement:
     patterns:
       - name: meta.assertion-statement.sv
-        begin: \b(assert)\b\s*(\#)\s*(0)\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(assert)\b\s*(\#)\s*(0)\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.assert.sv }
@@ -4525,7 +4534,7 @@ repository:
         patterns:
           - include: "#expression"
       - name: meta.assertion-statement.sv
-        begin: \b(assert)\b\s*\b(final)\b\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(assert)\b\s*\b(final)\b\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.assert.sv }
@@ -4539,7 +4548,7 @@ repository:
   deferred-immediate-assume-statement:
     patterns:
       - name: meta.assumption-statement.sv
-        begin: \b(assume)\b\s*(\#)\s*(0)\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(assume)\b\s*(\#)\s*(0)\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.assume.sv }
@@ -4551,7 +4560,7 @@ repository:
         patterns:
           - include: "#expression"
       - name: meta.assumption-statement.sv
-        begin: \b(assume)\b\s*\b(final)\b\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(assume)\b\s*\b(final)\b\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.assume.sv }
@@ -4565,7 +4574,7 @@ repository:
   deferred-immediate-cover-statement:
     patterns:
       - name: meta.cover-statement.sv
-        begin: \b(cover)\b\s*(\#)\s*(0)\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(cover)\b\s*(\#)\s*(0)\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.cover.sv }
@@ -4577,7 +4586,7 @@ repository:
         patterns:
           - include: "#expression"
       - name: meta.cover-statement.sv
-        begin: \b(cover)\b\s*\b(final)\b\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(cover)\b\s*\b(final)\b\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.cover.sv }
@@ -5773,8 +5782,9 @@ repository:
     patterns:
       - include: "#type-identifier"
   property-identifier:
-    patterns:
-      - include: "#type-identifier"
+    match: (${identifier})\s*
+    captures:
+      "1": { name: variable.other.sv }
   ps-class-identifier:
     patterns:
       - include: "#package-scope"
@@ -5836,8 +5846,9 @@ repository:
       - include: "#class-scope"
       - include: "#type-identifier"
   sequence-identifier:
-    patterns:
-      - include: "#type-identifier"
+    match: (${identifier})\s*
+    captures:
+      "1": { name: variable.other.sv }
   signal-identifier:
     patterns:
       - include: "#identifier"

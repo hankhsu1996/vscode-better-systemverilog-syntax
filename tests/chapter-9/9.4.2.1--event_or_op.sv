@@ -20,8 +20,8 @@ module block_tb ();
   reg out;
   always @(a or b or c or d)
 //         ^ variable.other.sv
-//           ^^ keyword.other.logical.sv
+//           ^^ keyword.other.or.sv
 //              ^ variable.other.sv
-//                ^^ keyword.other.logical.sv
+//                ^^ keyword.other.or.sv
     out = (a | b) & (c | d);
 endmodule
