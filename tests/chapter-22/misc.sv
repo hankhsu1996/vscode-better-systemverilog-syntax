@@ -32,3 +32,15 @@
 //                       ^^ constant.character.escape.sv
 //                         ^^^^ variable.other.sv
 //                             ^^ constant.character.escape.sv
+
+`define msg(x,y) `"x: `\`"y`\`"`"
+//               ^^ constant.character.escape.sv
+//                    ^^^^ constant.character.escape.sv
+//                         ^^^^ constant.character.escape.sv
+//                             ^^ constant.character.escape.sv
+
+`define msg(x,y) (`"x: `\`"y`\`"`")
+//                ^^ constant.character.escape.sv
+//                     ^^^^ constant.character.escape.sv
+//                          ^^^^ constant.character.escape.sv
+//                              ^^ constant.character.escape.sv

@@ -5221,6 +5221,7 @@ repository:
           - include: "#list-of-arguments"
           - include: "#operator-assignment"
           - include: "#expression"
+          - include: "#macro-text"
       - include: "#inc-or-dec-expression"
       - include: "#binary-operator"
       - include: "#unary-operator"
@@ -5976,45 +5977,21 @@ repository:
         name: variable.other.sv
   macro-define:
     patterns:
-      # Oneline
-      - name: meta.macro-definition.sv
-        match: (`define)\b\s*\b([a-zA-Z_][a-zA-Z0-9_$]*)\b\s*([^\\]*[^\\ ])$
-        captures:
-          "1": { name: keyword.control.define.sv }
-          "2": { name: meta.preprocessor.macro-name.sv }
-          "3":
-            patterns:
-              - include: "#comment"
-              - begin: (\()\s*
-                end: (\))\s*|${bracketsFailSafe}
-                beginCaptures:
-                  "1": { name: punctuation.section.group.begin.sv }
-                endCaptures:
-                  "1": { name: punctuation.section.group.end.sv }
-                patterns:
-                  - include: "#formal-argument"
-                  - include: "#comma"
-              - include: "#macro-text"
-              - include: "#compiler-directive"
-      # Multiline
-      - name: meta.macro-definition.sv
-        begin: (`define)\b\s*\b([a-zA-Z_][a-zA-Z0-9_\$]*)\b\s*
+      - begin: (`define)\b\s*\b([a-zA-Z_][a-zA-Z0-9_$]*)\b\s*(?:(\()\s*(.*?)\s*(\))\s*)?
         end: (?<!\\\s*)$
         beginCaptures:
           "1": { name: keyword.control.define.sv }
           "2": { name: meta.preprocessor.macro-name.sv }
-        patterns:
-          - begin: (\()\s*
-            end: (\))\s*|${bracketsFailSafe}
-            beginCaptures:
-              "1": { name: punctuation.section.group.begin.sv }
-            endCaptures:
-              "1": { name: punctuation.section.group.end.sv }
+          "3": { name: punctuation.section.group.begin.sv }
+          "4":
+            name: meta.macro-definition-arguments.sv
             patterns:
               - include: "#formal-argument"
               - include: "#comma"
-          - include: "#macro-continuation"
+          "5": { name: punctuation.section.group.end.sv }
+        patterns:
           - include: "#macro-text"
+          - include: "#compiler-directive"
       - name: meta.macro-definition.sv
         match: (`define)\b\s*
         captures:
