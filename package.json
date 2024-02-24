@@ -2,7 +2,7 @@
   "name": "better-systemverilog-syntax",
   "displayName": "Better SystenVerilog Syntax",
   "description": "Better syntax highlighting for SystemVerilog",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "repository": {
     "type": "git",
     "url": "https://github.com/hankhsu1996/vscode-better-systemverilog-syntax"

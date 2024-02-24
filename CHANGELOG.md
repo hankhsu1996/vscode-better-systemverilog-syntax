@@ -6,6 +6,17 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.9] - 2024-02-23
+
+### Added
+
+- Git conflict marker syntax support.
+- PatternChecker in TmLanguageProcessor.
+
+### Fixed
+
+- Macro syntax issues.
+
 ## [0.0.8] - 2024-02-11
 
 ### Added
