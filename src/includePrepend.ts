@@ -12,6 +12,7 @@ export class IncludePrependVisitor implements TmLanguageVisitor {
       node.patterns = [
         { include: "#comment" },
         { include: "#compiler-directive" },
+        { include: "#git-conflict-marker" },
         ...(node.patterns ?? []),
       ];
     }

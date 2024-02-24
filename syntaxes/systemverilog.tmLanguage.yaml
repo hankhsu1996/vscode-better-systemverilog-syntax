@@ -6214,3 +6214,7 @@ repository:
     match: (\.)\s*
     captures:
       "1": { name: punctuation.accessor.dot.sv }
+  # Git conflict markers
+  git-conflict-marker:
+    name: meta.git-conflict-marker.sv
+    match: ^(<<<<<<< .*)|(=======)|(>>>>>>> .*)$
