@@ -10,11 +10,11 @@ variables:
   functionIdentifier: ${identifier}
   classScope: (?:${identifier}\s*(?:\#\(.*?\)\s*)?::\s*)+
   # Identifier can be followed by ":" (ternary statement, label, etc.)
-  identifierEnd: (?!\s*(${identifier}|#(?!\#|\-\#|\=\#)|\(|\'|::))
+  identifierEnd: (?!\s*(${identifier}|\.${identifier}\s+${identifier}|#(?!\#|\-\#|\=\#)|\(|\'|::))
   instanceIdentifierEnd: (?!\s*(${identifier}|#(?!\#)|\'|::))
   typeIdentifierStart: (?<!\#\s*)
   # Type identifier can be followed by "[" (unpacked dimension)
-  typeIdentifierEnd: (?!\s*(\(|\.|\=|::|:|#|${identifier}\s*\())
+  typeIdentifierEnd: (?!\s*(\(|\=|::|:|#))
   functionIdentifierStart: (?<!(?:\))\s+)
   functionIdentifierEnd: (?!\s*(\b\w+\b|\.|\[|#|::))
   classIdentifierStart: (?<!\#\s*)
@@ -391,7 +391,7 @@ repository:
       - include: "#constant-select"
   port-direction:
     patterns:
-      - match: \b(input|output|inout|ref)\b
+      - match: \b(input|output|inout|ref)\b\s*
         captures:
           "1": { name: storage.modifier.$1.sv }
   net-port-header:
@@ -729,6 +729,7 @@ repository:
       - include: "#module-common-item"
       - include: "#extern-tf-declaration"
   extern-tf-declaration:
+    name: meta.extern-tf-declaration.sv
     begin: ${keywordStart}\b(extern)\b\s*(?:\b(forkjoin)\b\s+)?
     end: (\;)\s*
     beginCaptures:
@@ -2011,12 +2012,12 @@ repository:
           - include: "#block-item-declaration"
           - include: "#function-statement-or-null"
   function-prototype:
+    name: meta.function-prototype.sv
     begin: \b(function)\b\s*
     end: (?=\;|\)|\{)
     beginCaptures:
-      "1": { name: storage.type.$1.sv }
+      "1": { name: storage.type.function.sv }
     patterns:
-      - include: "#function-data-type-or-implicit"
       - include: "#function-identifier"
       - begin: (\()\s*
         end: (\))\s*|${bracketsFailSafe}
@@ -2026,6 +2027,7 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#tf-port-list"
+      - include: "#data-type-or-void"
   dpi-import-export:
     name: meta.dpi-import-export.sv
     begin: \b(import|export)\b\s*(?=\"(DPI\-C|DPI)\")
@@ -2143,8 +2145,9 @@ repository:
       - include: "#data-type-or-implicit"
       - include: "#semicolon"
   task-prototype:
+    name: meta.task-prototype.sv
     begin: \b(task)\b\s*
-    end: (?=\;|\)|\{)
+    end: (?=\;|\)|\{|\,)
     beginCaptures:
       "1": { name: storage.type.$1.sv }
     patterns:
@@ -2165,6 +2168,77 @@ repository:
       - include: "#local-parameter-declaration"
       - include: "#parameter-declaration"
       - include: "#let-declaration"
+  # A.2.9 Interface declarations
+  modport-declaration:
+    name: meta.modport-declaration.sv
+    begin: \b(modport)\b\s*
+    end: (\;)\s*
+    beginCaptures:
+      "1": { name: storage.type.modport.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - include: "#modport-item"
+  modport-item:
+    name: meta.modport-item.sv
+    begin: (${identifier})\s*(\()\s*
+    end: (\))\s*|${bracketsFailSafe}
+    beginCaptures:
+      "1": { name: entity.name.type.sv }
+      "2": { name: punctuation.section.group.begin.sv }
+    endCaptures:
+      "1": { name: punctuation.section.group.end.sv }
+    patterns:
+      - include: "#modport-ports-declaration"
+  modport-ports-declaration:
+    patterns:
+      - include: "#attribute-instance"
+      - include: "#modport-simple-ports-declaration"
+      - include: "#modport-tf-ports-declaration"
+      - include: "#modport-clocking-declaration"
+  modport-clocking-declaration:
+    match: \b(clocking)\b\s+(${identifier})\s*
+    captures:
+      "1": { name: keyword.other.clocking.sv }
+      "2": { name: variable.other.sv }
+  modport-simple-ports-declaration:
+    patterns:
+      - include: "#port-direction"
+      - include: "#modport-simple-port"
+      - include: "#comma"
+  modport-simple-port:
+    patterns:
+      - name: meta.modport-simple-port.sv
+        begin: (\.)\s*(${identifier})\s*(\()\s*
+        end: (\))\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: punctuation.definition.named-port-connection.sv }
+          "2": { name: variable.other.sv }
+          "3": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#expression"
+      # Port identifier
+      - match: (${identifier})\s*
+        captures:
+          "1": { name: variable.other.sv }
+  modport-tf-ports-declaration:
+    name: meta.modport-tf-ports-declaration.sv
+    begin: (?=\b(import|export)\b)
+    end: (?=\b(input|output|inout|clocking)\b|\))|${blocksFailSafe}
+    patterns:
+      - include: "#import-export"
+      - include: "#modport-tf-port"
+      - include: "#comma"
+  modport-tf-port:
+    patterns:
+      - include: "#method-prototype"
+      - include: "#tf-identifier"
+  import-export:
+    match: \b(import|export)\b\s*
+    captures:
+      "1": { name: keyword.control.$1.sv }
   # A.2.10 Assertion declarations
   concurrent-assimilation-item:
     patterns:
@@ -3765,7 +3839,7 @@ repository:
         captures:
           "1": { name: punctuation.definition.wildcard.sv }
       - name: meta.named-port-connection.sv
-        begin: (\.)\s*(${identifier})\s*
+        begin: (?<!\w)(\.)\s*(${identifier})\s*
         end: (?=\)|,)
         beginCaptures:
           "1": { name: punctuation.definition.named-port-connection.sv }
@@ -4739,11 +4813,11 @@ repository:
         beginCaptures:
           "1": { name: keyword.control.default.sv }
           "2": { name: storage.type.clocking.sv }
-          "3": { name: entity.name.type.sv }
+          "3": { name: variable.other.sv }
         endCaptures:
           "1": { name: storage.type.clocking.sv }
           "2": { name: punctuation.separator.colon.sv }
-          "3": { name: entity.name.type.sv }
+          "3": { name: variable.other.sv }
         patterns:
           - include: "#clocking-event"
           - include: "#clocking-item"
@@ -4753,11 +4827,11 @@ repository:
         beginCaptures:
           "1": { name: storage.modifier.global.sv }
           "2": { name: storage.type.clocking.sv }
-          "3": { name: entity.name.type.sv }
+          "3": { name: variable.other.sv }
         endCaptures:
           "1": { name: storage.type.clocking.sv }
           "2": { name: punctuation.separator.colon.sv }
-          "3": { name: entity.name.type.sv }
+          "3": { name: variable.other.sv }
         patterns:
           - include: "#clocking-event"
           - include: "#clocking-item"
@@ -6076,19 +6150,22 @@ repository:
     match: (`resetall)\b
     name: keyword.control.resetall.sv
   macro-include:
-    begin: (`include)\b\s*
-    end: $
-    beginCaptures:
-      "1": { name: keyword.control.include.sv }
     patterns:
-      - match: ("[^"]*")
-        name: string.quoted.double.sv
-      - match: (<[^>]*>)
-        name: string.quoted.angle.include.sv
-      - include: "#text-macro-usage"
-      # Match and highlight variable names within the macro function
-      - match: \b([a-zA-Z_][a-zA-Z0-9_$]*)\b
-        name: variable.other.sv
+      # `include "..."
+      - match: (`include)\b\s*(?:(".*")\s*)?
+        captures:
+          "1": { name: keyword.control.include.sv }
+          "2": { name: string.quoted.double.sv }
+      # `include <...>
+      - match: (`include)\b\s*(?:(<.*>)\s*)?
+        captures:
+          "1": { name: keyword.control.include.sv }
+          "2": { name: string.quoted.angle.include.sv }
+      # In macro definition, the string might be used as a parameter
+      - match: (`include)\b\s*(?:(${simpleIdentifier})\s*)?
+        captures:
+          "1": { name: keyword.control.include.sv }
+          "2": { name: variable.other.sv }
   macro-define:
     patterns:
       - begin: (`define)\b\s*\b([a-zA-Z_][a-zA-Z0-9_$]*)\b\s*(?:(\()\s*(.*?)\s*(\))\s*)?

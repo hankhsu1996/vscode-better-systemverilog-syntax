@@ -18,7 +18,7 @@ module top(input clk, input a, output b, output c);
 
   clocking ck1 @(posedge clk);
 //^^^^^^^ storage.type.clocking.sv
-//         ^^^ entity.name.type.sv
+//         ^^^ variable.other.sv
 //             ^^^^^^^^^^^^^^ meta.clocking-event.sv
 //             ^ punctuation.definition.event.sv
 //              ^ punctuation.section.group.begin.sv
