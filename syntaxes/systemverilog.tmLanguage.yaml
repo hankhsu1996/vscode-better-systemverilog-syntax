@@ -608,6 +608,120 @@ repository:
       - include: "#module-instantiation"
       - include: "#interface-instantiation"
       - include: "#checker-instantiation"
+  # A.1.5 Configuration source text
+  config-declaration:
+    name: meta.config-declaration.sv
+    begin: \b(config)\b\s*(?:(${identifier})\s*)?(?:(\;)\s*)?
+    end: \b(endconfig)\b\s*(?:(\:)\s*(${identifier})\s*)?
+    beginCaptures:
+      "1": { name: storage.type.config.sv }
+      "2": { name: entity.name.type.sv }
+      "3": { name: punctuation.terminator.semicolon.sv }
+    endCaptures:
+      "1": { name: storage.type.config.sv }
+      "2": { name: punctuation.separator.colon.sv }
+      "3": { name: entity.name.type.sv }
+    patterns:
+      - include: "#local-parameter-declaration"
+      - include: "#semicolon"
+      - include: "#design-statement"
+      - include: "#config-rule-statement"
+  design-statement:
+    begin: \b(design)\b\s*
+    end: (\;)\s*
+    beginCaptures:
+      "1": { name: keyword.other.design.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      # Library identifier
+      - match: (${identifier})\s*(\.)\s*
+        captures:
+          "1": { name: entity.name.type.sv }
+          "2": { name: punctuation.accessor.dot.sv }
+      # Cell identifier
+      - match: (${identifier})\s*
+        captures:
+          "1": { name: entity.name.type.sv }
+  config-rule-statement:
+    patterns:
+      - include: "#default-clause"
+      - include: "#inst-clause"
+      - include: "#cell-clause"
+      - include: "#liblist-clause"
+      - include: "#use-clause"
+      - include: "#semicolon"
+  default-clause:
+    match: ${keywordStart}\b(default)\b\s*
+    captures:
+      "1": { name: keyword.other.default.sv }
+  inst-clause:
+    name: meta.inst-clause.sv
+    begin: \b(instance)\b\s*
+    end: (?=\b(liblist|use|;)\b)
+    beginCaptures:
+      "1": { name: keyword.other.instance.sv }
+    patterns:
+      - include: "#inst-name"
+  inst-name:
+    patterns:
+      # Instance identifier
+      - match: (\.)\s*(${identifier})\s*
+        captures:
+          "1": { name: punctuation.accessor.dot.sv }
+          "2": { name: variable.other.sv }
+      # Topmodule identifier
+      - match: (${identifier})\s*
+        captures:
+          "1": { name: variable.other.sv }
+  cell-clause:
+    name: meta.cell-clause.sv
+    begin: \b(cell)\b\s*
+    end: (?=\b(liblist|use|;)\b)
+    beginCaptures:
+      "1": { name: keyword.other.cell.sv }
+    patterns:
+      # Library identifier
+      - match: (${identifier})\s*(\.)\s*
+        captures:
+          "1": { name: entity.name.type.sv }
+          "2": { name: punctuation.accessor.dot.sv }
+      # Cell identifier
+      - match: (${identifier})\s*
+        captures:
+          "1": { name: entity.name.type.sv }
+  liblist-clause:
+    name: meta.liblist-clause.sv
+    begin: \b(liblist)\b\s*
+    end: (?=\;)
+    beginCaptures:
+      "1": { name: keyword.other.liblist.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      # Library identifier
+      - match: (${identifier})\s*
+        captures:
+          "1": { name: entity.name.type.sv }
+  use-clause:
+    name: meta.use-clause.sv
+    begin: \b(use)\b\s*
+    end: (?=\;)
+    beginCaptures:
+      "1": { name: keyword.other.use.sv }
+    patterns:
+      # Library identifier
+      - match: (${identifier})\s*(\.)\s*
+        captures:
+          "1": { name: entity.name.type.sv }
+          "2": { name: punctuation.accessor.dot.sv }
+      - match: (\:)\s*\b(config)\b\s*
+        captures:
+          "1": { name: punctuation.separator.colon.sv }
+          "2": { name: keyword.other.config.sv }
+      - include: "#parameter-value-assignment"
+      - include: "#comma"
+      - include: "#cell-identifier"
   # A.1.6 Interface items
   interface-or-generate-item:
     patterns:
@@ -1182,7 +1296,7 @@ repository:
   package-import-declaration:
     name: meta.package-import-declaration.sv
     begin: ${keywordStart}\b(import)\b\s*
-    end: (\;)\s*|${itemsFailSafe}
+    end: (\;)\s*|${itemsFailSafe}|(?=\b(import)\b)
     beginCaptures:
       "1": { name: keyword.control.import.sv }
     endCaptures:
@@ -4499,7 +4613,7 @@ repository:
   simple-immediate-assert-statement:
     patterns:
       - name: meta.assertion-statement.sv
-        begin: ${keywordStart}\b(assert)\b\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(assert)\b\s*(?!\s*(?:#0|\bfinal\b))(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.assert.sv }
@@ -4512,7 +4626,7 @@ repository:
   simple-immediate-assume-statement:
     patterns:
       - name: meta.assumption-statement.sv
-        begin: ${keywordStart}\b(assume)\b\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(assume)\b\s*(?!\s*(?:#0|\bfinal\b))(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
@@ -4525,7 +4639,7 @@ repository:
   simple-immediate-cover-statement:
     patterns:
       - name: meta.cover-statement.sv
-        begin: ${keywordStart}\b(cover)\b\s*(?:(\()\s*)?
+        begin: ${keywordStart}\b(cover)\b\s*(?!\s*(?:#0|\bfinal\b))(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.$1.sv }
@@ -6063,7 +6177,7 @@ repository:
         patterns:
           - include: "#expression"
           - include: "#statement-item"
-          - include: "#comma"
+          - include: "#description"
       # Macro variable
       - match: (${macro})\s*(?!\s*[(])
         name: meta.preprocessor.text-macro-usage.sv meta.preprocessor.macro-name.sv
