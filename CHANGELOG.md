@@ -6,16 +6,25 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.10] - 2024-02-29
+
+### Added
+
+- Added support for system timing checks.
+- Added support for specify blocks.
+- Added support for modport.
+- Added support for config declaration.
+
 ## [0.0.9] - 2024-02-23
 
 ### Added
 
-- Git conflict marker syntax support.
-- PatternChecker in TmLanguageProcessor.
+- Added support for Git conflict marker syntax.
+- Added PatternChecker in TmLanguageProcessor.
 
 ### Fixed
 
-- Macro syntax issues.
+- Fixed macro syntax issues.
 
 ## [0.0.8] - 2024-02-11
 
@@ -28,45 +37,45 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Added
 
-- Support for SystemVerilog LRM chapter 20, 21, 22 syntax.
+- Added support for SystemVerilog LRM chapter 20, 21, 22 syntax.
 
 ### Changed
 
-- Refactor main.js to TypeScript with visitor pattern
+- Refactored main.js to TypeScript with visitor pattern.
 
 ## [0.0.6] - 2024-02-09
 
 ### Added
 
-- Support for SystemVerilog LRM chapter 18 syntax.
+- Added support for SystemVerilog LRM chapter 18 syntax.
 
 ## [0.0.5] - 2024-02-07
 
 ### Added
 
-- Support for SystemVerilog LRM chapter 16 syntax.
+- Added support for SystemVerilog LRM chapter 16 syntax.
 
 ## [0.0.4] - 2024-02-06
 
 ### Added
 
-- Support for SystemVerilog LRM chapter 14, 15, 23, 24, 25, 26 syntaxes.
+- Added support for SystemVerilog LRM chapter 14, 15, 23, 24, 25, 26 syntaxes.
 
 ## [0.0.3] - 2024-02-05
 
 ### Added
 
-- Support for SystemVerilog LRM chapter 7, 8, 9 syntaxes.
+- Added support for SystemVerilog LRM chapter 7, 8, 9 syntaxes.
 
 ## [0.0.2] - 2024-02-03
 
 ### Added
 
-- Support for SystemVerilog LRM chapter 10, 11, 12, 13 syntaxes.
+- Added support for SystemVerilog LRM chapter 10, 11, 12, 13 syntaxes.
 
 ## [0.0.1] - 2024-01-07
 
 ### Added
 
 - Initial release of "Better SystemVerilog Syntax" extension with basic syntax highlighting for SystemVerilog.
-- Support for SystemVerilog LRM chapter 5, 6 syntaxes.
+- Added support for SystemVerilog LRM chapter 5, 6 syntaxes.
