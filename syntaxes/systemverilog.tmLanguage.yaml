@@ -18,6 +18,7 @@ variables:
   functionIdentifierStart: (?<!(?:\))\s+)
   functionIdentifierEnd: (?!\s*(\b\w+\b|\.|\[|#|::))
   classIdentifierStart: (?<!\#\s*)
+  # Class identifier can be followed by "#"
   classIdentifierEnd: (?!\s*(\(|\.|\=|:|${identifier}\s*\())
   psIdentifier: (?:(?:${identifier})\s*(?:::)\s*)?(?:${identifier})
   # When there is a new design element, the current design element should be ended
@@ -1296,13 +1297,14 @@ repository:
       - include: "#data-type-or-implicit"
   package-import-declaration:
     name: meta.package-import-declaration.sv
-    begin: ${keywordStart}\b(import)\b\s*
+    begin: ${keywordStart}\b(import)\b\s*(?!\s*\"(DPI\-C|DPI)\")
     end: (\;)\s*|${itemsFailSafe}|(?=\b(import)\b)
     beginCaptures:
       "1": { name: keyword.control.import.sv }
     endCaptures:
       "1": { name: punctuation.terminator.semicolon.sv }
     patterns:
+      - include: "#dpi-spec-string"
       - include: "#package-import-item"
       - include: "#comma"
   package-import-item:
@@ -1315,14 +1317,14 @@ repository:
           # Unfortunately, without semantic analysis, it's not possible to distinguish between them accurately.
           # In this extension, we use naming conventions to make educated guesses:
           # - If the identifier starts with a capital letter, it's likely a parameter.
-          # - If the identifier starts with "t_" or "e_" or ends with "_t" or "_e", it's likely a data type.
+          # - If the identifier starts with "t_" or ends with "_t", it's likely a data type.
           # - Otherwise, it's likely a function/task.
           "3":
             patterns:
               - match: \b([A-Z][a-zA-Z0-9_$]*)\b\s*
                 captures:
                   "1": { name: variable.other.constant.sv }
-              - match: \b(t_[a-zA-Z0-9_]*|e_[a-zA-Z0-9_]*|.*_t|.*_e)\b\s*
+              - match: \b(t_[a-zA-Z0-9_]*|.*_t)\b\s*
                 captures:
                   "1": { name: entity.name.type.sv }
               - match: \b(${functionIdentifier})\b\s*
@@ -1335,7 +1337,7 @@ repository:
           "3": { name: keyword.operator.wildcard.sv }
   package-export-declaration:
     name: meta.package-export-declaration.sv
-    begin: ${keywordStart}\b(export)\b\s*
+    begin: ${keywordStart}\b(export)\b\s*(?!\s*\"(DPI\-C|DPI)\")
     end: (\;)\s*
     beginCaptures:
       "1": { name: keyword.control.export.sv }
@@ -1347,6 +1349,7 @@ repository:
           "1": { name: keyword.operator.wildcard.sv }
           "2": { name: punctuation.separator.scope-resolution.sv }
           "3": { name: keyword.operator.wildcard.sv }
+      - include: "#dpi-spec-string"
       - include: "#package-import-item"
       - include: "#comma"
   genvar-declaration:
@@ -1582,6 +1585,10 @@ repository:
             patterns:
               - include: "#parameter-value-assignment"
           "3": { name: punctuation.separator.scope-resolution.sv }
+      # If an identifier is followed by '#(', we 'guess' it is a class type
+      - match: (${identifier})\s*(?=\#\s*\()
+        captures:
+          "1": { name: entity.name.type.sv }
   class-type:
     patterns:
       - include: "#parameter-value-assignment"
@@ -2009,7 +2016,7 @@ repository:
   function-declaration:
     name: meta.function-declaration.sv
     begin: (?=\b(function)\b\s*)
-    end: \b(endfunction)\b\s*(?:(\:)\s*(${identifier})\s*)?|${blocksFailSafe}
+    end: \b(endfunction)\b\s*(?:(\:)\s*(${identifier}|\bnew\b)\s*)?|${blocksFailSafe}
     endCaptures:
       "1": { name: storage.type.function.sv }
       "2": { name: punctuation.separator.colon.sv }
@@ -2060,9 +2067,9 @@ repository:
                   "1": { name: punctuation.section.group.end.sv }
                 patterns:
                   - include: "#list-of-arguments"
+          - include: "#function-statement-or-null"
           - include: "#tf-item-declaration"
           - include: "#block-item-declaration"
-          - include: "#function-statement-or-null"
   function-prototype:
     name: meta.function-prototype.sv
     begin: \b(function)\b\s*
@@ -2090,16 +2097,17 @@ repository:
       "1": { name: punctuation.terminator.semicolon.sv }
     patterns:
       - include: "#dpi-spec-string"
+      - include: "#dpi-function-proto"
+      - include: "#dpi-task-proto"
       - include: "#dpi-function-import-property"
       - include: "#dpi-task-import-property"
       - include: "#c-identifier"
-      - include: "#dpi-function-proto"
-      - include: "#dpi-task-proto"
       - include: "#function-identifier"
       - include: "#task-identifier"
   dpi-spec-string:
-    patterns:
-      - include: "#string"
+    match: (\"(DPI\-C|DPI)\")\s*
+    captures:
+      "1": { name: string.quoted.double.sv }
   dpi-function-import-property:
     patterns:
       - match: \b(context|pure)\b\s*
@@ -6827,10 +6835,12 @@ repository:
       - include: "#line-comment"
       - include: "#block-comment"
   line-comment:
-    name: comment.line.sv
-    match: (//)(.*)
+    # If line comment is in macro definition, the ending '\' is not part of the comment
+    match: ((\/\/)(?:.*?))(\\)?$
     captures:
-      "1": { name: punctuation.definition.comment.sv }
+      "1": { name: comment.line.sv }
+      "2": { name: punctuation.definition.comment.sv }
+      "3": { name: punctuation.separator.continuation.sv }
   block-comment:
     name: comment.block.sv
     begin: /\*
@@ -6978,7 +6988,7 @@ repository:
       - match: \b([A-Z][a-zA-Z0-9_$]*)\b\s*${identifierEnd}
         captures:
           "1": { name: variable.other.constant.sv }
-      - match: \b(t_[a-zA-Z0-9_]*|e_[a-zA-Z0-9_]*|[a-zA-Z0-9_]*_t|[a-zA-Z0-9_]*_e)\b\s*
+      - match: \b(t_[a-zA-Z0-9_]*|[a-zA-Z0-9_]*_t)\b\s*
         captures:
           "1": { name: entity.name.type.sv }
       - match: (${identifier})\s*${identifierEnd}
@@ -7126,7 +7136,7 @@ repository:
       - include: "#package-scope"
       - include: "#class-scope"
   sequence-identifier:
-    match: (${identifier})\s*
+    match: (${identifier})\s*${identifierEnd}
     captures:
       "1": { name: variable.other.sv }
   signal-identifier:
@@ -7221,7 +7231,8 @@ repository:
           "2": { name: variable.other.sv }
   macro-define:
     patterns:
-      - begin: (`define)\b\s*\b([a-zA-Z_][a-zA-Z0-9_$]*)\b\s*(?:(\()\s*(.*?)\s*(\))\s*)?
+      - name: meta.macro-definition.sv
+        begin: (`define)\b\s*\b([a-zA-Z_][a-zA-Z0-9_$]*)\b\s*(?:(\()\s*(.*?)\s*(\))\s*)?
         end: (?<!\\\s*)$
         beginCaptures:
           "1": { name: keyword.control.define.sv }
@@ -7288,6 +7299,7 @@ repository:
       - include: "#interface-item"
       - include: "#expression"
       - include: "#gate-instantiation"
+      - include: "#description"
   formal-argument:
     patterns:
       - match: \b([a-zA-Z_][a-zA-Z0-9_\$]*)\b
