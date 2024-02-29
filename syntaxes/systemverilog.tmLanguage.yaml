@@ -5106,11 +5106,382 @@ repository:
         captures:
           "1": { name: keyword.control.default.sv }
       - include: "#case-item-expression"
+  # A.7 Specify section
+  # A.7.1 Specify block declaration
+  specify-block:
+    name: meta.specify-block.sv
+    begin: \b(specify)\b\s*
+    end: \b(endspecify)\b\s*|${itemsFailSafe}
+    beginCaptures:
+      "1": { name: storage.type.specify.sv }
+    endCaptures:
+      "1": { name: storage.type.specify.sv }
+    patterns:
+      - include: "#specify-item"
+  specify-item:
+    patterns:
+      - include: "#specparam-declaration"
+      - include: "#pulsestyle-declaration"
+      - include: "#showcancelled-declaration"
+      - include: "#path-declaration"
+      - include: "#system-timing-check"
+  pulsestyle-declaration:
+    patterns:
+      - begin: \b(pulsestyle_onevent)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: keyword.other.$1.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#list-of-path-outputs"
+      - begin: \b(pulsestyle_ondetect)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: keyword.other.$1.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#list-of-path-outputs"
+  showcancelled-declaration:
+    patterns:
+      - begin: \b(showcancelled)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: keyword.other.$1.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#list-of-path-outputs"
+      - begin: \b(noshowcancelled)\b\s*
+        end: (\;)\s*
+        beginCaptures:
+          "1": { name: keyword.other.$1.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#list-of-path-outputs"
+  # A.7.2 Specify path declarations
+  path-declaration:
+    patterns:
+      - include: "#simple-path-declaration"
+      - include: "#edge-sensitive-path-declaration"
+      - include: "#state-dependent-path-declaration"
+      - include: "#semicolon"
+  simple-path-declaration:
+    patterns:
+      - begin: (\=)\s*
+        end: (?=\;)
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#path-delay-value"
+      - include: "#path-description"
+  # path-description includes:
+  # - parallel path description
+  # - full path description
+  # - parallel edge-sensitive path description
+  # - full edge-sensitive path description
+  path-description:
+    patterns:
+      - name: meta.parallel-path-description.sv
+        begin: (\()\s*
+        end: (\))\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - match: (\=\>)\s*
+            captures:
+              "1": { name: keyword.operator.parallel-path.sv }
+          - match: (\*\>)\s*
+            captures:
+              "1": { name: keyword.operator.full-path.sv }
+          - include: "#polarity-operator"
+          - include: "#list-of-path-inputs"
+          - include: "#list-of-path-outputs"
+          - include: "#specify-input-terminal-descriptor"
+          - include: "#specify-output-terminal-descriptor"
+          - include: "#edge-identifier"
+          - begin: (\()\s*
+            end: (\))\s*|${bracketsFailSafe}
+            beginCaptures:
+              "1": { name: punctuation.section.group.begin.sv }
+            endCaptures:
+              "1": { name: punctuation.section.group.end.sv }
+            patterns:
+              - include: "#polarity-operator"
+              - begin: (\:)\s*
+                end: (?=\))
+                beginCaptures:
+                  "1": { name: punctuation.separator.colon.sv }
+                patterns:
+                  - include: "#data-source-expression"
+              - include: "#list-of-path-outputs"
+              - include: "#specify-output-terminal-descriptor"
+  parallel-path-description:
+    patterns:
+      - name: meta.parallel-path-description.sv
+        begin: (\()\s*
+        end: (\))\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#specify-input-terminal-descriptor"
+          - include: "#polarity-operator"
+          - match: (\=\>)\s*
+            captures:
+              "1": { name: keyword.operator.parallel-path.sv }
+
+          - include: "#specify-output-terminal-descriptor"
+  full-path-description:
+    patterns:
+      - name: meta.full-path-description.sv
+        begin: (\()\s*
+        end: (\))\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#list-of-path-inputs"
+          - include: "#polarity-operator"
+          - match: (\*\>)\s*
+            captures:
+              "1": { name: keyword.operator.full-path.sv }
+          - include: "#list-of-path-outputs"
+  list-of-path-inputs:
+    patterns:
+      - include: "#specify-input-terminal-descriptor"
+      - include: "#comma"
+  list-of-path-outputs:
+    patterns:
+      - include: "#specify-output-terminal-descriptor"
+      - include: "#comma"
+  # A.7.3 Specify block terminals
+  specify-input-terminal-descriptor:
+    patterns:
+      - include: "#input-identifier"
+      - begin: (\[)\s*
+        end: (\])\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: punctuation.section.brackets.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.brackets.end.sv }
+        patterns:
+          - include: "#constant-range-expression"
+  specify-output-terminal-descriptor:
+    patterns:
+      - include: "#output-identifier"
+      - begin: (\[)\s*
+        end: (\])\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: punctuation.section.brackets.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.brackets.end.sv }
+        patterns:
+          - include: "#constant-range-expression"
+  input-identifier:
+    patterns:
+      - include: "#input-port-identifier"
+      - include: "#inout-port-identifier"
+      # Interface identifier
+      - match: (${identifier})(\.)
+        captures:
+          "1": { name: variable.other.sv }
+          "2": { name: punctuation.separator.dot.sv }
+      - include: "#port-identifier"
+  output-identifier:
+    patterns:
+      - include: "#output-port-identifier"
+      - include: "#inout-port-identifier"
+      # Interface identifier
+      - match: (${identifier})(\.)
+        captures:
+          "1": { name: variable.other.sv }
+          "2": { name: punctuation.separator.dot.sv }
+      - include: "#port-identifier"
   # A.7.4 Specify path delays
+  path-delay-value:
+    patterns:
+      - include: "#list-of-path-delay-expressions"
+      - begin: (\()\s*
+        end: (\))\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#list-of-path-delay-expressions"
+  list-of-path-delay-expressions:
+    patterns:
+      - include: "#t-path-delay-expression"
+      - include: "#trise-path-delay-expression"
+      - include: "#tfall-path-delay-expression"
+      - include: "#tz-path-delay-expression"
+      - include: "#t01-path-delay-expression"
+      - include: "#t10-path-delay-expression"
+      - include: "#t0z-path-delay-expression"
+      - include: "#tz1-path-delay-expression"
+      - include: "#t1z-path-delay-expression"
+      - include: "#tz0-path-delay-expression"
+      - include: "#t0x-path-delay-expression"
+      - include: "#tx1-path-delay-expression"
+      - include: "#t1x-path-delay-expression"
+      - include: "#tx0-path-delay-expression"
+      - include: "#txz-path-delay-expression"
+      - include: "#tzx-path-delay-expression"
+      - include: "#comma"
+  t-path-delay-expression:
+    patterns:
+      - include: "#path-delay-expression"
+  trise-path-delay-expression:
+    patterns:
+      - include: "#path-delay-expression"
+  tfall-path-delay-expression:
+    patterns:
+      - include: "#path-delay-expression"
+  tz-path-delay-expression:
+    patterns:
+      - include: "#path-delay-expression"
+  t01-path-delay-expression:
+    patterns:
+      - include: "#path-delay-expression"
+  t10-path-delay-expression:
+    patterns:
+      - include: "#path-delay-expression"
+  t0z-path-delay-expression:
+    patterns:
+      - include: "#path-delay-expression"
+  tz1-path-delay-expression:
+    patterns:
+      - include: "#path-delay-expression"
+  t1z-path-delay-expression:
+    patterns:
+      - include: "#path-delay-expression"
+  tz0-path-delay-expression:
+    patterns:
+      - include: "#path-delay-expression"
+  t0x-path-delay-expression:
+    patterns:
+      - include: "#path-delay-expression"
+  tx1-path-delay-expression:
+    patterns:
+      - include: "#path-delay-expression"
+  t1x-path-delay-expression:
+    patterns:
+      - include: "#path-delay-expression"
+  tx0-path-delay-expression:
+    patterns:
+      - include: "#path-delay-expression"
+  txz-path-delay-expression:
+    patterns:
+      - include: "#path-delay-expression"
+  tzx-path-delay-expression:
+    patterns:
+      - include: "#path-delay-expression"
+  path-delay-expression:
+    patterns:
+      - include: "#constant-mintypmax-expression"
+  edge-sensitive-path-declaration:
+    patterns:
+      - begin: (\=)\s*
+        end: (?=\;)
+        beginCaptures:
+          "1": { name: keyword.operator.assignment.sv }
+        patterns:
+          - include: "#path-delay-value"
+      - include: "#parallel-edge-sensitive-path-description"
+      - include: "#full-edge-sensitive-path-description"
+  parallel-edge-sensitive-path-description:
+    patterns:
+      - name: meta.parallel-edge-sensitive-path-description.sv
+        begin: (\()\s*
+        end: (\))\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#edge-identifier"
+          - include: "#specify-input-terminal-descriptor"
+          - include: "#polarity-operator"
+          - match: (\=\>)\s*
+            captures:
+              "1": { name: keyword.operator.parallel-path.sv }
+          - begin: (\()\s*
+            end: (\))\s*|${bracketsFailSafe}
+            beginCaptures:
+              "1": { name: punctuation.section.group.begin.sv }
+            endCaptures:
+              "1": { name: punctuation.section.group.end.sv }
+            patterns:
+              - include: "#specify-output-terminal-descriptor"
+              - include: "#polarity-operator"
+              - match: (\:)\s*
+                captures:
+                  "1": { name: punctuation.separator.colon.sv }
+              - include: "#data-source-expression"
+  full-edge-sensitive-path-description:
+    patterns:
+      - name: meta.full-edge-sensitive-path-description.sv
+        begin: (\()\s*
+        end: (\))\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#edge-identifier"
+          - include: "#list-of-path-inputs"
+          - include: "#polarity-operator"
+          - match: (\*\>)\s*
+            captures:
+              "1": { name: keyword.operator.full-path.sv }
+          - begin: (\()\s*
+            end: (\))\s*|${bracketsFailSafe}
+            beginCaptures:
+              "1": { name: punctuation.section.group.begin.sv }
+            endCaptures:
+              "1": { name: punctuation.section.group.end.sv }
+            patterns:
+              - include: "#list-of-path-outputs"
+              - include: "#polarity-operator"
+              - match: (\:)\s*
+                captures:
+                  "1": { name: punctuation.separator.colon.sv }
+              - include: "#data-source-expression"
+  data-source-expression:
+    patterns:
+      - include: "#expression"
   edge-identifier:
-    match: \b(posedge|negedge|edge)\b\s*
-    captures:
-      "1": { name: keyword.other.$1.sv }
+    patterns:
+      - match: \b(posedge|negedge|edge)\b\s*
+        captures:
+          "1": { name: keyword.other.$1.sv }
+  state-dependent-path-declaration:
+    patterns:
+      - name: meta.state-dependent-path-declaration.sv
+        begin: \b(if)\b\s*(\()\s*
+        end: (\))\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#module-path-expression"
+      - match: \b(ifnone)\b\s*
+        captures:
+          "1": { name: keyword.control.ifnone.sv }
+  polarity-operator:
+    patterns:
+      - match: (\+|\-)\s*
+        captures:
+          "1": { name: keyword.operator.polarity.sv }
   # A.8 Expressions
   # A.8.1 Concatenations
   concatenation:
@@ -5442,11 +5813,10 @@ repository:
       - match: (\?)\s*
         captures:
           "1": { name: keyword.operator.ternary.sv }
-      - include: "#attribute-instance"
       - match: (\:)\s*
         captures:
           "1": { name: punctuation.separator.colon.sv }
-      - include: "#module-path-expression"
+      - include: "#attribute-instance"
   module-path-expression:
     patterns:
       - include: "#module-path-primary"
@@ -5952,10 +6322,10 @@ repository:
       - include: "#identifier"
   inout-port-identifier:
     patterns:
-      - include: "#identifier"
+      - include: "#variable-identifier"
   input-port-identifier:
     patterns:
-      - include: "#identifier"
+      - include: "#variable-identifier"
   instance-identifier:
     match: (${identifier})\s*
     captures:
@@ -5985,7 +6355,7 @@ repository:
       "1": { name: entity.name.type.sv }
   output-port-identifier:
     patterns:
-      - include: "#identifier"
+      - include: "#variable-identifier"
   package-identifier:
     patterns:
       - include: "#identifier"
@@ -6118,7 +6488,13 @@ repository:
       - include: "#identifier"
   variable-identifier:
     patterns:
-      - include: "#identifier"
+      - match: (${identifier})\s*${identifierEnd}
+        captures:
+          "1":
+            name: variable.other.sv
+            patterns:
+                - match: \`\`
+                  name: constant.character.escape.sv
   # Compiler directives
   compiler-directive:
     patterns:
