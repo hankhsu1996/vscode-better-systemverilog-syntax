@@ -15,18 +15,15 @@
 module top();
   parameter p1 = 123;
 //^^^^^^^^^ storage.modifier.parameter.sv
-//          ^^variable.other.constant.sv
+//          ^^ variable.other.constant.sv
 //             ^ keyword.operator.assignment.sv
 //               ^^^ constant.numeric.integer.sv
-
-// In tmLanguage, there is no way to distinguish between a variable and a parameter.
-// We assume that variables start with a lowercase letter and parameters start with an uppercase letter.
 
   parameter p2 = p1 * 3;
 //^^^^^^^^^ storage.modifier.parameter.sv
 //          ^^ variable.other.constant.sv
 //             ^ keyword.operator.assignment.sv
-//               ^^ variable.other.sv
+//               ^^ variable.other.constant.sv
 //                  ^ keyword.operator.binary.sv
 //                    ^ constant.numeric.integer.sv
 endmodule

@@ -1978,6 +1978,7 @@ repository:
           "1": { name: entity.name.function.sv }
       - include: "#dimension"
   # A.2.5 Declaration ranges
+  # It is also used in bit select, part select, etc.
   dimension:
     name: meta.dimension.sv
     begin: (\[)\s*
@@ -1993,6 +1994,9 @@ repository:
       - match: (\$)\s*(?!\w)
         captures:
           "1": { name: constant.numeric.dollar.sv }
+      - include: "#expression"
+      - include: "#range-expression"
+      - include: "#range"
       - include: "#constant-range-expression"
       - include: "#constant-range"
       - include: "#constant-expression"
@@ -2834,8 +2838,8 @@ repository:
         captures:
           "1": { name: keyword.other.within.sv }
       - include: "#boolean-abbrev"
-      - include: "#cycle-delay-range"
       - include: "#expression-or-dist"
+      - include: "#cycle-delay-range"
       - include: "#sequence-instance"
       - include: "#sequence-abbrev"
       - include: "#clocking-event"
@@ -4436,7 +4440,8 @@ repository:
           "1": { name: keyword.control.$1.sv }
         patterns:
           # Header
-          - begin: \b(case|casex|casez)\b\s*(?:(\()\s*)?
+          - name: meta.case-statement-header.sv
+            begin: \b(case|casex|casez)\b\s*(?:(\()\s*)?
             end: (?=\))|${bracketsFailSafe}
             beginCaptures:
               "1": { name: keyword.control.$1.sv }
@@ -4444,7 +4449,8 @@ repository:
             patterns:
               - include: "#case-expression"
           # Body
-          - begin: (\))\s*|${bracketsFailSafe}
+          - name: meta.case-statement-body.sv
+            begin: (\))\s*|${bracketsFailSafe}
             beginCaptures:
               "1": { name: punctuation.section.group.end.sv }
             end: (?=\b(endcase)\b)|${itemsFailSafe}
@@ -4483,8 +4489,8 @@ repository:
       - match: \b(default)\b\s*
         captures:
           "1": { name: keyword.control.default.sv }
-      - include: "#pattern"
       - include: "#expression"
+      - include: "#pattern"
       - include: "#statement-or-null"
   case-inside-item:
     patterns:
@@ -4519,6 +4525,7 @@ repository:
     patterns:
       - include: "#value-range"
   # A.6.7.1 Patterns
+  # We mix pattern and assignment-pattern together.
   pattern:
     patterns:
       - match: (\.)\s*(${identifier})\s*
@@ -4528,6 +4535,8 @@ repository:
       - match: (\.\*)\s*
         captures:
           "1": { name: punctuation.definition.wildcard.sv }
+      # It is possible for assignment pattern to have an expression
+      - include: "#expression"
       - include: "#constant-expression"
       - match: \b(tagged)\b\s+(${identifier})\s*
         captures:
@@ -5530,6 +5539,626 @@ repository:
       - match: (\+|\-)\s*
         captures:
           "1": { name: keyword.operator.polarity.sv }
+  # A.7.5 System timing checks
+  # A.7.5.1 System timing check commands
+  system-timing-check:
+    patterns:
+      - include: "#setup-timing-check"
+      - include: "#hold-timing-check"
+      - include: "#setuphold-timing-check"
+      - include: "#recovery-timing-check"
+      - include: "#removal-timing-check"
+      - include: "#recrem-timing-check"
+      - include: "#skew-timing-check"
+      - include: "#timeskew-timing-check"
+      - include: "#fullskew-timing-check"
+      - include: "#period-timing-check"
+      - include: "#width-timing-check"
+      - include: "#nochange-timing-check"
+  setup-timing-check:
+    patterns:
+      - name: meta.setup-timing-check.sv
+        begin: (\$setup)\b\s*(?:(\()\s*)?
+        end: (\))\s*(\;)\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: keyword.other.setup.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+          "2": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#data-event"
+          - begin: (\,)\s*
+            end: (?=\))|${bracketsFailSafe}
+            beginCaptures:
+              "1": { name: punctuation.separator.comma.sv }
+            patterns:
+              - include: "#reference-event"
+              - begin: (\,)\s*
+                end: (?=\))|${bracketsFailSafe}
+                beginCaptures:
+                  "1": { name: punctuation.separator.comma.sv }
+                patterns:
+                  - include: "#timing-check-limit"
+                  - begin: (\,)\s*
+                    end: (?=\))|${bracketsFailSafe}
+                    beginCaptures:
+                      "1": { name: punctuation.separator.comma.sv }
+                    patterns:
+                      - include: "#notifier"
+  hold-timing-check:
+    patterns:
+      - name: meta.hold-timing-check.sv
+        begin: (\$hold)\b\s*(?:(\()\s*)?
+        end: (\))\s*(\;)\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: keyword.other.hold.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+          "2": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#reference-event"
+          - begin: (\,)\s*
+            end: (?=\))|${bracketsFailSafe}
+            beginCaptures:
+              "1": { name: punctuation.separator.comma.sv }
+            patterns:
+              - include: "#data-event"
+              - begin: (\,)\s*
+                end: (?=\))|${bracketsFailSafe}
+                beginCaptures:
+                  "1": { name: punctuation.separator.comma.sv }
+                patterns:
+                  - include: "#timing-check-limit"
+                  - begin: (\,)\s*
+                    end: (?=\))|${bracketsFailSafe}
+                    beginCaptures:
+                      "1": { name: punctuation.separator.comma.sv }
+                    patterns:
+                      - include: "#notifier"
+  setuphold-timing-check:
+    patterns:
+      - name: meta.setuphold-timing-check.sv
+        begin: (\$setuphold)\b\s*(?:(\()\s*)?
+        end: (\))\s*(\;)\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: keyword.other.setuphold.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+          "2": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#reference-event"
+          - begin: (\,)\s*
+            end: (?=\))|${bracketsFailSafe}
+            beginCaptures:
+              "1": { name: punctuation.separator.comma.sv }
+            patterns:
+              - include: "#data-event"
+              - begin: (\,)\s*
+                end: (?=\))|${bracketsFailSafe}
+                beginCaptures:
+                  "1": { name: punctuation.separator.comma.sv }
+                patterns:
+                  - include: "#timing-check-limit"
+                  - begin: (\,)\s*
+                    end: (?=\))|${bracketsFailSafe}
+                    beginCaptures:
+                      "1": { name: punctuation.separator.comma.sv }
+                    patterns:
+                      - include: "#timing-check-limit"
+                      - begin: (\,)\s*
+                        end: (?=\))|${bracketsFailSafe}
+                        beginCaptures:
+                          "1": { name: punctuation.separator.comma.sv }
+                        patterns:
+                          - include: "#notifier"
+                          - begin: (\,)\s*
+                            end: (?=\))|${bracketsFailSafe}
+                            beginCaptures:
+                              "1": { name: punctuation.separator.comma.sv }
+                            patterns:
+                              - include: "#timestamp-condition"
+                              - begin: (\,)\s*
+                                end: (?=\))|${bracketsFailSafe}
+                                beginCaptures:
+                                  "1": { name: punctuation.separator.comma.sv }
+                                patterns:
+                                  - include: "#timecheck-condition"
+                                  - begin: (\,)\s*
+                                    end: (?=\))|${bracketsFailSafe}
+                                    beginCaptures:
+                                      "1": { name: punctuation.separator.comma.sv }
+                                    patterns:
+                                      - include: "#delayed-reference"
+                                      - begin: (\,)\s*
+                                        end: (?=\))|${bracketsFailSafe
+                                        beginCaptures:
+                                          "1": { name: punctuation.separator.comma.sv }
+                                        patterns:
+                                          - include: "#delayed-data"
+  recovery-timing-check:
+    patterns:
+      - name: meta.recovery-timing-check.sv
+        begin: (\$recovery)\b\s*(?:(\()\s*)?
+        end: (\))\s*(\;)\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: keyword.other.recovery.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+          "2": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#reference-event"
+          - begin: (\,)\s*
+            end: (?=\))|${bracketsFailSafe}
+            beginCaptures:
+              "1": { name: punctuation.separator.comma.sv }
+            patterns:
+              - include: "#data-event"
+              - begin: (\,)\s*
+                end: (?=\))|${bracketsFailSafe}
+                beginCaptures:
+                  "1": { name: punctuation.separator.comma.sv }
+                patterns:
+                  - include: "#timing-check-limit"
+                  - begin: (\,)\s*
+                    end: (?=\))|${bracketsFailSafe}
+                    beginCaptures:
+                      "1": { name: punctuation.separator.comma.sv }
+                    patterns:
+                      - include: "#notifier"
+  removal-timing-check:
+    patterns:
+      - name: meta.removal-timing-check.sv
+        begin: (\$removal)\b\s*(?:(\()\s*)?
+        end: (\))\s*(\;)\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: keyword.other.removal.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+          "2": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#reference-event"
+          - begin: (\,)\s*
+            end: (?=\))|${bracketsFailSafe}
+            beginCaptures:
+              "1": { name: punctuation.separator.comma.sv }
+            patterns:
+              - include: "#data-event"
+              - begin: (\,)\s*
+                end: (?=\))|${bracketsFailSafe}
+                beginCaptures:
+                  "1": { name: punctuation.separator.comma.sv }
+                patterns:
+                  - include: "#timing-check-limit"
+                  - begin: (\,)\s*
+                    end: (?=\))|${bracketsFailSafe}
+                    beginCaptures:
+                      "1": { name: punctuation.separator.comma.sv }
+                    patterns:
+                      - include: "#notifier"
+  recrem-timing-check:
+    patterns:
+      - name: meta.recrem-timing-check.sv
+        begin: (\$recrem)\b\s*(?:(\()\s*)?
+        end: (\))\s*(\;)\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: keyword.other.recrem.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+          "2": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#reference-event"
+          - begin: (\,)\s*
+            end: (?=\))|${bracketsFailSafe}
+            beginCaptures:
+              "1": { name: punctuation.separator.comma.sv }
+            patterns:
+              - include: "#data-event"
+              - begin: (\,)\s*
+                end: (?=\))|${bracketsFailSafe}
+                beginCaptures:
+                  "1": { name: punctuation.separator.comma.sv }
+                patterns:
+                  - include: "#timing-check-limit"
+                  - begin: (\,)\s*
+                    end: (?=\))|${bracketsFailSafe}
+                    beginCaptures:
+                      "1": { name: punctuation.separator.comma.sv }
+                    patterns:
+                      - include: "#timing-check-limit"
+                      - begin: (\,)\s*
+                        end: (?=\))|${bracketsFailSafe}
+                        beginCaptures:
+                          "1": { name: punctuation.separator.comma.sv }
+                        patterns:
+                          - include: "#notifier"
+                          - begin: (\,)\s*
+                            end: (?=\))|${bracketsFailSafe}
+                            beginCaptures:
+                              "1": { name: punctuation.separator.comma.sv }
+                            patterns:
+                              - include: "#timestamp-condition"
+                              - begin: (\,)\s*
+                                end: (?=\))|${bracketsFailSafe}
+                                beginCaptures:
+                                  "1": { name: punctuation.separator.comma.sv }
+                                patterns:
+                                  - include: "#timecheck-condition"
+                                  - begin: (\,)\s*
+                                    end: (?=\))|${bracketsFailSafe}
+                                    beginCaptures:
+                                      "1": { name: punctuation.separator.comma.sv }
+                                    patterns:
+                                      - include: "#delayed-reference"
+                                      - begin: (\,)\s*
+                                        end: (?=\))|${bracketsFailSafe}
+                                        beginCaptures:
+                                          "1": { name: punctuation.separator.comma.sv }
+                                        patterns:
+                                          - include: "#delayed-data"
+  skew-timing-check:
+    patterns:
+      - name: meta.skew-timing-check.sv
+        begin: (\$skew)\b\s*(?:(\()\s*)?
+        end: (\))\s*(\;)\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: keyword.other.skew.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+          "2": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#reference-event"
+          - begin: (\,)\s*
+            end: (?=\))|${bracketsFailSafe}
+            beginCaptures:
+              "1": { name: punctuation.separator.comma.sv }
+            patterns:
+              - include: "#data-event"
+              - begin: (\,)\s*
+                end: (?=\))|${bracketsFailSafe}
+                beginCaptures:
+                  "1": { name: punctuation.separator.comma.sv }
+                patterns:
+                  - include: "#timing-check-limit"
+                  - begin: (\,)\s*
+                    end: (?=\))|${bracketsFailSafe}
+                    beginCaptures:
+                      "1": { name: punctuation.separator.comma.sv }
+                    patterns:
+                      - include: "#notifier"
+  timeskew-timing-check:
+    patterns:
+      - name: meta.timeskew-timing-check.sv
+        begin: (\$timeskew)\b\s*(?:(\()\s*)?
+        end: (\))\s*(\;)\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: keyword.other.timeskew.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+          "2": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#reference-event"
+          - begin: (\,)\s*
+            end: (?=\))|${bracketsFailSafe}
+            beginCaptures:
+              "1": { name: punctuation.separator.comma.sv }
+            patterns:
+              - include: "#data-event"
+              - begin: (\,)\s*
+                end: (?=\))|${bracketsFailSafe}
+                beginCaptures:
+                  "1": { name: punctuation.separator.comma.sv }
+                patterns:
+                  - include: "#timing-check-limit"
+                  - begin: (\,)\s*
+                    end: (?=\))|${bracketsFailSafe}
+                    beginCaptures:
+                      "1": { name: punctuation.separator.comma.sv }
+                    patterns:
+                      - include: "#notifier"
+                      - begin: (\,)\s*
+                        end: (?=\))|${bracketsFailSafe}
+                        beginCaptures:
+                          "1": { name: punctuation.separator.comma.sv }
+                        patterns:
+                          - include: "#event-based-flag"
+                          - begin: (\,)\s*
+                            end: (?=\))|${bracketsFailSafe}
+                            beginCaptures:
+                              "1": { name: punctuation.separator.comma.sv }
+                            patterns:
+                              - include: "#remain-active-flag"
+  fullskew-timing-check:
+    patterns:
+      - name: meta.fullskew-timing-check.sv
+        begin: (\$fullskew)\b\s*(?:(\()\s*)?
+        end: (\))\s*(\;)\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: keyword.other.fullskew.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+          "2": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#reference-event"
+          - begin: (\,)\s*
+            end: (?=\))|${bracketsFailSafe}
+            beginCaptures:
+              "1": { name: punctuation.separator.comma.sv }
+            patterns:
+              - include: "#data-event"
+              - begin: (\,)\s*
+                end: (?=\))|${bracketsFailSafe}
+                beginCaptures:
+                  "1": { name: punctuation.separator.comma.sv }
+                patterns:
+                  - include: "#timing-check-limit"
+                  - begin: (\,)\s*
+                    end: (?=\))|${bracketsFailSafe}
+                    beginCaptures:
+                      "1": { name: punctuation.separator.comma.sv }
+                    patterns:
+                      - include: "#timing-check-limit"
+                      - begin: (\,)\s*
+                        end: (?=\))|${bracketsFailSafe}
+                        beginCaptures:
+                          "1": { name: punctuation.separator.comma.sv }
+                        patterns:
+                          - include: "#notifier"
+                          - begin: (\,)\s*
+                            end: (?=\))|${bracketsFailSafe}
+                            beginCaptures:
+                              "1": { name: punctuation.separator.comma.sv }
+                            patterns:
+                              - include: "#event-based-flag"
+                              - begin: (\,)\s*
+                                end: (?=\))|${bracketsFailSafe}
+                                beginCaptures:
+                                  "1": { name: punctuation.separator.comma.sv }
+                                patterns:
+                                  - include: "#remain-active-flag"
+  period-timing-check:
+    patterns:
+      - name: meta.period-timing-check.sv
+        begin: (\$period)\b\s*(?:(\()\s*)?
+        end: (\))\s*(\;)\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: keyword.other.period.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+          "2": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#controlled-reference-event"
+          - begin: (\,)\s*
+            end: (?=\))|${bracketsFailSafe}
+            beginCaptures:
+              "1": { name: punctuation.separator.comma.sv }
+            patterns:
+              - include: "#timing-check-limit"
+              - begin: (\,)\s*
+                end: (?=\))|${bracketsFailSafe}
+                beginCaptures:
+                  "1": { name: punctuation.separator.comma.sv }
+                patterns:
+                  - include: "#notifier"
+  width-timing-check:
+    patterns:
+      - name: meta.width-timing-check.sv
+        begin: (\$width)\b\s*(?:(\()\s*)?
+        end: (\))\s*(\;)\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: keyword.other.width.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+          "2": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#controlled-reference-event"
+          - begin: (\,)\s*
+            end: (?=\))|${bracketsFailSafe}
+            beginCaptures:
+              "1": { name: punctuation.separator.comma.sv }
+            patterns:
+              - include: "#timing-check-limit"
+              - begin: (\,)\s*
+                end: (?=\))|${bracketsFailSafe}
+                beginCaptures:
+                  "1": { name: punctuation.separator.comma.sv }
+                patterns:
+                  - include: "#threshold"
+                  - begin: (\,)\s*
+                    end: (?=\))|${bracketsFailSafe}
+                    beginCaptures:
+                      "1": { name: punctuation.separator.comma.sv }
+                    patterns:
+                      - include: "#notifier"
+  nochange-timing-check:
+    patterns:
+      - name: meta.nochange-timing-check.sv
+        begin: (\$nochange)\b\s*(?:(\()\s*)?
+        end: (\))\s*(\;)\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: keyword.other.nochange.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+          "2": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#reference-event"
+          - begin: (\,)\s*
+            end: (?=\))|${bracketsFailSafe}
+            beginCaptures:
+              "1": { name: punctuation.separator.comma.sv }
+            patterns:
+              - include: "#data-event"
+              - begin: (\,)\s*
+                end: (?=\))|${bracketsFailSafe}
+                beginCaptures:
+                  "1": { name: punctuation.separator.comma.sv }
+                patterns:
+                  - include: "#start-edge-offset"
+                  - begin: (\,)\s*
+                    end: (?=\))|${bracketsFailSafe}
+                    beginCaptures:
+                      "1": { name: punctuation.separator.comma.sv }
+                    patterns:
+                      - include: "#end-edge-offset"
+                      - begin: (\,)\s*
+                        end: (?=\))|${bracketsFailSafe}
+                        beginCaptures:
+                          "1": { name: punctuation.separator.comma.sv }
+                        patterns:
+                          - include: "#notifier"
+  # A.7.5.2 System timing check command arguments
+  timecheck-condition:
+    patterns:
+      - include: "#mintypmax-expression"
+  controlled-reference-event:
+    patterns:
+      - include: "#controlled-timing-check-event"
+  data-event:
+    patterns:
+      - include: "#timing-check-event"
+  delayed-data:
+    patterns:
+      - include: "#terminal-identifier"
+      - begin: (\[)\s*
+        end: (\])\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: punctuation.section.brackets.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.brackets.end.sv }
+        patterns:
+          - include: "#constant-mintypmax-expression"
+  delayed-reference:
+    patterns:
+      - include: "#terminal-identifier"
+      - begin: (\[)\s*
+        end: (\])\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: punctuation.section.brackets.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.brackets.end.sv }
+        patterns:
+          - include: "#constant-mintypmax-expression"
+  end-edge-offset:
+    patterns:
+      - include: "#mintypmax-expression"
+  event-based-flag:
+    patterns:
+      - include: "#constant-expression"
+  notifier:
+    patterns:
+      - include: "#variable-identifier"
+  reference-event:
+    patterns:
+      - include: "#timing-check-event"
+  remain-active-flag:
+    patterns:
+      - include: "#constant-mintypmax-expression"
+  timestamp-condition:
+    patterns:
+      - include: "#mintypmax-expression"
+  start-edge-offset:
+    patterns:
+      - include: "#mintypmax-expression"
+  threshold:
+    patterns:
+      - include: "#constant-expression"
+  timing-check-limit:
+    patterns:
+      - include: "#expression"
+  # A.7.5.3 System timing check event definitions
+  timing-check-event:
+    patterns:
+      - include: "#timing-check-event-control"
+      - include: "#specify-terminal-descriptor"
+      - begin: (\&\&\&)\s*
+        end: (?=\,|\))
+        beginCaptures:
+          "1": { name: keyword.operator.timing-check-condition.sv }
+        patterns:
+          - include: "#timing-check-condition"
+  controlled-timing-check-event:
+    patterns:
+      - include: "#timing-check-event-control"
+      - include: "#specify-terminal-descriptor"
+      - begin: (\&\&\&)\s*
+        end: (?=\,|\))
+        beginCaptures:
+          "1": { name: keyword.operator.timing-check-condition.sv }
+        patterns:
+          - include: "#timing-check-condition"
+  timing-check-event-control:
+    patterns:
+      - include: "#edge-control-specifier"
+      - match: \b(posedge|negedge|edge)\b\s*
+        captures:
+          "1": { name: keyword.other.$1.sv }
+  specify-terminal-descriptor:
+    patterns:
+      - include: "#specify-input-terminal-descriptor"
+      - include: "#specify-output-terminal-descriptor"
+  edge-control-specifier:
+    name: meta.edge-control-specifier.sv
+    begin: \b(edge)\b\s*(\[)\s*
+    end: (\])\s*|${bracketsFailSafe}
+    beginCaptures:
+      "1": { name: keyword.other.edge.sv }
+      "2": { name: punctuation.section.brackets.begin.sv }
+    endCaptures:
+      "1": { name: punctuation.section.brackets.end.sv }
+    patterns:
+      - include: "#edge-descriptor"
+      - include: "#comma"
+  edge-descriptor:
+    patterns:
+      - match: \b(01|10|[xXzZ][01]|[01][xXzZ])\b\s*
+        captures:
+          "1": { name: constant.numeric.edge-descriptor.sv }
+  zero-or-one:
+    patterns:
+      - match: \b(0|1)\b\s*
+        captures:
+          "1": { name: constant.numeric.zero-or-one.sv }
+  z-or-x:
+    patterns:
+      - match: \b([xXzZ])\b\s*
+        captures:
+          "1": { name: constant.numeric.z-or-x.sv }
+  timing-check-condition:
+    patterns:
+      - begin: (\()\s*
+        end: (\))\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#scalar-timing-check-condition"
+      - include: "#scalar-timing-check-condition"
+  scalar-timing-check-condition:
+    patterns:
+      - match: (\~)\s*
+        captures:
+          "1": { name: keyword.operator.unary.sv }
+      - match: (===|==|!==|!=)\s*
+        captures:
+          "1": { name: keyword.operator.binary.sv }
+      - include: "#expression"
+  scalar-constant:
+    patterns:
+      - match: \b(1'b0|1'b1|1'B0|1'B1|'b0|'b1|'B0|'B1|1|0)\b\s*
+        captures:
+          "1": { name: constant.numeric.scalar-constant.sv }
   # A.8 Expressions
   # A.8.1 Concatenations
   concatenation:
@@ -5544,9 +6173,9 @@ repository:
       - include: "#bins-or-options"
       - include: "#stream-operator"
       - include: "#expression"
+      - include: "#stream-concatenation"
       - include: "#constant-expression"
       - include: "#slice-size"
-      - include: "#stream-concatenation"
       - include: "#comma"
       - include: "#semicolon"
       - include: "#expression-or-dist"
@@ -6089,11 +6718,11 @@ repository:
           - include: "#expression"
   # A.8.6 Operators
   unary-operator:
-    match: (~\^|\^~|~&|~\||\+|\-|!|~|&|\||\^)\s*(?!(\+|\-|\=))
+    match: (~\^|\^~|~&|~\||\+|\-|!|~|&|\||\^)\s*(?!(\+|\-|\=|\:))
     captures:
       "1": { name: keyword.operator.unary.sv }
   binary-operator:
-    match: (?<!^|(?:\(|\:|=)\s*)(===|!==|==\?|==|!=\?|!=|&&|\|\||\*\*|<=|>=|\^~|~\^|\^~|>>>|<<<|>>|<<|->|<->|\+|\-|\*|\/|%|<|>|&|\||\^)\s*(?!(\+|\-|\=))
+    match: (?<!^|(?:\(|\:|=)\s*)(===|!==|==\?|==|!=\?|!=|&&|\|\||\*\*|<=|>=|\^~|~\^|\^~|>>>|<<<|>>|<<|->|<->|\+|\-|\*|\/|%|<|>|&|\||\^)\s*(?!(\+|\-|\=|\:))
     captures:
       "1": { name: keyword.operator.binary.sv }
   inc-or-dec-operator:
@@ -6438,64 +7067,64 @@ repository:
       "1": { name: variable.other.sv }
   ps-class-identifier:
     patterns:
-      - include: "#package-scope"
       - include: "#class-identifier"
+      - include: "#package-scope"
   ps-covergroup-identifier:
     patterns:
-      - include: "#package-scope"
       - include: "#covergroup-identifier"
+      - include: "#package-scope"
   ps-checker-identifier:
     patterns:
-      - include: "#package-scope"
       - include: "#checker-identifier"
+      - include: "#package-scope"
   ps-identifier:
     patterns:
-      - include: "#package-scope"
       - include: "#identifier"
+      - include: "#package-scope"
   ps-or-hierarchical-array-identifier:
     patterns:
+      - include: "#hierarchical-array-identifier"
       - include: "#implicit-class-handle"
       - include: "#dot"
       - include: "#class-scope"
       - include: "#package-scope"
-      - include: "#hierarchical-array-identifier"
   ps-or-hierarchical-net-identifier:
     patterns:
-      - include: "#package-scope"
       - include: "#net-identifier"
       - include: "#hierarchical-net-identifier"
+      - include: "#package-scope"
   ps-or-hierarchical-property-identifier:
     patterns:
-      - include: "#package-scope"
       - include: "#property-identifier"
       - include: "#hierarchical-property-identifier"
+      - include: "#package-scope"
   ps-or-hierarchical-sequence-identifier:
     patterns:
-      - include: "#package-scope"
       - include: "#sequence-identifier"
       - include: "#hierarchical-sequence-identifier"
+      - include: "#package-scope"
   ps-or-hierarchical-tf-identifier:
     patterns:
-      - include: "#package-scope"
       - include: "#tf-identifier"
+      - include: "#package-scope"
       - include: "#hierarchical-tf-identifier"
   ps-parameter-identifier:
     patterns:
+      - include: "#parameter-identifier"
       - include: "#package-scope"
       - include: "#class-scope"
-      - include: "#parameter-identifier"
       - include: "#dimension"
       - include: "#generate-block-identifier"
       - include: "#dot"
   ps-type-identifier:
     patterns:
+      - include: "#type-identifier"
       - match: (\b(local)\b)\s*(::)\s*
         captures:
           "1": { name: keyword.other.local.sv }
           "2": { name: punctuation.separator.scope-resolution.sv }
       - include: "#package-scope"
       - include: "#class-scope"
-      - include: "#type-identifier"
   sequence-identifier:
     match: (${identifier})\s*
     captures:

@@ -24,7 +24,7 @@ module top();
 //^^^^^^^^^ storage.modifier.parameter.sv
 //          ^ variable.other.constant.sv
 //            ^ keyword.operator.assignment.sv
-//              ^^^^^ variable.other.sv
+//              ^^^^^ variable.other.constant.sv
 //                    ^ keyword.operator.binary.sv
 //                      ^ constant.numeric.integer.sv
 endmodule
