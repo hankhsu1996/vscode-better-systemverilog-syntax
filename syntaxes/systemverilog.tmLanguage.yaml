@@ -1864,6 +1864,7 @@ repository:
       - include: "#dimension"
   specparam-assignment:
     patterns:
+      - include: "#pulse-control-specparam"
       - name: meta.specparam-assignment.sv
         begin: (\=)\s*(?!\=)
         end: ${assignmentEnd}
@@ -1872,7 +1873,6 @@ repository:
         patterns:
           - include: "#constant-mintypmax-expression"
       - include: "#specparam-identifier"
-      - include: "#pulse-control-specparam"
   type-assignment:
     patterns:
       - name: meta.type-assignment.sv
@@ -1885,7 +1885,55 @@ repository:
       - match: (${identifier})\s*
         captures:
           "1": { name: entity.name.type.sv }
-  # pulse_control_specparam: too complicated, not implemented
+  pulse-control-specparam:
+    patterns:
+    - name: meta.pulse-control-specparam.sv
+      begin: \b(PATHPULSE\$[^$]*?\$[^$=]*?)\s*(?=\s*(?:\=|$))
+      end: (?<=\))|${bracketsFailSafe}
+      beginCaptures:
+        "1": { name: variable.other.constant.sv }
+      patterns:
+        - match: (\=)\s*
+          captures:
+            "1": { name: keyword.operator.assignment.sv }
+        - begin: (\()\s*
+          end: (\))\s*|${bracketsFailSafe}
+          beginCaptures:
+            "1": { name: punctuation.section.group.begin.sv }
+          endCaptures:
+            "1": { name: punctuation.section.group.end.sv }
+          patterns:
+            - include: "#comma"
+            - include: "#reject-limit-value"
+            - include: "#error-limit-value"
+        - include: "#limit-value"
+    - name: meta.pulse-control-specparam.sv
+      begin: \b(PATHPULSE\$)\s*
+      end: (?<=\))|${bracketsFailSafe}
+      beginCaptures:
+        "1": { name: variable.other.constant.sv }
+        "2":
+          patterns:
+            - include: "#specify-input-terminal-descriptor"
+        "3": { name: variable.other.constant.sv }
+        "4":
+          patterns:
+            - include: "#specify-output-terminal-descriptor"
+      patterns:
+        - match: (\=)\s*
+          captures:
+            "1": { name: keyword.operator.assignment.sv }
+        - begin: (\()\s*
+          end: (\))\s*|${bracketsFailSafe}
+          beginCaptures:
+            "1": { name: punctuation.section.group.begin.sv }
+          endCaptures:
+            "1": { name: punctuation.section.group.end.sv }
+          patterns:
+            - include: "#comma"
+            - include: "#reject-limit-value"
+            - include: "#error-limit-value"
+        - include: "#limit-value"
   error-limit-value:
     patterns:
       - include: "#limit-value"
@@ -5307,7 +5355,6 @@ repository:
   # A.7.4 Specify path delays
   path-delay-value:
     patterns:
-      - include: "#list-of-path-delay-expressions"
       - begin: (\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
@@ -5316,6 +5363,7 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#list-of-path-delay-expressions"
+      - include: "#list-of-path-delay-expressions"
   list-of-path-delay-expressions:
     patterns:
       - include: "#t-path-delay-expression"
@@ -6435,10 +6483,10 @@ repository:
     patterns:
       - include: "#package-scope"
       - include: "#class-scope"
-      - include: "#generate-block-identifier"
-      - include: "#dimension"
-      - include: "#dot"
       - include: "#parameter-identifier"
+      - include: "#dimension"
+      - include: "#generate-block-identifier"
+      - include: "#dot"
   ps-type-identifier:
     patterns:
       - match: (\b(local)\b)\s*(::)\s*
