@@ -14,6 +14,7 @@ import {
   isPatternMatch,
   isPatternPatterns,
   TmLanguageVisitor,
+  isPatternNameOnly,
 } from "./types";
 
 export class TmLanguageProcessor {
@@ -38,37 +39,49 @@ export class TmLanguageProcessor {
     }
   }
 
-  private applyVisitorsToRepository(visitor: TmLanguageVisitor): void {
+  private applyVisitorsToRepository<T>(visitor: TmLanguageVisitor<T>): void {
     Object.values(this.tmLanguage.repository).forEach((pattern) =>
-      this.traverse(pattern, visitor)
+      this.traverse<T>(pattern, visitor)
     );
   }
 
-  private applyVisitorsToPatterns(visitor: TmLanguageVisitor): void {
+  private applyVisitorsToPatterns<T>(visitor: TmLanguageVisitor<T>): void {
     this.tmLanguage.patterns.forEach((pattern) =>
-      this.traverse(pattern, visitor)
+      this.traverse<T>(pattern, visitor)
     );
   }
 
-  private traverse(node: TmLanguagePattern, visitor: TmLanguageVisitor): void {
+  private traverse<T>(
+    node: TmLanguagePattern,
+    visitor: TmLanguageVisitor<T>
+  ): T {
     if (isPatternBeginEnd(node)) {
-      visitor.visitBeginEnd(node);
-      Object.values(node.beginCaptures ?? {}).forEach((value) =>
-        this.traverse(value, visitor)
+      const beginCaptures = Object.values(node.beginCaptures ?? {}).map(
+        (value) => this.traverse<T>(value, visitor)
       );
-      Object.values(node.endCaptures ?? {}).forEach((value) =>
-        this.traverse(value, visitor)
+      const endCaptures = Object.values(node.endCaptures ?? {}).map((value) =>
+        this.traverse<T>(value, visitor)
       );
-      node.patterns?.forEach((pattern) => this.traverse(pattern, visitor));
+      const patterns =
+        node.patterns?.map((pattern) => this.traverse<T>(pattern, visitor)) ??
+        [];
+      return visitor.visitBeginEnd(node, beginCaptures, endCaptures, patterns);
     } else if (isPatternMatch(node)) {
-      visitor.visitMatch(node);
-      Object.values(node.captures ?? {}).forEach((value) =>
-        this.traverse(value, visitor)
+      const captures = Object.values(node.captures ?? {}).map((value) =>
+        this.traverse<T>(value, visitor)
       );
+      return visitor.visitMatch(node, captures);
     } else if (isPatternPatterns(node)) {
-      node.patterns.forEach((pattern) => this.traverse(pattern, visitor));
+      const patterns = node.patterns.map((pattern) =>
+        this.traverse<T>(pattern, visitor)
+      );
+      return visitor.visitPatterns(node, patterns);
     } else if (isPatternInclude(node)) {
-      visitor.visitInclude(node);
+      return visitor.visitInclude(node);
+    } else if (isPatternNameOnly(node)) {
+      return visitor.visitNameOnly(node);
+    } else {
+      throw new Error("Invalid pattern type");
     }
   }
 

@@ -4,6 +4,7 @@ import {
   TmLanguagePatternMatch,
   TmLanguagePatternPatterns,
   TmLanguagePatternInclude,
+  TmLanguagePatternNameOnly,
 } from "./types";
 
 export class IncludeFrequencyCounter implements TmLanguageVisitor {
@@ -14,11 +15,8 @@ export class IncludeFrequencyCounter implements TmLanguageVisitor {
   }
 
   visitBeginEnd(node: TmLanguagePatternBeginEnd): void {}
-
   visitMatch(node: TmLanguagePatternMatch): void {}
-
   visitPatterns(node: TmLanguagePatternPatterns): void {}
-
   visitInclude(node: TmLanguagePatternInclude): void {
     if (node.include.startsWith("#")) {
       const includeKey = node.include.substring(1);
@@ -28,6 +26,7 @@ export class IncludeFrequencyCounter implements TmLanguageVisitor {
       console.error(`Invalid include format: ${node.include}`);
     }
   }
+  visitNameOnly(node: TmLanguagePatternNameOnly): void {}
 
   public printIncludeFrequency(): void {
     console.log(this.includeFrequency);
@@ -71,14 +70,12 @@ export class PatternRenamer implements TmLanguageVisitor {
   }
 
   visitBeginEnd(node: TmLanguagePatternBeginEnd): void {}
-
   visitMatch(node: TmLanguagePatternMatch): void {}
-
   visitPatterns(node: TmLanguagePatternPatterns): void {}
-
   visitInclude(node: TmLanguagePatternInclude): void {
     node.include = getNewInclude(node.include, this.patternNameMap);
   }
+  visitNameOnly(node: TmLanguagePatternNameOnly): void {}
 }
 
 export function generateName(index: number): string {

@@ -4,6 +4,7 @@ import {
   TmLanguagePatternMatch,
   TmLanguagePatternPatterns,
   TmLanguagePatternInclude,
+  TmLanguagePatternNameOnly,
 } from "./types";
 
 export class IncludePrependVisitor implements TmLanguageVisitor {
@@ -17,10 +18,8 @@ export class IncludePrependVisitor implements TmLanguageVisitor {
       ];
     }
   }
-
   visitMatch(node: TmLanguagePatternMatch): void {}
-
   visitPatterns(node: TmLanguagePatternPatterns): void {}
-
   visitInclude(node: TmLanguagePatternInclude): void {}
+  visitNameOnly(node: TmLanguagePatternNameOnly): void {}
 }

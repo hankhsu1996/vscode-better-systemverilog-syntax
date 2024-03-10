@@ -51,11 +51,9 @@ export class PatternChecker implements TmLanguageVisitor {
     this.checkPattern(node.match, /(?<!\\b)\([a-z_\|]+\)/);
   }
 
-  visitPatterns(node: TmLanguagePatternPatterns): void {
-    if (this.isWaived(node)) return;
-  }
+  visitPatterns(node: TmLanguagePatternPatterns): void {}
 
-  visitInclude(node: TmLanguagePatternInclude): void {
-    if (this.isWaived(node)) return;
-  }
+  visitInclude(node: TmLanguagePatternInclude): void {}
+
+  visitNameOnly(node: TmLanguagePattern): void {}
 }

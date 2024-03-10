@@ -1701,7 +1701,7 @@ repository:
   # A.2.2.2 Strengths
   drive-strength:
     name: meta.drive-strength.sv
-    match: (\()\s*(supply0|strong0|pull0|weak0|supply1|strong1|pull1|weak1|highz0|highz1)\s*(\,)\s*(supply0|strong0|pull0|weak0|supply1|strong1|pull1|weak1|highz0|highz1)\s*(\))
+    match: (\()\s*\b(supply0|strong0|pull0|weak0|supply1|strong1|pull1|weak1|highz0|highz1)\s*(\,)\s*(supply0|strong0|pull0|weak0|supply1|strong1|pull1|weak1|highz0|highz1)\b\s*(\))
     captures:
       "1": { name: punctuation.section.group.begin.sv }
       "2": { name: storage.modifier.$2.sv }
@@ -3187,7 +3187,7 @@ repository:
                   "1": { name: punctuation.section.braces.end.sv }
                 patterns:
                   - include: "#covergroup-range-list"
-              - include: "#coverpoint-identifier"
+              - include: "#cover-point-identifier"
               - include: "#trans-list"
               - match: \b(default)\b\s*(?:\b(sequence)\b)?\s*
                 captures:

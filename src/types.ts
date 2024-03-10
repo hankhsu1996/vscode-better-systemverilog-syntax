@@ -2,6 +2,7 @@ export interface TmLanguage {
   name: string;
   scopeName: string;
   variables?: Record<string, string>;
+  keywords?: string[];
   patterns: TmLanguagePattern[];
   repository: Record<string, TmLanguagePattern>;
 }
@@ -37,11 +38,16 @@ export type TmLanguagePatternInclude = {
   include: string;
 };
 
+export type TmLanguagePatternNameOnly = {
+  name: string;
+};
+
 export type TmLanguagePattern =
   | TmLanguagePatternBeginEnd
   | TmLanguagePatternMatch
   | TmLanguagePatternPatterns
-  | TmLanguagePatternInclude;
+  | TmLanguagePatternInclude
+  | TmLanguagePatternNameOnly;
 
 export function isPatternBeginEnd(
   pattern: TmLanguagePattern
@@ -67,9 +73,21 @@ export function isPatternInclude(
   return "include" in pattern;
 }
 
-export interface TmLanguageVisitor {
-  visitBeginEnd(node: TmLanguagePatternBeginEnd): void;
-  visitMatch(node: TmLanguagePatternMatch): void;
-  visitPatterns(node: TmLanguagePatternPatterns): void;
-  visitInclude(node: TmLanguagePatternInclude): void;
+export function isPatternNameOnly(
+  pattern: TmLanguagePattern
+): pattern is TmLanguagePatternNameOnly {
+  return "name" in pattern && Object.keys(pattern).length === 1;
+}
+
+export interface TmLanguageVisitor<T = void> {
+  visitBeginEnd(
+    node: TmLanguagePatternBeginEnd,
+    beginCaptures: T[],
+    endCaptures: T[],
+    patterns: T[]
+  ): T;
+  visitMatch(node: TmLanguagePatternMatch, captures: T[]): T;
+  visitPatterns(node: TmLanguagePatternPatterns, patterns: T[]): T;
+  visitInclude(node: TmLanguagePatternInclude): T;
+  visitNameOnly(node: TmLanguagePatternNameOnly): T;
 }
