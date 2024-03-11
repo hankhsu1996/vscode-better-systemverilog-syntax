@@ -19,7 +19,7 @@ module block_tb ();
   reg a = 0;
   initial
     name: fork
-//  ^^^^ variable.other.sv
+//  ^^^^ variable.other.block.sv
 //      ^ punctuation.separator.colon.sv
       a = 1;
     join: name

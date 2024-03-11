@@ -18,6 +18,7 @@ module fork_tb ();
   reg c = 0;
   initial fork
     begin: block
+//  ^^^^^ keyword.control.begin.sv
 //       ^ punctuation.separator.colon.sv
 //         ^^^^^ variable.other.block.sv
       #10 a = 1;

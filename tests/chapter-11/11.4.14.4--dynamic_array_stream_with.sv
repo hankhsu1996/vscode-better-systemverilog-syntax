@@ -47,7 +47,6 @@ initial begin
 //                 ^^^^^ variable.other.sv
 //                        ^^^^^^ variable.other.sv
 //                               ^^^^ keyword.control.with.sv
-//                                    ^^^^^^^^^^^^ meta.dimension.sv
 //                                     ^ constant.numeric.integer.sv
 //                                       ^^ punctuation.separator.pluscolon.sv
 //                                          ^^^^^ variable.other.sv

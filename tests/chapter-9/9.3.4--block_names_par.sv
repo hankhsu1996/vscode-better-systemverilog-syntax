@@ -16,10 +16,12 @@ module block_tb ();
   reg a = 0;
   initial
     fork: name
+//  ^^^^ keyword.control.fork.sv
 //      ^ punctuation.separator.colon.sv
 //        ^^^^ variable.other.block.sv
       a = 1;
     join: name
+//  ^^^^ keyword.control.join.sv
 //      ^ punctuation.separator.colon.sv
 //        ^^^^ variable.other.block.sv
 endmodule

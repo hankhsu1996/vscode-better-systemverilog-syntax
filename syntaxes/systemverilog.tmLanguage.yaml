@@ -4,13 +4,15 @@ variables:
   simpleIdentifier: (?<!\\|\$|\`)\b[a-zA-Z_](?:[a-zA-Z0-9_\$]|``)*\b
   escapeIdentifier: \\\S+(?=\s|$))
   keywords: \b(?:accept_on|alias|always|always_comb|always_ff|always_latch|and|assert|assign|assume|automatic|before|begin|bind|bins|binsof|bit|break|buf|bufif0|bufif1|byte|case|casex|casez|cell|chandle|checker|class|clocking|cmos|config|const|constraint|context|continue|cover|covergroup|coverpoint|cross|deassign|default|defparam|design|disable|dist|do|edge|else|end|endcase|endchecker|endclass|endclocking|endconfig|endfunction|endgenerate|endgroup|endinterface|endmodule|endpackage|endprimitive|endprogram|endproperty|endspecify|endsequence|endtable|endtask|enum|event|eventually|expect|export|extends|extern|final|first_match|for|force|foreach|forever|fork|forkjoin|function|generate|genvar|global|highz0|highz1|if|iff|ifnone|ignore_bins|illegal_bins|implements|implies|import|incdir|include|initial|inout|input|inside|instance|int|integer|interconnect|interface|intersect|join|join_any|join_none|large|let|liblist|library|local|localparam|logic|longint|macromodule|matches|medium|modport|module|nand|negedge|nettype|new|nexttime|nmos|nor|noshowcancelled|not|notif0|notif1|null|or|output|package|packed|parameter|pmos|posedge|primitive|priority|program|property|protected|pull0|pull1|pulldown|pullup|pulsestyle_ondetect|pulsestyle_onevent|pure|rand|randc|randcase|randsequence|rcmos|real|realtime|ref|reg|reject_on|release|repeat|restrict|return|rnmos|rpmos|rtran|rtranif0|rtranif1|s_always|s_eventually|s_nexttime|s_until|s_until_with|scalared|sequence|shortint|shortreal|showcancelled|signed|small|soft|solve|specify|specparam|static|string|strong|strong0|strong1|struct|super|supply0|supply1|sync_accept_on|sync_reject_on|table|tagged|task|this|throughout|time|timeprecision|timeunit|tran|tranif0|tranif1|tri|tri0|tri1|triand|trior|trireg|type|typedef|union|unique|unique0|unsigned|until|until_with|untyped|use|uwire|var|vectored|virtual|void|wait|wait_order|wand|weak|weak0|weak1|while|wildcard|wire|with|within|wor|xnor|xor)\b|`(?:__FILE__|__LINE__|begin_keywords|celldefine|default_nettype|define|else|elsif|end_keywords|endcelldefine|endif|ifdef|ifndef|include|line|nounconnected_drive|pragma|resetall|timescale|unconnected_drive|undef|undefineall)\b
-  identifier: (?:${simpleIdentifier}|${escapeIdentifier}(?<!${keywords})
+  identifier: (?:${simpleIdentifier}|${escapeIdentifier}
+  identifierNotKeyword: (?:${simpleIdentifier}|${escapeIdentifier}(?<!${keywords})
   macro: (?:`[a-zA-Z_][a-zA-Z0-9_\$]*\b(?:\(.*?\))?)(?<!`(?:__FILE__|__LINE__|begin_keywords|celldefine|default_nettype|define|else|elsif|end_keywords|endcelldefine|endif|ifdef|ifndef|include|line|nounconnected_drive|pragma|resetall|timescale|unconnected_drive|undef|undefineall)\b)
   # Remove array method name: unique, and, or, xor
-  functionIdentifier: ${identifier}
+  functionIdentifier: ${identifier}(?<!\btype\b)
   classScope: (?:${identifier}\s*(?:\#\(.*?\)\s*)?::\s*)+
   # Identifier can be followed by ":" (ternary statement, label, etc.)
-  identifierEnd: (?!\s*(${identifier}|\.${identifier}\s+${identifier}|#(?!\#|\-\#|\=\#)|\(|\'|::))
+  # Identifier cannot be followed by another identifier
+  identifierEnd: (?!\s*(${identifierNotKeyword}|\.${identifier}\s+${identifier}|#(?!\#|\-\#|\=\#)|\(|\'|::))
   instanceIdentifierEnd: (?!\s*(${identifier}|#(?!\#)|\'|::))
   typeIdentifierStart: (?<!\#\s*)
   # Type identifier can be followed by "[" (unpacked dimension)
@@ -383,7 +385,7 @@ repository:
           - include: "#comma"
   port-reference:
     name: meta.port-reference.sv
-    begin: (?<=(?:\{|\,|\()\s*|^)(${identifier})\s*(?=\[|\,|\}|\))
+    begin: (?<=(?:\{|\,|\()\s*|^)(${identifierNotKeyword})\s*(?=\[|\,|\}|\))
     beginCaptures:
       "1": { name: variable.other.sv }
     end: (?=,|\}|\))
@@ -447,7 +449,6 @@ repository:
           - include: "#for-initialization"
           - include: "#for-step"
           - include: "#expression"
-      - include: "#module-or-generate-item-declaration"
       - include: "#interface-instantiation"
       - include: "#program-instantiation"
       - include: "#assertion-item"
@@ -460,6 +461,7 @@ repository:
       - include: "#loop-generate-construct"
       - include: "#conditional-generate-construct"
       - include: "#elaboration-system-task"
+      - include: "#module-or-generate-item-declaration"
   module-item:
     patterns:
       # Handle a tricky case:
@@ -469,7 +471,7 @@ repository:
       # Module instantiation: id #(param-assignment) ( id ( dimension ) '(' list-of-port ')' )* ;
       # Data declaration: id #(param-assignment) ( id ( dimention ) [ = ... ] )* ;
       - name: meta.data-declaration-or-module-instantiation.sv
-        begin: (${identifier})\s*(?=\#)
+        begin: (${identifier})\s*(?=\#\s*\()
         end: (\;)\s*
         beginCaptures:
           "1": { name: entity.name.type.sv }
@@ -515,8 +517,8 @@ repository:
       - include: "#parameter-override"
       - include: "#gate-instantiation"
       - include: "#udp-instantiation"
-      - include: "#module-instantiation"
       - include: "#module-common-item"
+      - include: "#module-instantiation"
   module-or-generate-item-declaration:
     patterns:
       - include: "#package-or-generate-item-declaration"
@@ -1027,11 +1029,6 @@ repository:
       - match: ${keywordStart}\b(soft)\b\s+
         captures:
           "1": { name: keyword.other.soft.sv }
-      - include: "#expression-or-dist"
-      - include: "#uniqueness-constraint"
-      - include: "#semicolon"
-      - include: "#expression"
-      - include: "#constraint-set"
       - begin: ${keywordStart}\b(if)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
@@ -1070,6 +1067,11 @@ repository:
           "1": { name: punctuation.terminator.semicolon.sv }
         patterns:
           - include: "#constraint-primary"
+      - include: "#expression-or-dist"
+      - include: "#uniqueness-constraint"
+      - include: "#semicolon"
+      - include: "#expression"
+      - include: "#constraint-set"
   uniqueness-constraint:
     patterns:
       - begin: ${keywordStart}\b(unique)\b\s*(\{)\s*
@@ -1391,13 +1393,15 @@ repository:
       - include: "#interface-instance-identifier"
       - include: "#constant-bit-select"
       - include: "#dot"
-      - match: \b(enum|struct|union|class)\b\s*(?=${identifier})
+      - match: \b(enum|struct|union|class)\b\s*(${identifier})(?=\;)
         captures:
           "1": { name: storage.type.$1.sv }
-      - match: \b(interface)\b\s+\b(class)\b\s*(?=${identifier})
+          "2": { name: entity.name.type.sv }
+      - match: \b(interface)\b\s+\b(class)\b\s*(${identifier})(?=\;)
         captures:
           "1": { name: storage.type.$1.sv }
           "2": { name: storage.type.$2.sv }
+          "3": { name: entity.name.type.sv }
       - include: "#data-type"
   net-type-declaration:
     name: meta.net-type-declaration.sv
@@ -1520,7 +1524,7 @@ repository:
       - match: \b(chandle)\b\s*
         captures:
           "1": { name: entity.name.type.$1.sv }
-      - match: \b(virtual)\b\s*(?:\b(interface)\b\s*)?(${identifier})\s*
+      - match: \b(virtual)\b\s*(?!class|function)(?:\b(interface)\b\s*)?(${identifier})\s*
         captures:
           "1": { name: storage.modifier.virtual.sv }
           "2": { name: storage.type.interface.sv }
@@ -2224,10 +2228,10 @@ repository:
   block-item-declaration:
     patterns:
       - include: "#attribute-instance"
+      - include: "#let-declaration"
       - include: "#data-declaration"
       - include: "#local-parameter-declaration"
       - include: "#parameter-declaration"
-      - include: "#let-declaration"
   # A.2.9 Interface declarations
   modport-declaration:
     name: meta.modport-declaration.sv
@@ -2253,9 +2257,9 @@ repository:
   modport-ports-declaration:
     patterns:
       - include: "#attribute-instance"
-      - include: "#modport-simple-ports-declaration"
-      - include: "#modport-tf-ports-declaration"
       - include: "#modport-clocking-declaration"
+      - include: "#modport-tf-ports-declaration"
+      - include: "#modport-simple-ports-declaration"
   modport-clocking-declaration:
     match: \b(clocking)\b\s+(${identifier})\s*
     captures:
@@ -2302,7 +2306,7 @@ repository:
   # A.2.10 Assertion declarations
   concurrent-assimilation-item:
     patterns:
-      - match: (${identifier})\s*(\:\s*)?
+      - match: (${identifierNotKeyword})\s*(\:\s*)?
         captures:
           "1":
             patterns:
@@ -2518,7 +2522,6 @@ repository:
       - include: "#property-expr"
   property-expr:
     patterns:
-      - include: "#sequence-expr"
       - begin: \b(strong)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
@@ -2722,6 +2725,7 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#expression-or-dist"
+      - include: "#sequence-expr"
       - include: "#property-instance"
       - include: "#clocking-event"
   property-case-item:
@@ -3812,7 +3816,7 @@ repository:
     # 2. module_identifier name_of_instance ( ...
     patterns:
       - name: meta.module-instantiation.sv
-        begin: (${identifier})\s*(?=\#)
+        begin: (${identifierNotKeyword})\s*(?=\#)
         end: (?=\;)|${itemsFailSafe}
         beginCaptures:
           "1": { name: entity.name.type.sv }
@@ -3823,7 +3827,7 @@ repository:
           - include: "#hierarchical-instance"
           - include: "#comma"
       - name: meta.module-instantiation.sv
-        begin: (${identifier})\s*(?=${identifier}\s*\()
+        begin: (${identifierNotKeyword})\s*(?=${identifier}\s*\()
         end: (?=\;)|${bracketsFailSafe}
         beginCaptures:
           "1": { name: entity.name.type.sv }
@@ -4007,12 +4011,12 @@ repository:
           - include: "#case-generate-item"
   case-generate-item:
     patterns:
-      - include: "#constant-expression"
-      - include: "#colon"
-      - include: "#generate-block"
       - match: \b(default)\b\s*
         captures:
           "1": { name: keyword.control.default.sv }
+      - include: "#constant-expression"
+      - include: "#colon"
+      - include: "#generate-block"
   generate-block:
     patterns:
       # The seq-block and generate-block have the same beginning ('begin'). Therefore, include 'generate-item' in seq-block.
@@ -4091,19 +4095,12 @@ repository:
         captures:
           "1": { name: keyword.operator.assignment.sv }
   procedural-continuous-assignment:
+    name: meta.procedural-continuous-assignment.sv
+    begin: \b(assign|deassign|force|release)\b\s*
+    end: (?=\;)|${statementsFailSafe}
+    beginCaptures:
+      "1": { name: keyword.control.$1.sv }
     patterns:
-      - match: ${keywordStart}\b(assign)\b\s*
-        captures:
-          "1": { name: keyword.control.assign.sv }
-      - match: ${keywordStart}\b(deassign)\b\s*
-        captures:
-          "1": { name: keyword.control.deassign.sv }
-      - match: ${keywordStart}\b(force)\b\s*
-        captures:
-          "1": { name: keyword.control.force.sv }
-      - match: ${keywordStart}\b(release)\b\s*
-        captures:
-          "1": { name: keyword.control.release.sv }
       - include: "#variable-assignment"
       - include: "#net-assignment"
       - include: "#variable-lvalue"
@@ -4140,6 +4137,7 @@ repository:
       - include: "#block-item-declaration"
       - include: "#statement-or-null"
   par-block:
+    name: meta.par-block.sv
     begin: ${keywordStart}\b(fork)\b\s*(?:(\:)\s*(${identifier})\s*)?
     end: \b(join|join_any|join_none)\b\s*(?:(\:)\s*(${identifier})\s*)?|${itemsFailSafe}
     beginCaptures:
@@ -4155,18 +4153,19 @@ repository:
         patterns:
           - include: "#block-identifier"
     patterns:
-      - include: "#block-item-declaration"
       - include: "#statement-or-null"
+      - include: "#block-item-declaration"
   # A.6.4 Statements
   statement-or-null:
     patterns:
+
       - include: "#statement"
       - include: "#attribute-instance"
       - match: \;
         name: punctuation.terminator.semicolon.sv
   statement:
     patterns:
-      - match: (?<!\.)(${identifier})\s*(\:)\s*
+      - match: (?<!\.)(${identifierNotKeyword})\s*(\:)\s*
         captures:
           "1":
             patterns:
@@ -4194,7 +4193,6 @@ repository:
       - include: "#case-statement"
       - include: "#conditional-statement"
       - include: "#inc-or-dec-expression"
-      - include: "#subroutine-call-statement"
       - include: "#disable-statement"
       # Conflict: The 'generate for' and 'for' statements have the same beginning. Therefore, they are combined here:
       - name: meta.for.sv
@@ -4220,10 +4218,11 @@ repository:
       - include: "#seq-block"
       - include: "#wait-statement"
       - include: "#procedural-assertion-statement"
-      - include: "#clocking-drive"
       - include: "#randsequence-statement"
       - include: "#randcase-statement"
       - include: "#expect-property-statement"
+      - include: "#subroutine-call-statement"
+      - include: "#clocking-drive"
       - include: "#expression"
   function-statement:
     patterns:
@@ -4331,13 +4330,18 @@ repository:
       - include: "#cycle-delay"
   jump-statement:
     patterns:
-      - match: \b(return)\b\s*
+      - begin: \b(return)\b\s*
+        beginCaptures:
+          "1": { name: keyword.control.$1.sv }
+        end: (\;)\s*|${statementsFailSafe}
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#expression"
+      - match: \b(break|continue)\b\s*(?:(\;)\s*)?
         captures:
           "1": { name: keyword.control.$1.sv }
-      - include: "#expression"
-      - match: \b(break|continue)\b\s*
-        captures:
-          "1": { name: keyword.control.$1.sv }
+          "2": { name: punctuation.terminator.semicolon.sv }
       - include: "#semicolon"
   wait-statement:
     patterns:
@@ -4560,6 +4564,8 @@ repository:
     endCaptures:
       "1": { name: punctuation.section.braces.end.sv }
     patterns:
+      - match: \b(default)\b\s*
+        name: keyword.other.default.sv
       - include: "#pattern"
       # Replication case
       - name: meta.assignment-pattern-replication.sv
@@ -4728,7 +4734,7 @@ repository:
       - include: "#deferred-immediate-assertion-item"
   deferred-immediate-assertion-item:
     patterns:
-      - match: (?<!\.)(${identifier})\s*(\:)\s*
+      - match: (?<!\.)(${identifierNotKeyword})\s*(\:)\s*
         captures:
           "1":
             patterns:
@@ -5088,15 +5094,15 @@ repository:
         endCaptures:
           "1": { name: punctuation.section.braces.end.sv }
         patterns:
-          - include: "#data-declaration"
           - include: "#statement-or-null"
+          - include: "#data-declaration"
   rs-prod:
     patterns:
-      - include: "#production-item"
-      - include: "#rs-code-block"
       - include: "#rs-if-else"
       - include: "#rs-repeat"
       - include: "#rs-case"
+      - include: "#production-item"
+      - include: "#rs-code-block"
   production-item:
     patterns:
       - include: "#production-identifier"
@@ -5120,11 +5126,9 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#expression"
-      - include: "#production-item"
       - match: \b(else)\b\s*
         captures:
           "1": { name: keyword.control.$1.sv }
-      - include: "#production-item"
   rs-repeat:
     patterns:
       - name: meta.rs-repeat.sv
@@ -5137,7 +5141,6 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#expression"
-      - include: "#production-item"
   rs-case:
     begin: (?=\b(case)\b)
     end: \b(endcase)\b\s*
@@ -6321,18 +6324,6 @@ repository:
       - include: "#randomize-call"
   array-manipulation-call:
     patterns:
-      - begin: ${functionIdentifierStart}(${functionIdentifier}|\b(?:unique|and|or|xor))\b\s*(\()\s*
-        end: (\))\s*|${bracketsFailSafe}
-        beginCaptures:
-          "1": { name: entity.name.function.sv }
-          "2": { name: punctuation.section.group.begin.sv }
-        endCaptures:
-          "1": { name: punctuation.section.group.end.sv }
-        patterns:
-          - include: "#list-of-arguments"
-      # - match: (${functionIdentifier}|\b(?:unique|and|or|xor))\b\s*(?=\bwith\b)
-      #   captures:
-      #     "1": { name: entity.name.function.sv }
       - begin: \b(with)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
@@ -6342,6 +6333,15 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#expression"
+      - begin: ${functionIdentifierStart}(${functionIdentifier}|\b(?:unique|and|or|xor))\b\s*(\()\s*
+        end: (\))\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: entity.name.function.sv }
+          "2": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#list-of-arguments"
   randomize-call:
     patterns:
       - begin: \b(randomize)\b\s*(\()\s*
@@ -6466,14 +6466,23 @@ repository:
           - include: "#operator-assignment"
           - include: "#expression"
           - include: "#macro-text"
+      - begin: \b(with)\b\s*(\[)\s*
+        end: (\])\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: keyword.control.with.sv }
+          "2": { name: punctuation.section.brackets.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.brackets.end.sv }
+        patterns:
+          - include: "#array-range-expression"
       - include: "#inc-or-dec-expression"
       - include: "#binary-operator"
       - include: "#unary-operator"
       - include: "#attribute-instance"
-      - include: "#primary"
-      - include: "#conditional-expression"
       - include: "#inside-expression"
       - include: "#tagged-union-expression"
+      - include: "#primary"
+      - include: "#conditional-expression"
   tagged-union-expression:
     match: \b(tagged)\b\s+(${identifier})\s*
     captures:
@@ -6854,7 +6863,7 @@ repository:
     patterns:
       - include: "#identifier"
   block-identifier:
-    match: (${identifier})\s*${identifierEnd}
+    match: (${identifierNotKeyword})\s*${identifierEnd}
     captures:
       "1":
         name: variable.other.block.sv
@@ -6875,7 +6884,7 @@ repository:
     patterns:
       - include: "#identifier"
   class-identifier:
-    match: ${classIdentifierStart}(${identifier})\s*${classIdentifierEnd}
+    match: ${classIdentifierStart}(${identifierNotKeyword})\s*${classIdentifierEnd}
     captures:
       "1": { name: entity.name.type.sv }
   class-variable-identifier:
@@ -6894,7 +6903,7 @@ repository:
     patterns:
       - include: "#identifier"
   covergroup-identifier:
-    match: ${typeIdentifierStart}(${identifier})\s*${typeIdentifierEnd}
+    match: ${typeIdentifierStart}(${identifierNotKeyword})\s*${typeIdentifierEnd}
     captures:
       "1": { name: entity.name.type.sv }
   covergroup-variable-identifier:
@@ -6991,7 +7000,7 @@ repository:
       - match: \b(t_[a-zA-Z0-9_]*|[a-zA-Z0-9_]*_t)\b\s*
         captures:
           "1": { name: entity.name.type.sv }
-      - match: (${identifier})\s*${identifierEnd}
+      - match: (${identifierNotKeyword})\s*${identifierEnd}
         captures:
           "1":
             name: variable.other.sv
@@ -7014,7 +7023,7 @@ repository:
     patterns:
       - include: "#variable-identifier"
   instance-identifier:
-    match: (${identifier})\s*
+    match: (${identifierNotKeyword})\s*
     captures:
       "1": { name: variable.other.sv }
   library-identifier:
@@ -7030,14 +7039,14 @@ repository:
     patterns:
       - include: "#identifier"
   module-identifier:
-    match: (?<!\#\s*)(${identifier})(?=\s+${identifier})
+    match: (?<!\#\s*)(${identifierNotKeyword})(?=\s+${identifier})
     captures:
       "1": { name: entity.name.type.sv }
   net-identifier:
     patterns:
       - include: "#identifier"
   net-type-identifier:
-    match: ${typeIdentifierStart}(${identifier})\s*${typeIdentifierEnd}
+    match: ${typeIdentifierStart}(${identifierNotKeyword})\s*${typeIdentifierEnd}
     captures:
       "1": { name: entity.name.type.sv }
   output-port-identifier:
@@ -7056,7 +7065,7 @@ repository:
           "1": { name: entity.name.namespace.sv }
           "2": { name: punctuation.separator.scope-resolution.sv }
   parameter-identifier:
-    match: (${identifier})\s*${identifierEnd}
+    match: (${identifierNotKeyword})\s*${identifierEnd}
     captures:
       "1": { name: variable.other.constant.sv }
   port-identifier:
@@ -7064,15 +7073,17 @@ repository:
       - include: "#identifier"
   production-identifier:
     patterns:
-      - match: (${identifier})\s*(?=\()
-        name: entity.name.function.sv
-      - match: (${identifier})\s*
-        name: variable.other.sv
+      - match: (${identifierNotKeyword})\s*(?=\()
+        captures:
+          "1": { name: entity.name.function.sv }
+      - match: (${identifierNotKeyword})\s*
+        captures:
+          "1": { name: variable.other.sv }
   program-identifier:
     patterns:
       - include: "#type-identifier"
   property-identifier:
-    match: (${identifier})\s*
+    match: (${identifierNotKeyword})\s*
     captures:
       "1": { name: variable.other.sv }
   ps-class-identifier:
@@ -7136,7 +7147,7 @@ repository:
       - include: "#package-scope"
       - include: "#class-scope"
   sequence-identifier:
-    match: (${identifier})\s*${identifierEnd}
+    match: (${identifierNotKeyword})\s*${identifierEnd}
     captures:
       "1": { name: variable.other.sv }
   signal-identifier:
@@ -7167,7 +7178,7 @@ repository:
     patterns:
       - include: "#identifier"
   type-identifier:
-    match: ${typeIdentifierStart}(${identifier})\s*${typeIdentifierEnd}
+    match: ${typeIdentifierStart}(${identifierNotKeyword})\s*${typeIdentifierEnd}
     captures:
       "1": { name: entity.name.type.sv }
   udp-identifier:
@@ -7175,7 +7186,7 @@ repository:
       - include: "#identifier"
   variable-identifier:
     patterns:
-      - match: (${identifier})\s*${identifierEnd}
+      - match: (${identifierNotKeyword})\s*${identifierEnd}
         captures:
           "1":
             name: variable.other.sv

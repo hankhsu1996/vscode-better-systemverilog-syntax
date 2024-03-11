@@ -18,7 +18,7 @@ module block_tb ();
   reg c = 0;
   initial
     name: begin
-//  ^^^^ variable.other.sv
+//  ^^^^ variable.other.block.sv
 //      ^ punctuation.separator.colon.sv
       a = 1;
       b = a;
