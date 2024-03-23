@@ -6929,10 +6929,10 @@ repository:
       - include: "#variable-identifier"
   cover-point-identifier:
     patterns:
-      - include: "#identifier"
+      - include: "#variable-identifier"
   cross-identifier:
     patterns:
-      - include: "#identifier"
+      - include: "#variable-identifier"
   dynamic-array-variable-identifier:
     patterns:
       - include: "#variable-identifier"
