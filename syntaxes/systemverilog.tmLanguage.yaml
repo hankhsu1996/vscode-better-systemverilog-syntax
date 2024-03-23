@@ -58,9 +58,12 @@ repository:
       - include: "#interface-declaration"
       - include: "#program-declaration"
       - include: "#package-declaration"
-      - include: "#package-item"
       - include: "#bind-directive"
       - include: "#config-declaration"
+      # Package item contains data declaration, therefore we put the
+      # data-declaration-or-module-instantiation before the package item.
+      - include: "#data-declaration-or-module-instantiation"
+      - include: "#package-item"
   module-declaration:
     name: meta.module-declaration.sv
     begin: (?=\b(module|macromodule)\b)
@@ -462,14 +465,14 @@ repository:
       - include: "#conditional-generate-construct"
       - include: "#elaboration-system-task"
       - include: "#module-or-generate-item-declaration"
-  module-item:
+  # Hnadle a tricky case:
+  # Data (class/interface/program) declaration / module instantiation
+  # Begin with identifier #...
+  # End with ;
+  # Module instantiation: id #(param-assignment) ( id ( dimension ) '(' list-of-port ')' )* ;
+  # Data declaration: id #(param-assignment) ( id ( dimention ) [ = ... ] )* ;
+  data-declaration-or-module-instantiation:
     patterns:
-      # Handle a tricky case:
-      # Data (class/interface/program) declaration / module instantiation
-      # Begin with identifier #...
-      # End with ;
-      # Module instantiation: id #(param-assignment) ( id ( dimension ) '(' list-of-port ')' )* ;
-      # Data declaration: id #(param-assignment) ( id ( dimention ) [ = ... ] )* ;
       - name: meta.data-declaration-or-module-instantiation.sv
         begin: (${identifier})\s*(?=\#\s*\()
         end: (\;)\s*
@@ -508,6 +511,19 @@ repository:
                   - include: "#expression"
                   - include: "#dynamic-array-new"
                   - include: "#class-new"
+      - name: meta.data-declaration-or-module-instantiation.sv
+        begin: (${identifierNotKeyword})\s*(?=${identifier}\s*\()
+        end: (?=\;)|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: entity.name.type.sv }
+        endCaptures:
+          "1": { name: punctuation.terminator.semicolon.sv }
+        patterns:
+          - include: "#hierarchical-instance"
+          - include: "#comma"
+  module-item:
+    patterns:
+      - include: "#data-declaration-or-module-instantiation"
       # The original include items in LRM
       - include: "#non-port-module-item"
       - include: "#port-declaration"
@@ -3811,6 +3827,8 @@ repository:
   # A.4 Instantiations
   # A.4.1 Instantiation
   # A.4.1.1 Module instantiation
+  # Module instantiation has been included in data-declaration-or-module-instantiation,
+  # but many syntax still include this one.
   module-instantiation:
     # 1. module_identifier # ...
     # 2. module_identifier name_of_instance ( ...
