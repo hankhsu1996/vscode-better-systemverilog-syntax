@@ -15,7 +15,7 @@
 module top(input clk);
 
   default clocking @(posedge clk);
-//^^^^^^^ keyword.control.default.sv
+//^^^^^^^ keyword.other.default.sv
 //        ^^^^^^^^ storage.type.clocking.sv
     default input #10ns output #5ns;
   endclocking

@@ -27,7 +27,7 @@ module top(input clk, input a, output b, output c);
 //                          ^ punctuation.section.group.end.sv
 //                           ^ punctuation.terminator.semicolon.sv
     default input #10ns output #5ns;
-//  ^^^^^^^ keyword.control.default.sv
+//  ^^^^^^^ keyword.other.default.sv
 //          ^^^^^ storage.modifier.input.sv
 //                ^ punctuation.definition.delay.sv
 //                 ^^ constant.numeric.integer.sv

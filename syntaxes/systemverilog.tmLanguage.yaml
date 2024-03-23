@@ -542,7 +542,7 @@ repository:
       - include: "#clocking-declaration"
       - match: ${keywordStart}\b(default)\b\s+\b(clocking)\b\s+(${identifier})\s*\;
         captures:
-          "1": { name: keyword.control.default.sv }
+          "1": { name: keyword.other.default.sv }
           "2": { name: storage.type.clocking.sv }
           "3":
             patterns:
@@ -837,7 +837,7 @@ repository:
       - include: "#clocking-declaration"
       - match: ${keywordStart}\b(default)\b\s*(?:\b(clocking)\b\s*)?:(?:(${identifier})\s*)?(?:(\;)\s*)?
         captures:
-          "1": { name: keyword.control.default.sv }
+          "1": { name: keyword.other.default.sv }
           "2": { name: storage.type.clocking.sv }
           "3": { name: entity.name.type.sv }
           "4": { name: punctuation.terminator.semicolon.sv }
@@ -4900,7 +4900,7 @@ repository:
         begin: (?:\b(default)\b\s+)?\b(clocking)\b\s*(?:(\b${identifier}\b)\s*)?
         end: \b(endclocking)\b\s*(?:(\:)\s*(${identifier})\s*)?|${blocksFailSafe}
         beginCaptures:
-          "1": { name: keyword.control.default.sv }
+          "1": { name: keyword.other.default.sv }
           "2": { name: storage.type.clocking.sv }
           "3": { name: variable.other.sv }
         endCaptures:
@@ -4946,7 +4946,7 @@ repository:
       - begin: \b(default)\b\s*
         end: (\;)\s*
         beginCaptures:
-          "1": { name: keyword.control.default.sv }
+          "1": { name: keyword.other.default.sv }
         endCaptures:
           "1": { name: punctuation.terminator.semicolon.sv }
         patterns:
