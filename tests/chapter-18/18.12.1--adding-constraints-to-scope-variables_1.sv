@@ -32,7 +32,7 @@ class env extends uvm_env;
   function new(string name, uvm_component parent = null);
     super.new(name, parent);
   endfunction
-  
+
   task run_phase(uvm_phase phase);
     phase.raise_objection(this);
     begin
@@ -45,7 +45,7 @@ class env extends uvm_env;
     end
     phase.drop_objection(this);
   endtask: run_phase
-  
+
 endclass
 
 module top;
@@ -56,5 +56,5 @@ module top;
     environment = new("env");
     run_test();
   end
-  
+
 endmodule

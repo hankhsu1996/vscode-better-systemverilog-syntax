@@ -4039,7 +4039,7 @@ repository:
     patterns:
       # The seq-block and generate-block have the same beginning ('begin'). Therefore, include 'generate-item' in seq-block.
       - include: "#generate-item"
-      - match: \b(${identifier})\s*(\:)\s*
+      - match: \b(${identifier})\s*(\:)\s*(?!\:)
         captures:
           "1":
             patterns:
@@ -4183,7 +4183,7 @@ repository:
         name: punctuation.terminator.semicolon.sv
   statement:
     patterns:
-      - match: (?<!\.)(${identifierNotKeyword})\s*(\:)\s*
+      - match: (?<!\.)(${identifierNotKeyword})\s*(\:)\s*(?!\:)
         captures:
           "1":
             patterns:
@@ -4752,7 +4752,7 @@ repository:
       - include: "#deferred-immediate-assertion-item"
   deferred-immediate-assertion-item:
     patterns:
-      - match: (?<!\.)(${identifierNotKeyword})\s*(\:)\s*
+      - match: (?<!\.)(${identifierNotKeyword})\s*(\:)\s*(?!\:)
         captures:
           "1":
             patterns:
