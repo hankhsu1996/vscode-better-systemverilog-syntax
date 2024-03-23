@@ -44,3 +44,6 @@
 //                     ^^^^ constant.character.escape.sv
 //                          ^^^^ constant.character.escape.sv
 //                              ^^ constant.character.escape.sv
+
+`define MY_KEYWORD posedge
+//                 ^^^^^^^ keyword.other.posedge.sv

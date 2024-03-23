@@ -7329,6 +7329,8 @@ repository:
       - include: "#expression"
       - include: "#gate-instantiation"
       - include: "#description"
+      - match: (${keywords})
+        name: keyword.other.$1.sv
   formal-argument:
     patterns:
       - match: \b([a-zA-Z_][a-zA-Z0-9_\$]*)\b
