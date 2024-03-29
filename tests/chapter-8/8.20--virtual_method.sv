@@ -49,3 +49,12 @@ module class_tb ();
     super_obj.print();
   end
 endmodule
+
+
+class test_cls extends super_cls;
+  virtual task write(uvm_reg_item xx);
+//^^^^^^^ storage.modifier.virtual.sv
+//        ^^^^ storage.type.task.sv
+    $display("test_cls::a: %d", a);
+  endtask
+endclass

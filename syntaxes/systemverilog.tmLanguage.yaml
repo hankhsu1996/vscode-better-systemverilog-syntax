@@ -1316,7 +1316,7 @@ repository:
   package-import-declaration:
     name: meta.package-import-declaration.sv
     begin: ${keywordStart}\b(import)\b\s*(?!\s*\"(DPI\-C|DPI)\")
-    end: (\;)\s*|${itemsFailSafe}|(?=\b(import)\b)
+    end: (\;)\s*|${designElementsFailSafe}|(?=\b(import)\b)
     beginCaptures:
       "1": { name: keyword.control.import.sv }
     endCaptures:
@@ -1540,7 +1540,7 @@ repository:
       - match: \b(chandle)\b\s*
         captures:
           "1": { name: entity.name.type.$1.sv }
-      - match: \b(virtual)\b\s*(?!class|function)(?:\b(interface)\b\s*)?(${identifier})\s*
+      - match: \b(virtual)\b\s*(?!class|function|task)(?:\b(interface)\b\s*)?(${identifier})\s*
         captures:
           "1": { name: storage.modifier.virtual.sv }
           "2": { name: storage.type.interface.sv }
