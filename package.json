@@ -11,7 +11,7 @@
     "build": "ts-node src/index.ts",
     "test": "npm run build && vscode-tmgrammar-test -g syntaxes/systemverilog.tmLanguage.json \"tests/**/*.sv\"",
     "test-watch": "nodemon --watch src --watch syntaxes --watch tests -e ts,yaml,sv --exec \"npm run test\"",
-    "package": "vsce package"
+    "package": "npm run build && vsce package"
   },
   "license": "MIT",
   "engines": {

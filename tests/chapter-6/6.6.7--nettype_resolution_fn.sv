@@ -23,7 +23,7 @@ module top();
 //^^^^^^^ keyword.control.nettype.sv
 //        ^^^^ entity.name.type.real.sv
 //             ^^^^^^^^ entity.name.type.sv
-//                      ^^^^ keyword.control.with.sv
+//                      ^^^^ keyword.other.with.sv
 //                           ^^^^^^^^ entity.name.function.sv
 //                                   ^ punctuation.terminator.semicolon.sv
 endmodule

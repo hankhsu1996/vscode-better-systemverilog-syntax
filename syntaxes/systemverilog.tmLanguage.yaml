@@ -1431,7 +1431,7 @@ repository:
       - name: meta.net-type-declaration-with.sv
         begin: ${keywordStart}\b(with)\b\s*
         beginCaptures:
-          "1": { name: keyword.control.with.sv }
+          "1": { name: keyword.other.with.sv }
         end: (?=\;)
         patterns:
           - include: "#tf-identifier"
@@ -1711,7 +1711,7 @@ repository:
     begin: \b(type)\b\s*(\()\s*
     end: (\))\s*|${bracketsFailSafe}
     beginCaptures:
-      "1": { name: entity.name.function.sv }
+      "1": { name: keyword.other.type.sv }
       "2": { name: punctuation.section.group.begin.sv }
     endCaptures:
       "1": { name: punctuation.section.group.end.sv }
@@ -2704,7 +2704,7 @@ repository:
           "1": { name: keyword.other.implies.sv }
       - match: \b(iff)\b\s*
         captures:
-          "1": { name: keyword.other.iff.sv }
+          "1": { name: keyword.control.iff.sv }
       - begin: \b(accept_on)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
@@ -3091,7 +3091,7 @@ repository:
       - begin: \b(with)\b\s+\b(function)\b\s+\b(sample)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
-          "1": { name: keyword.control.with.sv }
+          "1": { name: keyword.other.with.sv }
           "2": { name: storage.type.function.sv }
           "3": { name: entity.name.function.sv }
           "4": { name: punctuation.section.group.begin.sv }
@@ -3140,7 +3140,7 @@ repository:
         beginCaptures:
           "1": { name: storage.type.coverpoint.sv }
         patterns:
-          - begin: \b(iff)\b\s*(\()\s*
+          - begin: \b(iff)\b\s*(?:(\()\s*)?
             end: (\))\s*|${bracketsFailSafe}
             beginCaptures:
               "1": { name: keyword.control.iff.sv }
@@ -3171,13 +3171,13 @@ repository:
       - include: "#coverage-option"
       - name: meta.bins.sv
         begin: (?=(?:\b(wildcard)\b\s*)?\b(bins|illegal_bins|ignore_bins)\b)
-        end: (\;)\s*
+        end: (\;)\s*|${blocksFailSafe}
         endCaptures:
           "1": { name: punctuation.terminator.semicolon.sv }
         patterns:
           - name: meta.bins-header.sv
-            begin: (?:\b(wildcard)\b\s*)?\b(bins|illegal_bins|ignore_bins)\b\s*(${identifier})\s*
-            end: (?=\=)
+            begin: (?:\b(wildcard)\b\s*)?\b(bins|illegal_bins|ignore_bins)\b\s*(?:(${identifier})\s*)?
+            end: (?=\=)|${blocksFailSafe}
             beginCaptures:
               "1": { name: storage.modifier.$1.sv }
               "2": { name: storage.type.$2.sv }
@@ -3194,7 +3194,7 @@ repository:
                   - include: "#covergroup-expression"
           - name: meta.bins-body.sv
             begin: (\=)\s*
-            end: (?=\;)
+            end: (?=\;)|${blocksFailSafe}
             beginCaptures:
               "1": { name: keyword.operator.assignment.sv }
             patterns:
@@ -3216,13 +3216,13 @@ repository:
               - begin: \b(with)\b\s*(\()\s*
                 end: (\))\s*|${bracketsFailSafe}
                 beginCaptures:
-                  "1": { name: keyword.control.with.sv }
+                  "1": { name: keyword.other.with.sv }
                   "2": { name: punctuation.section.group.begin.sv }
                 endCaptures:
                   "1": { name: punctuation.section.group.end.sv }
                 patterns:
                   - include: "#with-covergroup-expression"
-              - begin: \b(iff)\b\s*(\()\s*
+              - begin: \b(iff)\b\s*(?:(\()\s*)?
                 end: (\))\s*|${bracketsFailSafe}
                 beginCaptures:
                   "1": { name: keyword.control.iff.sv }
@@ -3292,12 +3292,12 @@ repository:
   cover-cross:
     patterns:
       - begin: \b(cross)\b\s*
-        end: (?<=\;|\})|(?=\b(coverpoint|cross|endgroup)\b)|(?=${identifier}\s*\:)
+        end: (?<=\;|\})|(?=\b(coverpoint|cross|endgroup)\b)|(?=${identifier}\s*\:)|${blocksFailSafe}
         beginCaptures:
           "1": { name: storage.type.cross.sv }
         patterns:
           - include: "#list-of-cross-items"
-          - begin: \b(iff)\b\s*(\()\s*
+          - begin: \b(iff)\b\s*(?:(\()\s*)?
             end: (\))\s*|${bracketsFailSafe}
             beginCaptures:
               "1": { name: keyword.control.iff.sv }
@@ -3346,7 +3346,7 @@ repository:
       - include: "#bin-identifier"
       - include: "#equal"
       - include: "#select-expression"
-      - begin: \b(iff)\b\s*(\()\s*
+      - begin: \b(iff)\b\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.control.iff.sv }
@@ -3375,10 +3375,10 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#select-expression"
-      - begin: \b(with)\b\s*(\()\s*
+      - begin: \b(with)\b\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
-          "1": { name: keyword.control.with.sv }
+          "1": { name: keyword.other.with.sv }
           "2": { name: punctuation.section.group.begin.sv }
         endCaptures:
           "1": { name: punctuation.section.group.end.sv }
@@ -3387,23 +3387,23 @@ repository:
       - begin: \b(matches)\b\s*
         end: (?=\;)
         beginCaptures:
-          "1": { name: keyword.control.matches.sv }
+          "1": { name: keyword.other.matches.sv }
         patterns:
           - include: "#integer-covergroup-expression"
       - include: "#cross-identifier"
       - include: "#cross-set-expression"
   select-condition:
     patterns:
-      - begin: \b(binsof)\b\s*(\()\s*
+      - begin: \b(binsof)\b\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
-          "1": { name: keyword.control.binsof.sv }
+          "1": { name: keyword.other.binsof.sv }
           "2": { name: punctuation.section.group.begin.sv }
         endCaptures:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#bins-expression"
-      - begin: \b(intersect)\b\s*(\{)\s*
+      - begin: \b(intersect)\b\s*(?:(\{)\s*)?
         end: (\})\s*|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.other.intersect.sv }
@@ -3890,17 +3890,16 @@ repository:
         patterns:
           - include: "#param-expression"
   hierarchical-instance:
-    name: meta.hierarchical-instance.sv
-    begin: (?<!\.\s*)(${identifier})\s*(\()\s*
-    end: (\))\s*|${bracketsFailSafe}
-    beginCaptures:
-      "1": { name: variable.other.sv }
-      "2": { name: punctuation.section.group.begin.sv }
-    endCaptures:
-      "1": { name: punctuation.section.group.end.sv }
     patterns:
-      - include: "#list-of-port-connections"
-      - include: "#module-instantiation"
+      - begin: (\()\s*
+        end: (\))\s*|${bracketsFailSafe}
+        beginCaptures:
+          "1": { name: punctuation.section.group.begin.sv }
+        endCaptures:
+          "1": { name: punctuation.section.group.end.sv }
+        patterns:
+          - include: "#list-of-port-connections"
+      - include: "#name-of-instance"
   name-of-instance:
     patterns:
       - include: "#instance-identifier"
@@ -6253,7 +6252,7 @@ repository:
       - include: "#expression"
       - match: \b(with)\b\s*
         captures:
-          "1": { name: keyword.control.with.sv }
+          "1": { name: keyword.other.with.sv }
   array-range-expression:
     patterns:
       - include: "#expression"
@@ -6345,7 +6344,7 @@ repository:
       - begin: \b(with)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
-          "1": { name: keyword.control.with.sv }
+          "1": { name: keyword.other.with.sv }
           "2": { name: punctuation.section.group.begin.sv }
         endCaptures:
           "1": { name: punctuation.section.group.end.sv }
@@ -6377,7 +6376,7 @@ repository:
       - begin: \b(with)\b\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
         beginCaptures:
-          "1": { name: keyword.control.with.sv }
+          "1": { name: keyword.other.with.sv }
           "2": { name: punctuation.section.group.begin.sv }
         endCaptures:
           "1": { name: punctuation.section.group.end.sv }
@@ -6385,7 +6384,7 @@ repository:
           - include: "#identifier-list"
       - match: \b(with)\b\s*(?=\{)
         captures:
-          "1": { name: keyword.control.with.sv }
+          "1": { name: keyword.other.with.sv }
       - include: "#constraint-block"
   method-call-root:
     patterns:
@@ -6487,7 +6486,7 @@ repository:
       - begin: \b(with)\b\s*(\[)\s*
         end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
-          "1": { name: keyword.control.with.sv }
+          "1": { name: keyword.other.with.sv }
           "2": { name: punctuation.section.brackets.begin.sv }
         endCaptures:
           "1": { name: punctuation.section.brackets.end.sv }

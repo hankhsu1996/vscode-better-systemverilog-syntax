@@ -22,13 +22,13 @@ module top #( parameter type T = type(logic[11:0]) )
    initial begin
       case (type(T))
 //          ^^^^^^^ meta.type-reference.sv
-//          ^^^^ entity.name.function.sv
+//          ^^^^ keyword.other.type.sv
 //              ^ punctuation.section.group.begin.sv
 //               ^ variable.other.constant.sv
 //                ^ punctuation.section.group.end.sv
         type(logic[11:0]) : ;
 //      ^^^^^^^^^^^^^^^^^ meta.type-reference.sv
-//      ^^^^ entity.name.function.sv
+//      ^^^^ keyword.other.type.sv
 //          ^ punctuation.section.group.begin.sv
 //           ^^^^^ entity.name.type.logic.sv
 //                ^^^^^^ meta.dimension.sv

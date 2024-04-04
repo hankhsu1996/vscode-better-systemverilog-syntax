@@ -22,7 +22,7 @@ endclass
 
 function int F(a obj, int y);
     F = obj.randomize() with (x) { x > 0; x < y; };
-//                      ^^^^ keyword.control.with.sv
+//                      ^^^^ keyword.other.with.sv
 //                           ^ punctuation.section.group.begin.sv
 //                            ^ variable.other.sv
 //                             ^ punctuation.section.group.end.sv

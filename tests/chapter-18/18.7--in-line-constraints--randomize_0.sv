@@ -33,7 +33,7 @@ class env extends uvm_env;
     phase.raise_objection(this);
     begin
       obj.randomize() with { x < y; };
-//                    ^^^^ keyword.control.with.sv
+//                    ^^^^ keyword.other.with.sv
 //                         ^ punctuation.section.braces.begin.sv
 //                           ^ variable.other.sv
 //                             ^ keyword.operator.binary.sv

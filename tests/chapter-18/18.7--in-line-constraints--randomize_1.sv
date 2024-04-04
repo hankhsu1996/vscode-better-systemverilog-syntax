@@ -23,6 +23,6 @@ class a2;
     task do_randomize(a1 obj, int x, int z);
         int result;
         result = obj.randomize() with {x > 0; x < y + z;};
-//                               ^^^^ keyword.control.with.sv
+//                               ^^^^ keyword.other.with.sv
     endtask
 endclass

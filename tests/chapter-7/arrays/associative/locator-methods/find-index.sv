@@ -21,7 +21,7 @@ int qi[$];
 initial begin
   qi = s.find_index with ( item == "world" );
 //       ^^^^^^^^^^ entity.name.function.sv
-//                  ^^^^ keyword.control.with.sv
+//                  ^^^^ keyword.other.with.sv
 //                       ^ punctuation.section.group.begin.sv
 //                         ^^^^ variable.other.sv
 //                              ^^ keyword.operator.binary.sv

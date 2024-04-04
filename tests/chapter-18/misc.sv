@@ -8,6 +8,6 @@ task my_task();
 //   ^^ punctuation.separator.scope-resolution.sv
 //     ^^^^^^^^^ entity.name.function.sv
 //               ^ variable.other.sv
-//                  ^^^^ keyword.control.with.sv
+//                  ^^^^ keyword.other.with.sv
 //                        ^ variable.other.sv
 endtask

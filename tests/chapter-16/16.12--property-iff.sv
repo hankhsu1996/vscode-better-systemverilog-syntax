@@ -19,6 +19,6 @@ logic a;
 logic b;
 
 assert property ( @(posedge clk) a iff b );
-//                                 ^^^ keyword.other.iff.sv
+//                                 ^^^ keyword.control.iff.sv
 
 endmodule

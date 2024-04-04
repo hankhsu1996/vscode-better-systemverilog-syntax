@@ -22,7 +22,7 @@ int qi[$];
 initial begin
   qi = s.find_first_index with ( item == "hello" );
 //       ^^^^^^^^^^^^^^^^ entity.name.function.sv
-//                        ^^^^ keyword.control.with.sv
+//                        ^^^^ keyword.other.with.sv
 //                             ^ punctuation.section.group.begin.sv
 //                               ^^^^ variable.other.sv
 //                                    ^^ keyword.operator.binary.sv

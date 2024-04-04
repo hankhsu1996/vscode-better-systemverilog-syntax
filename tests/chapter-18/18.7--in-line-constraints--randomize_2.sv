@@ -27,7 +27,7 @@ class a2;
         int result;
         /* In the line below x should be a member of class a1 */
         result = obj.randomize() with {x > 0; x < y + z;};
-//                               ^^^^ keyword.control.with.sv
+//                               ^^^^ keyword.other.with.sv
     endtask
 endclass
 

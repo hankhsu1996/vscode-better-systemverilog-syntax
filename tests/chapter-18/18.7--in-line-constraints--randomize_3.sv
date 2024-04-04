@@ -19,5 +19,5 @@ endclass
 
 function int F(a obj, int y);
     F = obj.randomize() with (x) { x > 0; x < y; };
-//                      ^^^^ keyword.control.with.sv
+//                      ^^^^ keyword.other.with.sv
 endfunction

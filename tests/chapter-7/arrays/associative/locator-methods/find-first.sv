@@ -21,7 +21,7 @@ string qs[$];
 initial begin
   qs = s.find_first with ( item == "hello" );
 //       ^^^^^^^^^^ entity.name.function.sv
-//                  ^^^^ keyword.control.with.sv
+//                  ^^^^ keyword.other.with.sv
 //                       ^ punctuation.section.group.begin.sv
 //                         ^^^^ variable.other.sv
 //                              ^^ keyword.operator.binary.sv

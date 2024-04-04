@@ -20,7 +20,7 @@ class a;
 //                ^^^ entity.name.namespace.sv
 //                   ^^ punctuation.separator.scope-resolution.sv
 //                     ^^^^^^^^^ entity.name.function.sv
-//                                  ^^^^ keyword.control.with.sv
+//                                  ^^^^ keyword.other.with.sv
         return success;
     endfunction
 endclass

@@ -21,7 +21,7 @@ int q[$];
 initial begin
   q = arr.find with ( item == item.index );
 //        ^^^^ entity.name.function.sv
-//             ^^^^ keyword.control.with.sv
+//             ^^^^ keyword.other.with.sv
 //                  ^ punctuation.section.group.begin.sv
 //                    ^^^^ variable.other.sv
 //                         ^^ keyword.operator.binary.sv
