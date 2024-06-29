@@ -3211,8 +3211,8 @@ repository:
               - include: "#trans-list"
               - match: \b(default)\b\s*(?:\b(sequence)\b)?\s*
                 captures:
-                  "1": { name: keyword.control.default.sv }
-                  "2": { name: keyword.control.sequence.sv }
+                  "1": { name: keyword.other.default.sv }
+                  "2": { name: keyword.other.sequence.sv }
               - begin: \b(with)\b\s*(\()\s*
                 end: (\))\s*|${bracketsFailSafe}
                 beginCaptures:
