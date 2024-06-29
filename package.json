@@ -3,6 +3,12 @@
   "displayName": "Better SystenVerilog Syntax",
   "description": "Better syntax highlighting for SystemVerilog",
   "version": "0.0.10",
+  "publisher": "hankhsu1996",
+  "author": {
+    "name": "Shou-Li Hsu",
+    "email": "hank850503@gmail.com"
+  },
+  "icon": "assets/icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/hankhsu1996/vscode-better-systemverilog-syntax"
@@ -11,7 +17,8 @@
     "build": "ts-node src/index.ts",
     "test": "npm run build && vscode-tmgrammar-test -g syntaxes/systemverilog.tmLanguage.json \"tests/**/*.sv\"",
     "test-watch": "nodemon --watch src --watch syntaxes --watch tests -e ts,yaml,sv --exec \"npm run test\"",
-    "package": "npm run build && vsce package"
+    "package": "npm run build && vsce package",
+    "publish": "npm run package && vsce publish"
   },
   "license": "MIT",
   "engines": {
