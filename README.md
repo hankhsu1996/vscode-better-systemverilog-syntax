@@ -4,7 +4,7 @@
 
 Welcome to *Better SystemVerilog Syntax*! This extension enhances your coding experience by providing advanced TextMate grammar support, specifically designed to improve SystemVerilog syntax highlighting. Our aim is to make your coding sessions more enjoyable and productive by enhancing readability and aesthetics.
 
-<image src="assets/showcase.gif" width="800" height="800" />
+![showcase](assets/showcase.gif)
 
 ## Features
 
