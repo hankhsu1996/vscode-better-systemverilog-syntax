@@ -1,5 +1,9 @@
 # Better SystemVerilog Syntax for Visual Studio Code
 
+[![CI](https://github.com/hankhsu1996/vscode-better-systemverilog-syntax/actions/workflows/vscode-extension-ci.yml/badge.svg)](https://github.com/hankhsu1996/vscode-better-systemverilog-syntax/actions/workflows/vscode-extension-ci.yml)
+![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/hankhsu1996.better-systemverilog-syntax)
+![GitHub License](https://img.shields.io/github/license/hankhsu1996/vscode-better-systemverilog-syntax)
+
 ## Introduction
 
 Welcome to _Better SystemVerilog Syntax_! This extension enhances your coding experience by providing advanced TextMate grammar support, specifically designed to improve SystemVerilog syntax highlighting. Our aim is to make your coding sessions more enjoyable and productive by enhancing readability and aesthetics.
