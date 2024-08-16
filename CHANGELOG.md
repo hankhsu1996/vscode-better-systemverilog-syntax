@@ -6,6 +6,17 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.0.0] - 2024-08-16
+
+### Changed
+
+- Updated dependencies to the latest versions.
+- Refined and updated the README to include a table of supported syntax.
+
+### Fixed
+
+- Sorted `package.json` for better readability and organization.
+
 ## [0.0.10] - 2024-02-29
 
 ### Added

@@ -1,7 +1,7 @@
 {
   "name": "better-systemverilog-syntax",
   "displayName": "Better SystemVerilog Syntax",
-  "version": "0.0.10",
+  "version": "1.0.0",
   "description": "Better syntax highlighting for SystemVerilog",
   "categories": [
     "Programming Languages"
