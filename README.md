@@ -60,7 +60,7 @@ Here's a summary of the SystemVerilog syntax support, categorized by chapter:
 
 Your contributions are essential for ongoing improvements! Here’s how you can help:
 
-- **Issue Reporting**: If you encounter incorrect syntax highlighting, please [open an issue](link-to-issues).
+- **Issue Reporting**: If you encounter incorrect syntax highlighting, please [open an issue](https://github.com/hankhsu1996/vscode-better-systemverilog-syntax/issues).
 - **Pull Requests**: For those looking to contribute code, especially for unimplemented chapters, feel free to submit a pull request. Be sure to include tests!
 
 ## License
