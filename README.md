@@ -65,4 +65,4 @@ Your contributions are essential for ongoing improvements! Here’s how you can 
 
 ## License
 
-This project is licensed under the MIT License, meaning it’s free for personal and commercial use. For full details, see the [LICENSE.md](LICENSE.md) file.
+This project is licensed under the MIT License, meaning it’s free for personal and commercial use. For full details, see the [LICENSE](LICENSE) file.
