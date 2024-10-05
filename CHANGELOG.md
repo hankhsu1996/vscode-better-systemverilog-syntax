@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.0.1] - 2024-10-05
+
+### Changed
+
+- Downgraded required VS Code engine to 1.75.1.
+
 ## [1.0.0] - 2024-08-16
 
 ### Changed
