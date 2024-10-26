@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.0.2] - 2024-10-26
+
+### Changed
+
+- Fix function syntax highlighting when the name is ending with `_t`.
+
 ## [1.0.1] - 2024-10-05
 
 ### Changed
