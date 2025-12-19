@@ -150,4 +150,21 @@ class test_constraint_braces;
         };
 //      ^ punctuation.section.braces.end.sv
     }
+
+    // soft with dist
+    rand int mode;
+    constraint c11 {
+        soft mode dist { 0 := 10, 1 := 20, 2 := 30 };
+//      ^^^^ keyword.other.soft.sv
+//           ^^^^ variable.other.sv
+//                ^^^^ keyword.other.dist.sv
+    }
+
+    // soft with inside
+    constraint c12 {
+        soft mode inside { 0, 1, 2, 3 };
+//      ^^^^ keyword.other.soft.sv
+//           ^^^^ variable.other.sv
+//                ^^^^^^ keyword.other.inside.sv
+    }
 endclass

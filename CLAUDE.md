@@ -118,6 +118,7 @@ When reporting "failing syntax" (incorrect highlighting):
 Use branch + PR workflow with these prefixes:
 - `feature/` - New syntax support or functionality
 - `bugfix/` - Fixes for incorrect highlighting
+- `test/` - Adding or updating tests
 - `docs/` - Documentation changes
 - `chore/` - Dependencies, CI, tooling updates
 - `release/` - Version releases
