@@ -36,6 +36,8 @@ module case_tb ();
       default b = 0;
 //    ^^^^^^^^^^^^^^ meta.case-statement.sv
 //    ^^^^^^^ keyword.control.default.sv
+      4'h1: if (a) b = 1;
+//          ^^ keyword.control.if.sv
     endcase
 //  ^^^^^^^ meta.case-statement.sv
 //  ^^^^^^^ keyword.control.endcase.sv
