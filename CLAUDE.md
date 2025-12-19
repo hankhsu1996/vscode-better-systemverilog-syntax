@@ -120,5 +120,15 @@ Use branch + PR workflow with these prefixes:
 - `bugfix/` - Fixes for incorrect highlighting
 - `docs/` - Documentation changes
 - `chore/` - Dependencies, CI, tooling updates
+- `release/` - Version releases
 
-Open a PR, let CI pass, then merge to main.
+Open a PR, let CI pass, then merge to main. Direct push to main is disabled.
+
+## Release Workflow
+
+1. Update version in `package.json`
+2. Run `npm install` to sync `package-lock.json`
+3. Update `CHANGELOG.md` with release notes
+4. Create branch (`release/v1.x.x`) and PR
+5. After merge, create git tag: `git tag v1.x.x && git push origin v1.x.x`
+6. Publish: `npm run publish`

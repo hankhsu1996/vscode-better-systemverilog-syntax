@@ -6,6 +6,20 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.0.3] - 2025-12-19
+
+### Fixed
+
+- Fix `if` not highlighted as keyword after case item colon
+- Fix `return` incorrectly highlighted as type name
+- Fix constraint `if-else` with braces not highlighted correctly
+- Fix hierarchical identifiers in `solve...before` and `soft` constraints
+- Support `inside` and `tagged` keywords in constant expressions (parameter/localparam)
+
+### Changed
+
+- Standardize type scopes to generic `entity.name.type.sv`
+
 ## [1.0.2] - 2024-10-26
 
 ### Changed
