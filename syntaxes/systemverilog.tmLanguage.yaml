@@ -7,8 +7,9 @@ variables:
   identifier: (?:${simpleIdentifier}|${escapeIdentifier})
   identifierNotKeyword: (?:${simpleIdentifier}|${escapeIdentifier})(?<!${keywords})
   macro: (?:`[a-zA-Z_][a-zA-Z0-9_\$]*\b(?:\(.*?\))?)(?<!`(?:__FILE__|__LINE__|begin_keywords|celldefine|default_nettype|define|else|elsif|end_keywords|endcelldefine|endif|ifdef|ifndef|include|line|nounconnected_drive|pragma|resetall|timescale|unconnected_drive|undef|undefineall)\b)
-  # Remove array method name: unique, and, or, xor
-  functionIdentifier: ${identifier}(?<!\btype\b)
+  # Function identifiers cannot be keywords (if, case, for, etc.)
+  # Array methods like unique, and, or, xor are explicitly added where needed
+  functionIdentifier: ${identifierNotKeyword}
   classScope: (?:${identifier}\s*(?:\#\(.*?\)\s*)?::\s*)+
   # Identifier can be followed by ":" (ternary statement, label, etc.)
   # Identifier cannot be followed by another identifier
