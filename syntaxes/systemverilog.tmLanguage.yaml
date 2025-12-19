@@ -1084,11 +1084,11 @@ repository:
           "1": { name: punctuation.terminator.semicolon.sv }
         patterns:
           - include: "#constraint-primary"
+      - include: "#constraint-set"
       - include: "#expression-or-dist"
       - include: "#uniqueness-constraint"
       - include: "#semicolon"
       - include: "#expression"
-      - include: "#constraint-set"
   uniqueness-constraint:
     patterns:
       - begin: ${keywordStart}\b(unique)\b\s*(\{)\s*

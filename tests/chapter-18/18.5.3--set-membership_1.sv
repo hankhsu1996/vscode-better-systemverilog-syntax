@@ -21,7 +21,6 @@ class a;
     constraint c { b inside {3, 10}; }
 //                 ^ variable.other.sv
 //                   ^^^^^^ keyword.other.inside.sv
-//                          ^^^^^^^ meta.concatenation.sv
 //                                 ^ punctuation.terminator.semicolon.sv
 
 endclass
