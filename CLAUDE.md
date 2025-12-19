@@ -122,6 +122,8 @@ Use branch + PR workflow with these prefixes:
 - `chore/` - Dependencies, CI, tooling updates
 - `release/` - Version releases
 
+**PR titles:** Start with a verb, no prefix/colon (e.g., "Add dark mode support" not "feat: Add dark mode support").
+
 Open a PR, let CI pass, then merge to main. Direct push to main is disabled.
 
 ## Release Workflow
@@ -130,5 +132,11 @@ Open a PR, let CI pass, then merge to main. Direct push to main is disabled.
 2. Run `npm install` to sync `package-lock.json`
 3. Update `CHANGELOG.md` with release notes
 4. Create branch (`release/v1.x.x`) and PR
-5. After merge, create git tag: `git tag v1.x.x && git push origin v1.x.x`
-6. Publish: `npm run publish`
+5. After merge:
+   - `git switch main && git pull`
+   - `git tag v1.x.x && git push origin v1.x.x`
+6. Create GitHub release with .vsix:
+   - `npm run package` to build .vsix
+   - `gh release create v1.x.x --title "v1.x.x" --notes "..." better-systemverilog-syntax-1.x.x.vsix`
+   - Use CHANGELOG format for notes (### Fixed, ### Changed, etc.)
+7. Publish to VS Code marketplace: `npm run publish`
