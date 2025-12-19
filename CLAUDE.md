@@ -122,6 +122,8 @@ Use branch + PR workflow with these prefixes:
 - `chore/` - Dependencies, CI, tooling updates
 - `release/` - Version releases
 
+**PR titles:** Start with a verb, no prefix/colon (e.g., "Add dark mode support" not "feat: Add dark mode support").
+
 Open a PR, let CI pass, then merge to main. Direct push to main is disabled.
 
 ## Release Workflow
