@@ -6565,7 +6565,8 @@ repository:
       - match: (\b[A-Z][a-zA-Z0-9_\$]*)\s*(?=\')
         captures:
           "1": { name: variable.other.constant.sv }
-      - match: (${simpleIdentifier})\s*(?=\')
+      # Keywords (like 'return') followed by '{ should not match as type cast
+      - match: (${identifierNotKeyword})\s*(?=\')
         captures:
           "1": { name: entity.name.type.sv }
       - include: "#primary-literal"
@@ -6619,7 +6620,8 @@ repository:
       - match: (\b[A-Z][a-zA-Z0-9_\$]*)\s*(?=\')
         captures:
           "1": { name: variable.other.constant.sv }
-      - match: (${simpleIdentifier})\s*(?=\')
+      # Keywords (like 'return') followed by '{ should not match as type cast
+      - match: (${identifierNotKeyword})\s*(?=\')
         captures:
           "1": { name: entity.name.type.sv }
       - include: "#primary-literal"
