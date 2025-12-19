@@ -6412,6 +6412,10 @@ repository:
           "1": { name: punctuation.separator.colon.sv }
       - include: "#attribute-instance"
   constant-expression:
+    # NOTE: LRM formal syntax (Annex A) does not include inside_expression or
+    # tagged_union_expression in constant_expression. However, most tools
+    # (VCS, Questa, etc.) accept these in parameter contexts, so we include
+    # them here for practical syntax highlighting.
     patterns:
       - match: (\?)\s*
         captures:
@@ -6420,6 +6424,8 @@ repository:
         captures:
           "1": { name: punctuation.separator.colon.sv }
       - include: "#attribute-instance"
+      - include: "#inside-expression"
+      - include: "#tagged-union-expression"
       - include: "#constant-primary"
       - include: "#binary-operator"
       - include: "#unary-operator"
