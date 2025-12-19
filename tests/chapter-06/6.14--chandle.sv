@@ -14,5 +14,5 @@
 */
 module top();
   chandle a;
-//^^^^^^^ entity.name.type.chandle.sv
+//^^^^^^^ entity.name.type.sv
 endmodule

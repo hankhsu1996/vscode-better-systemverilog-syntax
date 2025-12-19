@@ -30,7 +30,7 @@ module top #( parameter type T = type(logic[11:0]) )
 //      ^^^^^^^^^^^^^^^^^ meta.type-reference.sv
 //      ^^^^ keyword.other.type.sv
 //          ^ punctuation.section.group.begin.sv
-//           ^^^^^ entity.name.type.logic.sv
+//           ^^^^^ entity.name.type.sv
 //                ^^^^^^ meta.dimension.sv
 //                      ^ punctuation.section.group.end.sv
         default           : $stop;

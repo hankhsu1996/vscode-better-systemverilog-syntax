@@ -34,18 +34,18 @@ module top();
 //                 ^ punctuation.separator.colon.sv
 //                  ^ constant.numeric.integer.sv
 //                   ^ punctuation.separator.comma.sv
-//                     ^^^ entity.name.type.int.sv
+//                     ^^^ entity.name.type.sv
 //                        ^ punctuation.separator.colon.sv
 //                         ^ constant.numeric.integer.sv
 //                          ^ punctuation.section.braces.end.sv
 
     ms = '{ int:0, int:1};
 //       ^^ punctuation.section.braces.begin.sv
-//          ^^^ entity.name.type.int.sv
+//          ^^^ entity.name.type.sv
 //             ^ punctuation.separator.colon.sv
 //              ^ constant.numeric.integer.sv
 //               ^ punctuation.separator.comma.sv
-//                 ^^^ entity.name.type.int.sv
+//                 ^^^ entity.name.type.sv
 //                    ^ punctuation.separator.colon.sv
 //                     ^ constant.numeric.integer.sv
   end

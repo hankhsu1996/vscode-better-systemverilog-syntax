@@ -14,5 +14,5 @@
 */
 module top();
   integer a;
-//^^^^^^^ entity.name.type.integer.sv
+//^^^^^^^ entity.name.type.sv
 endmodule

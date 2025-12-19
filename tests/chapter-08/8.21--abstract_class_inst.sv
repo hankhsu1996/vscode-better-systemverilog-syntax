@@ -23,7 +23,7 @@ module class_tb ();
 //  ^^^^ storage.modifier.pure.sv
 //       ^^^^^^^ storage.modifier.virtual.sv
 //               ^^^^^^^^ storage.type.function.sv
-//                        ^^^^ entity.name.type.void.sv
+//                        ^^^^ entity.name.type.sv
 //                             ^^^^^ entity.name.function.sv
 //                                  ^ punctuation.section.group.begin.sv
 //                                   ^ punctuation.section.group.end.sv

@@ -15,7 +15,7 @@
 module top();
   localparam int unsigned q = 123;
 //^^^^^^^^^^ storage.modifier.localparam.sv
-//           ^^^ entity.name.type.int.sv
+//           ^^^ entity.name.type.sv
 //               ^^^^^^^^ storage.modifier.unsigned.sv
 //                        ^ variable.other.constant.sv
 endmodule

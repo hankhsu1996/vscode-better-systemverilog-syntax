@@ -22,7 +22,7 @@ module process_tb ();
       fork
         automatic int k = i;
 //      ^^^^^^^^^ storage.modifier.automatic.sv
-//                ^^^ entity.name.type.int.sv
+//                ^^^ entity.name.type.sv
         begin
           job[k] = process::self();
 //                 ^^^^^^^ entity.name.namespace.sv

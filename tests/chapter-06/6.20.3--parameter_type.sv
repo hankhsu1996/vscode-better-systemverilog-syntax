@@ -17,5 +17,5 @@ module top #(type T = real);
 //           ^^^^ storage.type.type.sv
 //                ^ entity.name.type.sv
 //                  ^ keyword.operator.assignment.sv
-//                    ^^^^ entity.name.type.real.sv
+//                    ^^^^ entity.name.type.sv
 endmodule

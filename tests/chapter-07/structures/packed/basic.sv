@@ -19,7 +19,7 @@ module top ();
 //^^^^^^ storage.type.struct.sv
 //       ^^^^^^ storage.modifier.packed.sv
   bit [3:0] lo;
-//^^^ entity.name.type.bit.sv
+//^^^ entity.name.type.sv
 //    ^^^^^ meta.dimension.sv
 //          ^^ variable.other.sv
   bit [3:0] hi;

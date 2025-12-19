@@ -15,34 +15,34 @@
 */
 `default_nettype wire
 //<---------------- keyword.control.default-nettype.sv
-//               ^^^^ entity.name.type.wire.sv
+//               ^^^^ entity.name.type.sv
 `default_nettype tri
 //<---------------- keyword.control.default-nettype.sv
-//               ^^^ entity.name.type.tri.sv
+//               ^^^ entity.name.type.sv
 `default_nettype tri0
 //<---------------- keyword.control.default-nettype.sv
-//               ^^^^ entity.name.type.tri0.sv
+//               ^^^^ entity.name.type.sv
 `default_nettype tri1
 //<---------------- keyword.control.default-nettype.sv
-//               ^^^^ entity.name.type.tri1.sv
+//               ^^^^ entity.name.type.sv
 `default_nettype wand
 //<---------------- keyword.control.default-nettype.sv
-//               ^^^^ entity.name.type.wand.sv
+//               ^^^^ entity.name.type.sv
 `default_nettype triand
 //<---------------- keyword.control.default-nettype.sv
-//               ^^^^^^ entity.name.type.triand.sv
+//               ^^^^^^ entity.name.type.sv
 `default_nettype wor
 //<---------------- keyword.control.default-nettype.sv
-//               ^^^ entity.name.type.wor.sv
+//               ^^^ entity.name.type.sv
 `default_nettype trior
 //<---------------- keyword.control.default-nettype.sv
-//               ^^^^^ entity.name.type.trior.sv
+//               ^^^^^ entity.name.type.sv
 `default_nettype trireg
 //<---------------- keyword.control.default-nettype.sv
-//               ^^^^^^ entity.name.type.trireg.sv
+//               ^^^^^^ entity.name.type.sv
 `default_nettype uwire
 //<---------------- keyword.control.default-nettype.sv
-//               ^^^^^ entity.name.type.uwire.sv
+//               ^^^^^ entity.name.type.sv
 `default_nettype none
 //<---------------- keyword.control.default-nettype.sv
-//               ^^^^ entity.name.type.none.sv
+//               ^^^^ entity.name.type.sv

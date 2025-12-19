@@ -138,7 +138,7 @@ interface simple_bus (input logic clk); // Define the interface
 //         ^^^^ storage.type.task.sv
 //              ^^^^ entity.name.function.sv
 //                   ^^^^^ storage.modifier.input.sv
-//                         ^^^^^ entity.name.type.logic.sv
+//                         ^^^^^ entity.name.type.sv
 //                               ^^^^^ meta.dimension.sv
     task Write(input logic [7:0] waddr));
 //  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.task-prototype.sv
@@ -285,7 +285,7 @@ interface Test;
   extern function void foo();
 //^^^^^^ storage.modifier.extern.sv
 //       ^^^^^^^^ storage.type.function.sv
-//                ^^^^ entity.name.type.void.sv
+//                ^^^^ entity.name.type.sv
 //                     ^^^ entity.name.function.sv
 
   extern function my_type foo();

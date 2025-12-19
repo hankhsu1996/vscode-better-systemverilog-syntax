@@ -15,7 +15,7 @@
 module top(input a, input b);
 
 wire w = a & b;
-//<---- entity.name.type.wire.sv
+//<---- entity.name.type.sv
 //   ^ variable.other.sv
 //     ^ keyword.operator.assignment.sv
 //       ^ variable.other.sv

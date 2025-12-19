@@ -16,7 +16,7 @@
 */
 module top();
   reg v;
-//^^^ entity.name.type.reg.sv
+//^^^ entity.name.type.sv
   wire v;
-//^^^^ entity.name.type.wire.sv
+//^^^^ entity.name.type.sv
 endmodule

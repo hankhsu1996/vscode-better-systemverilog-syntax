@@ -15,7 +15,7 @@
 */
 module top();
   logic vectored [15:0] a = 0;
-//^^^^^ entity.name.type.logic.sv
+//^^^^^ entity.name.type.sv
 //      ^^^^^^^^ storage.modifier.vectored.sv
   assign a[1] = 1;
 endmodule

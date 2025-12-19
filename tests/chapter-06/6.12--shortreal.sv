@@ -14,5 +14,5 @@
 */
 module top();
   shortreal a = 0.5;
-//^^^^^^^^^ entity.name.type.shortreal.sv
+//^^^^^^^^^ entity.name.type.sv
 endmodule

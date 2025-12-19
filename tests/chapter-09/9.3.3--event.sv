@@ -18,7 +18,7 @@
 
 module block_tb ();
   event ev;
-//^^^^^ entity.name.type.event.sv
+//^^^^^ entity.name.type.sv
   reg [3:0] a = 0;
   initial fork
     begin

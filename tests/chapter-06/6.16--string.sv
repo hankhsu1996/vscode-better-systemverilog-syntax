@@ -14,5 +14,5 @@
 */
 module top();
   string a;
-//^^^^^^ entity.name.type.string.sv
+//^^^^^^ entity.name.type.sv
 endmodule

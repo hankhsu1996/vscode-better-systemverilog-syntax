@@ -17,7 +17,7 @@
 module top();
 
   function void add(int a, int b);
-//         ^^^^ entity.name.type.void.sv
+//         ^^^^ entity.name.type.sv
     $display("%d+%d=", a, b);
     return a + b;
   endfunction

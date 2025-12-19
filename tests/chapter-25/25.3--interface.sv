@@ -19,7 +19,7 @@
 //          ^^^^^^^^ entity.name.type.sv
 //                  ^ punctuation.terminator.semicolon.sv
     logic test_pad;
-//  ^^^^^ entity.name.type.logic.sv
+//  ^^^^^ entity.name.type.sv
 //        ^^^^^^^^ variable.other.sv
 //                ^ punctuation.terminator.semicolon.sv
   endinterface: test_bus

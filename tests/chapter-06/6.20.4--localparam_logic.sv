@@ -19,7 +19,7 @@ module top();
 //                  ^ variable.other.constant.sv
   localparam logic [10:0] q = 1 << 5;
 //^^^^^^^^^^ storage.modifier.localparam.sv
-//           ^^^^^ entity.name.type.logic.sv
+//           ^^^^^ entity.name.type.sv
 //                 ^^^^^^ meta.dimension.sv
 //                        ^ variable.other.constant.sv
 endmodule

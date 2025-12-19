@@ -16,6 +16,6 @@ module top();
   localparam s1 = "foo";
   localparam string s2 = "bar";
 //^^^^^^^^^^ storage.modifier.localparam.sv
-//           ^^^^^^ entity.name.type.string.sv
+//           ^^^^^^ entity.name.type.sv
 //                  ^^ variable.other.constant.sv
 endmodule

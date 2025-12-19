@@ -15,6 +15,6 @@
 module top ();
 
 int arr [ string ];
-//        ^^^^^^ entity.name.type.string.sv
+//        ^^^^^^ entity.name.type.sv
 
 endmodule

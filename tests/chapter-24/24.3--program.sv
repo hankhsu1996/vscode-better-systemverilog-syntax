@@ -18,11 +18,11 @@
 //        ^^^^ entity.name.type.sv
 //            ^ punctuation.section.group.begin.sv
 //             ^^^^^ storage.modifier.input.sv
-//                   ^^^^ entity.name.type.wire.sv
+//                   ^^^^ entity.name.type.sv
 //                        ^ variable.other.sv
 //                         ^ punctuation.separator.comma.sv
 //                           ^^^^^ storage.modifier.input.sv
-//                                 ^^^^ entity.name.type.wire.sv
+//                                 ^^^^ entity.name.type.sv
 //                                      ^ variable.other.sv
 //                                       ^ punctuation.section.group.end.sv
 //                                        ^ punctuation.terminator.semicolon.sv

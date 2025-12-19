@@ -15,7 +15,7 @@
 module top();
   typedef logic logic_t;
 //^^^^^^^ keyword.control.typedef.sv
-//        ^^^^^ entity.name.type.logic.sv
+//        ^^^^^ entity.name.type.sv
 //              ^^^^^^^ entity.name.type.sv
   logic_t a;
 //^^^^^^^ entity.name.type.sv

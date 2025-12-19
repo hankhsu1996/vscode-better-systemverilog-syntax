@@ -2,7 +2,7 @@
 
 interface simple_bus (input logic clk); // Define the interface
 //                    ^^^^^ storage.modifier.input.sv
-//                          ^^^^^ entity.name.type.logic.sv
+//                          ^^^^^ entity.name.type.sv
 //                                ^^^ variable.other.sv
   logic req, gnt;
   logic [7:0] addr, data;

@@ -14,5 +14,5 @@
 */
 module top();
   realtime a = 0.5;
-//^^^^^^^^ entity.name.type.realtime.sv
+//^^^^^^^^ entity.name.type.sv
 endmodule

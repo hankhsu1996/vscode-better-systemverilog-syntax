@@ -17,7 +17,7 @@ module top();
 
   initial begin
     integer i;
-//  ^^^^^^^ entity.name.type.integer.sv
+//  ^^^^^^^ entity.name.type.sv
 //          ^ variable.other.sv
     e val;
 //  ^ entity.name.type.sv

@@ -20,7 +20,7 @@ module class_tb ();
 //                     ^^^^ storage.type.type.sv
 //                          ^ entity.name.type.sv
 //                            ^ keyword.operator.assignment.sv
-//                              ^^^^^ entity.name.type.logic.sv
+//                              ^^^^^ entity.name.type.sv
     pure virtual function void fn1(T a);
 //                                 ^ entity.name.type.sv
 //                                   ^ variable.other.sv
@@ -35,7 +35,7 @@ module class_tb ();
 //                     ^^^^ storage.type.type.sv
 //                          ^^^^ entity.name.type.sv
 //                               ^ keyword.operator.assignment.sv
-//                                 ^^^^^ entity.name.type.logic.sv
+//                                 ^^^^^ entity.name.type.sv
 //                                        ^^^^^^^ storage.modifier.extends.sv
 //                                                ^^^ entity.name.type.sv
 //                                                     ^^^^ variable.other.constant.sv

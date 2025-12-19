@@ -29,10 +29,10 @@ typedef union tagged {
 //      ^^^^^ storage.type.union.sv
 //            ^^^^^^ storage.modifier.tagged.sv
   void Invalid;
-//^^^^ entity.name.type.void.sv
+//^^^^ entity.name.type.sv
 //     ^^^^^^^ variable.other.constant.sv
   int Valid;
-//^^^ entity.name.type.int.sv
+//^^^ entity.name.type.sv
 //    ^^^^^ variable.other.constant.sv
 } u_int;
 

@@ -14,7 +14,7 @@
 */
 module top();
   int a = int'(2.1 * 3.7);
-//        ^^^ entity.name.type.int.sv
+//        ^^^ entity.name.type.sv
 //           ^ punctuation.definition.casting.sv
 //            ^ punctuation.section.group.begin.sv
 //             ^^^ constant.numeric.real.sv

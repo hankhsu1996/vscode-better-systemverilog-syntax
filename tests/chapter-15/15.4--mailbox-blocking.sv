@@ -19,7 +19,7 @@ module top();
 //^^^^^^^ entity.name.type.sv
 //        ^ punctuation.definition.parameter-assignment-or-delay.sv
 //         ^ punctuation.section.group.begin.sv
-//          ^^^^^^ entity.name.type.string.sv
+//          ^^^^^^ entity.name.type.sv
 //                ^ punctuation.section.group.end.sv
 //                  ^ variable.other.sv
 //                   ^ punctuation.terminator.semicolon.sv

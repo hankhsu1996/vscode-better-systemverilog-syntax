@@ -16,7 +16,7 @@ module class_tb ();
   class a_cls;
     local int a_loc = 2;
 //  ^^^^^ storage.modifier.local.sv
-//        ^^^ entity.name.type.int.sv
+//        ^^^ entity.name.type.sv
 //            ^^^^^ variable.other.sv
 //                  ^ keyword.operator.assignment.sv
 //                    ^ constant.numeric.integer.sv

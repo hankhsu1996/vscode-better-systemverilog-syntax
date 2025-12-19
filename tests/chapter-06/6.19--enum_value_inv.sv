@@ -23,7 +23,7 @@ module top();
   enum logic [2:0] {
 //^^^^^^^^^^^^^^^^^^ meta.enum.sv
 //^^^^ storage.type.enum.sv
-//     ^^^^^ entity.name.type.logic.sv
+//     ^^^^^ entity.name.type.sv
 //           ^^^^^ meta.dimension.sv
 //                 ^ punctuation.section.braces.begin.sv
     Global = 4'h2,

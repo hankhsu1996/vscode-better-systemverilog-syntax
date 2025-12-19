@@ -19,7 +19,7 @@ module top();
 initial begin
   $display(":assert: ('%s' == 'logic')", $typename(logic));
 //                                       ^^^^^^^^^ entity.name.function.sv
-//                                                 ^^^^^ entity.name.type.logic.sv
+//                                                 ^^^^^ entity.name.type.sv
 end
 
 endmodule

@@ -14,7 +14,7 @@
 */
 module top();
   logic [15:0] a;
-//^^^^^ entity.name.type.logic.sv
+//^^^^^ entity.name.type.sv
 //      ^^^^^^ meta.dimension.sv
 //      ^ punctuation.section.brackets.begin.sv
 //       ^^ constant.numeric.integer.sv

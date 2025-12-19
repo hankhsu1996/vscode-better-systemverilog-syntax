@@ -15,7 +15,7 @@
 module top();
   parameter logic [31:0] p [3:0] = '{1, 2, 3, 4};
 //^^^^^^^^^ storage.modifier.parameter.sv
-//          ^^^^^ entity.name.type.logic.sv
+//          ^^^^^ entity.name.type.sv
 //                ^^^^^^ meta.dimension.sv
 //                       ^ variable.other.constant.sv
 //                         ^^^^^ meta.dimension.sv
