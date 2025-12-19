@@ -16,7 +16,7 @@
 class a;
     rand int B[5];
     constraint c { B.sum() == 5; }
-//                 ^ 	variable.other.constant.sv
+//                 ^ variable.other.sv
 //                  ^ punctuation.accessor.dot.sv
 //                   ^^^ entity.name.function.sv
 //                      ^ punctuation.section.group.begin.sv

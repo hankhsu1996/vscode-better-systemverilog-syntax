@@ -81,6 +81,23 @@ class test_constraint_braces;
         }
     }
 
+    // soft with hierarchical path
+    constraint c5a {
+        soft obj.value > 0;
+//      ^^^^ keyword.other.soft.sv
+//           ^^^ variable.other.sv
+//              ^ punctuation.accessor.dot.sv
+//               ^^^^^ variable.other.sv
+        soft this.count > 0;
+//      ^^^^ keyword.other.soft.sv
+//           ^^^^ variable.language.this.sv
+//               ^ punctuation.accessor.dot.sv
+//                ^^^^^ variable.other.sv
+        soft super.limit == 10;
+//      ^^^^ keyword.other.soft.sv
+//           ^^^^^ variable.language.super.sv
+    }
+
     // solve...before (only valid at constraint block level, not inside constraint_set)
     constraint c6 {
         solve a before b;
@@ -88,6 +105,15 @@ class test_constraint_braces;
 //            ^ variable.other.sv
 //              ^^^^^^ keyword.control.before.sv
 //                     ^ variable.other.sv
+        solve foo.bar before foo.baz;
+//      ^^^^^ keyword.control.solve.sv
+//            ^^^ variable.other.sv
+//               ^ punctuation.accessor.dot.sv
+//                ^^^ variable.other.sv
+//                    ^^^^^^ keyword.control.before.sv
+//                           ^^^ variable.other.sv
+//                              ^ punctuation.accessor.dot.sv
+//                               ^^^ variable.other.sv
     }
 
     // foreach in constraint with braces

@@ -6979,6 +6979,12 @@ repository:
         captures:
           "1": { name: variable.language.root.sv }
       - include: "#dot"
+      # Match identifier followed by dot (for hierarchical paths like foo.bar.baz)
+      # Use identifierNotKeyword to avoid matching this/super as variable.other
+      - match: (${identifierNotKeyword})\s*(\.)\s*
+        captures:
+          "1": { name: variable.other.sv }
+          "2": { name: punctuation.accessor.dot.sv }
       - include: "#identifier"
   hierarchical-net-identifier:
     patterns:
