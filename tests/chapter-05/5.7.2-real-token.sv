@@ -14,5 +14,5 @@
 */
 module top();
   real a;
-//^^^^ entity.name.type.real.sv
+//^^^^ entity.name.type.sv
 endmodule

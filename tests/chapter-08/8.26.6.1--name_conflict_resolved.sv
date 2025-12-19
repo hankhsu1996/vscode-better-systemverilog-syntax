@@ -19,7 +19,7 @@ module class_tb ();
 //  ^^^^ storage.modifier.pure.sv
 //       ^^^^^^^ storage.modifier.virtual.sv
 //               ^^^^^^^^ storage.type.function.sv
-//                        ^^^^ entity.name.type.void.sv
+//                        ^^^^ entity.name.type.sv
 //                             ^^^^^ entity.name.function.sv
   endclass
 
@@ -28,7 +28,7 @@ module class_tb ();
 //  ^^^^ storage.modifier.pure.sv
 //       ^^^^^^^ storage.modifier.virtual.sv
 //               ^^^^^^^^ storage.type.function.sv
-//                        ^^^^ entity.name.type.void.sv
+//                        ^^^^ entity.name.type.sv
 //                             ^^^^^ entity.name.function.sv
   endclass
 

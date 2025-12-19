@@ -17,7 +17,7 @@ module top();
 
   function int add(int a, int b);
 //^^^^^^^^ storage.type.function.sv
-//         ^^^ entity.name.type.int.sv
+//         ^^^ entity.name.type.sv
 //             ^^^ entity.name.function.sv
     add = a + b;
 //  ^^^ variable.other.sv

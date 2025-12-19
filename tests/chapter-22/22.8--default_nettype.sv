@@ -15,4 +15,4 @@
 */
 `default_nettype wire
 //<---------------- keyword.control.default-nettype.sv
-//               ^^^^ entity.name.type.wire.sv
+//               ^^^^ entity.name.type.sv

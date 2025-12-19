@@ -16,7 +16,7 @@ module class_tb ();
   class a_cls;
     const int c;
 //  ^^^^^ storage.modifier.const.sv
-//        ^^^ entity.name.type.int.sv
+//        ^^^ entity.name.type.sv
 //            ^ variable.other.sv
     function new(int val);
       c = 20 * val;

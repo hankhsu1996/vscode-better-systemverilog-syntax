@@ -15,7 +15,7 @@
 module top(input a, input b);
 
 wire #10 w;
-//<---- entity.name.type.wire.sv
+//<---- entity.name.type.sv
 //   ^ punctuation.definition.delay.sv
 //    ^^ constant.numeric.integer.sv
 //       ^ variable.other.sv

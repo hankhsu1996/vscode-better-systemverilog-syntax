@@ -15,6 +15,6 @@
 module top();
   nettype real real_net;
 //^^^^^^^ keyword.control.nettype.sv
-//        ^^^^ entity.name.type.real.sv
+//        ^^^^ entity.name.type.sv
 //             ^^^^^^^^ entity.name.type.sv
 endmodule

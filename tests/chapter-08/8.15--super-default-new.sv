@@ -26,7 +26,7 @@ package test_pkg;
     virtual function void print ();
 //  ^^^^^^^ storage.modifier.virtual.sv
 //          ^^^^^^^^ storage.type.function.sv
-//                   ^^^^ entity.name.type.void.sv
+//                   ^^^^ entity.name.type.sv
 //                        ^^^^^ entity.name.function.sv
       $display ("Print");
     endfunction : print

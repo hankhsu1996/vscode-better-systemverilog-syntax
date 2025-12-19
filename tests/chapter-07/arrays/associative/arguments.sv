@@ -18,10 +18,10 @@ module top ();
 string arraya[int];
 
 task fun (string arrayb[int]);
-//        ^^^^^^ entity.name.type.string.sv
+//        ^^^^^^ entity.name.type.sv
 //               ^^^^^^ variable.other.sv
 //                     ^^^^^ meta.dimension.sv
-//                      ^^^ entity.name.type.int.sv
+//                      ^^^ entity.name.type.sv
   arrayb[ 1 ] = "d";
   $display(":assert: (('%s' == 'a') and ('%s' == 'd') and ('%s' == 'c'))",
     arrayb[0], arrayb[1], arrayb[2]);

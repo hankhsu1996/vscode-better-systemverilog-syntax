@@ -16,12 +16,12 @@
 module top();
 
 logic a = 3;
-//<----- entity.name.type.logic.sv
+//<----- entity.name.type.sv
 //    ^ variable.other.sv
 //      ^ keyword.operator.assignment.sv
 //        ^ constant.numeric.integer.sv
 logic b = 2;
-//<----- entity.name.type.logic.sv
+//<----- entity.name.type.sv
 //    ^ variable.other.sv
 //      ^ keyword.operator.assignment.sv
 //        ^ constant.numeric.integer.sv

@@ -16,6 +16,6 @@
 class a;
     randc int b;
 //  ^^^^^ storage.modifier.randc.sv
-//        ^^^ entity.name.type.int.sv
+//        ^^^ entity.name.type.sv
 //            ^ variable.other.sv
 endclass

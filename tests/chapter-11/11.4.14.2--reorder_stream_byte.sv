@@ -21,7 +21,7 @@ initial begin
   b = {<< byte {a}};
 //    ^^^^^^^^^^^^^ meta.concatenation.sv
 //     ^^ keyword.operator.stream.sv
-//        ^^^^ entity.name.type.byte.sv
+//        ^^^^ entity.name.type.sv
 //             ^^^ meta.concatenation.sv meta.concatenation.sv
 end
 

@@ -16,7 +16,7 @@ module class_tb ();
   class a_cls;
     protected int a_prot = 2;
 //  ^^^^^^^^^ storage.modifier.protected.sv
-//            ^^^ entity.name.type.int.sv
+//            ^^^ entity.name.type.sv
 //                ^^^^^^ variable.other.sv
 //                       ^ keyword.operator.assignment.sv
 //                         ^ constant.numeric.integer.sv

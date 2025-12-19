@@ -14,7 +14,7 @@
 */
 module top();
   interconnect bus;
-//^^^^^^^^^^^^ entity.name.type.interconnect.sv
+//^^^^^^^^^^^^ entity.name.type.sv
 
   mod_i m1(bus);
   mod_o m2(bus);

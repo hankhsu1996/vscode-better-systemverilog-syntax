@@ -17,10 +17,10 @@ module top();
 
   function int test(int val);
 //^^^^^^^^ storage.type.function.sv
-//         ^^^ entity.name.type.int.sv
+//         ^^^ entity.name.type.sv
 //             ^^^^ entity.name.function.sv
 //                 ^ punctuation.section.group.begin.sv
-//                  ^^^ entity.name.type.int.sv
+//                  ^^^ entity.name.type.sv
 //                      ^^^ variable.other.sv
 //                         ^ punctuation.section.group.end.sv
     return val + 1;

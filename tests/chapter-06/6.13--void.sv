@@ -15,7 +15,7 @@
 */
 module top();
   function void fun();
-//         ^^^^ entity.name.type.void.sv
+//         ^^^^ entity.name.type.sv
     $display(":assert:(True)");
   endfunction
 

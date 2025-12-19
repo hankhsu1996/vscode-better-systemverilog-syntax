@@ -15,9 +15,9 @@
 
 `default_nettype wire
 //<---------------- keyword.control.default-nettype.sv
-//               ^^^^ entity.name.type.wire.sv
+//               ^^^^ entity.name.type.sv
 `default_nettype none
 //<---------------- keyword.control.default-nettype.sv
-//               ^^^^ entity.name.type.none.sv
+//               ^^^^ entity.name.type.sv
 module dn();
 endmodule

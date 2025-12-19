@@ -15,7 +15,7 @@
 module top();
   localparam int p = 123;
 //^^^^^^^^^^ storage.modifier.localparam.sv
-//           ^^^ entity.name.type.int.sv
+//           ^^^ entity.name.type.sv
 //               ^ variable.other.constant.sv
 //                 ^ keyword.operator.assignment.sv
 //                   ^^^ constant.numeric.integer.sv

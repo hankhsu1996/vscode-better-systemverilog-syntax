@@ -15,10 +15,10 @@
 module top();
   struct packed {logic [7:0] a; logic [7:0] b; logic [15:0] c;} s;
   integer a = integer'(s);
-//^^^^^^^ entity.name.type.integer.sv
+//^^^^^^^ entity.name.type.sv
 //        ^ variable.other.sv
 //          ^ keyword.operator.assignment.sv
-//            ^^^^^^^ entity.name.type.integer.sv
+//            ^^^^^^^ entity.name.type.sv
 //                   ^ punctuation.definition.casting.sv
 //                    ^ punctuation.section.group.begin.sv
 //                     ^ variable.other.sv

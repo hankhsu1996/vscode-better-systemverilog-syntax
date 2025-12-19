@@ -62,7 +62,7 @@ module top();
 
     sequence seq;
         int x;
-//      ^^^ entity.name.type.int.sv
+//      ^^^ entity.name.type.sv
 //          ^ variable.other.sv
         @(posedge clk) (valid, x = in) ##4 (out == x + 3);
     endsequence

@@ -1385,7 +1385,7 @@ repository:
     patterns:
       - match: ${keywordStart}\b(interconnect)\b\s*
         captures:
-          "1": { name: entity.name.type.$1.sv }
+          "1": { name: entity.name.type.sv }
       - include: "#net-type"
       - include: "#drive-strength"
       - include: "#charge-strength"
@@ -1453,7 +1453,7 @@ repository:
       - include: "#signing"
       - match: \b(string)\b\s*
         captures:
-          "1": { name: entity.name.type.$1.sv }
+          "1": { name: entity.name.type.sv }
       - match: \b(const)\b\s*
         captures:
           "1": { name: storage.modifier.$1.sv }
@@ -1537,10 +1537,10 @@ repository:
               - include: "#comma"
       - match: \b(string)\b\s*
         captures:
-          "1": { name: entity.name.type.$1.sv }
+          "1": { name: entity.name.type.sv }
       - match: \b(chandle)\b\s*
         captures:
-          "1": { name: entity.name.type.$1.sv }
+          "1": { name: entity.name.type.sv }
       - match: \b(virtual)\b\s*(?!class|function|task)(?:\b(interface)\b\s*)?(${identifier})\s*
         captures:
           "1": { name: storage.modifier.virtual.sv }
@@ -1554,7 +1554,7 @@ repository:
       - include: "#class-type"
       - match: \b(event)\b\s*
         captures:
-          "1": { name: entity.name.type.$1.sv }
+          "1": { name: entity.name.type.sv }
       - include: "#ps-covergroup-identifier"
       - include: "#type-reference"
   data-type-or-implicit:
@@ -1621,24 +1621,24 @@ repository:
   integer-atom-type:
     match: \b(byte|shortint|int|longint|integer|time)\b\s*
     captures:
-      "1": { name: entity.name.type.$1.sv }
+      "1": { name: entity.name.type.sv }
   integer-vector-type:
     match: \b(bit|logic|reg)\b\s*
     captures:
-      "1": { name: entity.name.type.$1.sv }
+      "1": { name: entity.name.type.sv }
   non-integer-type:
     match: \b(shortreal|real|realtime)\b\s*
     captures:
-      "1": { name: entity.name.type.$1.sv }
+      "1": { name: entity.name.type.sv }
   net-type:
     match: \b(supply0|supply1|tri|triand|trior|trireg|tri0|tri1|uwire|wire|wand|wor)\b\s*
     captures:
-      "1": { name: entity.name.type.$1.sv }
+      "1": { name: entity.name.type.sv }
   net-port-type:
     patterns:
       - match: \b(interconnect)\b\s*
         captures:
-          "1": { name: entity.name.type.$1.sv }
+          "1": { name: entity.name.type.sv }
       - include: "#net-type"
       - include: "#net-type-identifier"
       - include: "#implicit-data-type"
@@ -1693,7 +1693,7 @@ repository:
     patterns:
       - match: \b(void)\b\s*
         captures:
-          "1": { name: entity.name.type.$1.sv }
+          "1": { name: entity.name.type.sv }
       - include: "#data-type"
   struct-union:
     patterns:
@@ -2521,7 +2521,7 @@ repository:
       - include: "#sequence-formal-type"
       - match: \b(property)\b\s*
         captures:
-          "1": { name: entity.name.type.$1.sv }
+          "1": { name: entity.name.type.sv }
   property-spec:
     patterns:
       - name: meta.property-spec.sv
@@ -2821,7 +2821,7 @@ repository:
     patterns:
       - match: \b(sequence)\b\s*
         captures:
-          "1": { name: entity.name.type.$1.sv }
+          "1": { name: entity.name.type.sv }
       - match: \b(untyped)\b\s*
         captures:
           "1": { name: storage.modifier.$1.sv }
@@ -3978,7 +3978,7 @@ repository:
     patterns:
       - match: ${keywordStart}\b(genvar)\b\s*
         captures:
-          "1": { name: entity.name.type.$1.sv }
+          "1": { name: entity.name.type.sv }
       - include: "#genvar-identifier"
   genvar-iteration:
     patterns:
@@ -7398,7 +7398,7 @@ repository:
     match: (`default_nettype)\b\s*(?:\b(wire|tri|tri0|tri1|wand|triand|wor|trior|trireg|uwire|none)\b)?
     captures:
       "1": { name: keyword.control.default-nettype.sv }
-      "2": { name: entity.name.type.$2.sv }
+      "2": { name: entity.name.type.sv }
   macro-nounconnected-drive:
     match: (`nounconnected_drive)\b\s*
     captures:

@@ -15,7 +15,7 @@
 module top(input a, input b);
 
 wire w;
-//<---- entity.name.type.wire.sv
+//<---- entity.name.type.sv
 //   ^ variable.other.sv
 assign w = a & b;
 //<------ keyword.control.assign.sv

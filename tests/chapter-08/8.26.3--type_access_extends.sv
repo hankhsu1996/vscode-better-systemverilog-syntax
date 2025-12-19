@@ -16,7 +16,7 @@ module class_tb ();
   interface class ihello;
     typedef int int_t;
 //  ^^^^^^^ keyword.control.typedef.sv
-//          ^^^ entity.name.type.int.sv
+//          ^^^ entity.name.type.sv
 //              ^^^^^ entity.name.type.sv
     pure virtual function void hello(int_t val);
   endclass
@@ -31,7 +31,7 @@ module class_tb ();
 //  ^^^^ storage.modifier.pure.sv
 //       ^^^^^^^ storage.modifier.virtual.sv
 //               ^^^^^^^^ storage.type.function.sv
-//                        ^^^^ entity.name.type.void.sv
+//                        ^^^^ entity.name.type.sv
 //                             ^^^^^^^^ entity.name.function.sv
 //                                     ^ punctuation.section.group.begin.sv
 //                                      ^^^^^ entity.name.type.sv

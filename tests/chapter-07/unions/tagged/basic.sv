@@ -22,7 +22,7 @@ module top ();
 //^^^^^ storage.type.union.sv
 //      ^^^^^^ storage.modifier.tagged.sv
   void invalid;
-//^^^^ entity.name.type.void.sv
+//^^^^ entity.name.type.sv
   bit [3:0] valid;
 } un;
 

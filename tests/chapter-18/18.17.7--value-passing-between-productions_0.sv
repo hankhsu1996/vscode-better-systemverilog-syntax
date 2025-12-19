@@ -27,7 +27,7 @@ function int F();
       second : add(5);
       third : add(2);
       void add(int y) : { x = x + y; };
-//    ^^^^ entity.name.type.void.sv
+//    ^^^^ entity.name.type.sv
 //         ^^^ entity.name.function.sv
     endsequence
     return x;

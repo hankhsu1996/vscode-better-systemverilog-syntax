@@ -18,7 +18,7 @@ module class_tb ();
 //      ^^^^^^^^ entity.name.type.sv
 //              ^ punctuation.terminator.semicolon.sv
     int a;
-//  ^^^ entity.name.type.int.sv
+//  ^^^ entity.name.type.sv
 //      ^ variable.other.sv
   endclass
 //^^^^^^^^ storage.type.class.sv

@@ -21,7 +21,7 @@ module top();
 
   nettype real real_net with real_sum;
 //^^^^^^^ keyword.control.nettype.sv
-//        ^^^^ entity.name.type.real.sv
+//        ^^^^ entity.name.type.sv
 //             ^^^^^^^^ entity.name.type.sv
 //                      ^^^^ keyword.other.with.sv
 //                           ^^^^^^^^ entity.name.function.sv

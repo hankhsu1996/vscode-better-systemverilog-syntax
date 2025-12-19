@@ -22,7 +22,7 @@ initial begin
   b = {<< byte {a}};
 //    ^^^^^^^^^^^^^ meta.concatenation.sv
 //     ^^ keyword.operator.stream.sv
-//        ^^^^ entity.name.type.byte.sv
+//        ^^^^ entity.name.type.sv
 //             ^^^ meta.concatenation.sv meta.concatenation.sv
   $display(":assert: (0x44434241 == 0x%x)", b);
 end

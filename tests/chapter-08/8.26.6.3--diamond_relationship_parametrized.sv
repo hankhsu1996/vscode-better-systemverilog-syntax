@@ -20,12 +20,12 @@ module class_tb ();
   endclass
 
   interface class ic1 extends ibase#(bit);
-//                                   ^^^ entity.name.type.bit.sv
+//                                   ^^^ entity.name.type.sv
     pure virtual function void fn1();
   endclass
 
   interface class ic2 extends ibase#(string);
-//                                   ^^^^^^ entity.name.type.string.sv
+//                                   ^^^^^^ entity.name.type.sv
     pure virtual function void fn2();
   endclass
 

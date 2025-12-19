@@ -14,6 +14,6 @@
 */
 module top();
   tri1 vectored [15:0] a;
-//^^^^ entity.name.type.tri1.sv
+//^^^^ entity.name.type.sv
 //     ^^^^^^^^ storage.modifier.vectored.sv
 endmodule

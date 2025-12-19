@@ -22,12 +22,12 @@
 
 `define MACRO_FUNC(name) \
   logic \escapeIdentifier ;
-//^^^^^ entity.name.type.logic.sv
+//^^^^^ entity.name.type.sv
 //      ^^^^^^^^^^^^^^^^^ variable.other.sv
 
 `define MACRO_FUNC(name) \
   logic \escapeIdentifier``name`` ;
-//^^^^^ entity.name.type.logic.sv
+//^^^^^ entity.name.type.sv
 //      ^^^^^^^^^^^^^^^^^ variable.other.sv
 //                       ^^ constant.character.escape.sv
 //                         ^^^^ variable.other.sv

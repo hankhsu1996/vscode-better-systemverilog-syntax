@@ -17,7 +17,7 @@ module for_tb ();
     for (int i = 0; i < 256; i++)
 //  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.for.sv
 //  ^^^ keyword.control.for.sv
-//       ^^^ entity.name.type.int.sv
+//       ^^^ entity.name.type.sv
 //           ^ variable.other.sv
 //             ^ keyword.operator.assignment.sv
 //               ^ constant.numeric.integer.sv

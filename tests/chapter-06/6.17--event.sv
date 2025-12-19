@@ -14,5 +14,5 @@
 */
 module top();
   event a;
-//^^^^^ entity.name.type.event.sv
+//^^^^^ entity.name.type.sv
 endmodule

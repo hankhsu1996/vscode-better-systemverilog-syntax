@@ -16,7 +16,7 @@ module class_tb ();
   class a_cls;
     const int c = 12;
 //  ^^^^^ storage.modifier.const.sv
-//        ^^^ entity.name.type.int.sv
+//        ^^^ entity.name.type.sv
 //            ^ variable.other.sv
 //              ^ keyword.operator.assignment.sv
 //                ^^ constant.numeric.integer.sv

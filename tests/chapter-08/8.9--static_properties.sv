@@ -16,7 +16,7 @@ module class_tb ();
   class test_cls;
     static int s = 24;
 //  ^^^^^^ storage.modifier.static.sv
-//         ^^^ entity.name.type.int.sv
+//         ^^^ entity.name.type.sv
   endclass
 
   test_cls test_obj0;
