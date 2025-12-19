@@ -18,7 +18,7 @@ module top();
 //^^^^^^^ entity.name.type.integer.sv
 //        ^ variable.other.sv
 //          ^ keyword.operator.assignment.sv
-//            ^^^^^^^ entity.name.type.sv
+//            ^^^^^^^ entity.name.type.integer.sv
 //                   ^ punctuation.definition.casting.sv
 //                    ^ punctuation.section.group.begin.sv
 //                     ^ variable.other.sv
