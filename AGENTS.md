@@ -115,7 +115,9 @@ When reporting "failing syntax" (incorrect highlighting):
 
 ## Git Workflow
 
-Use branch + PR workflow with these prefixes:
+Use branch + PR workflow. Direct push to main is disabled.
+
+**Branch prefixes:**
 - `feature/` - New syntax support or functionality
 - `bugfix/` - Fixes for incorrect highlighting
 - `test/` - Adding or updating tests
@@ -123,9 +125,13 @@ Use branch + PR workflow with these prefixes:
 - `chore/` - Dependencies, CI, tooling updates
 - `release/` - Version releases
 
-**PR titles:** Start with a verb, no prefix/colon (e.g., "Add dark mode support" not "feat: Add dark mode support").
+**Commit messages:** Concise summary line in imperative mood (e.g., "Add support for X"). Use `- ` bullet points for details when needed. Keep it brief.
 
-Open a PR, let CI pass, then merge to main. Direct push to main is disabled.
+**PR titles:** Same style as commit messages — start with a verb, no prefix/colon (e.g., "Add dark mode support" not "feat: Add dark mode support").
+
+**PR body:** Start with `## Summary`. Add other sections as needed — don't always include a "Test plan" section; only add it when manual testing steps are genuinely needed.
+
+**Merge strategy:** Squash merge. Enable auto-merge when CI is the only gate. Clean up local branches after merge.
 
 ## Release Workflow
 
