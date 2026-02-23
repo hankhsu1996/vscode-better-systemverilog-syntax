@@ -29,7 +29,8 @@
       {
         "language": "systemverilog",
         "scopeName": "source-text.sv",
-        "path": "./syntaxes/systemverilog.tmLanguage.json"
+        "path": "./syntaxes/systemverilog.tmLanguage.json",
+        "unbalancedBracketScopes": ["variable.other.sv"]
       }
     ],
     "languages": [
