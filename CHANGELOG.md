@@ -6,6 +6,16 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-02-23
+
+### Added
+
+- Add triple-quoted raw string literals (IEEE 1800-2023)
+
+### Fixed
+
+- Fix bracket colorization inside escaped identifiers
+
 ## [1.0.3] - 2025-12-19
 
 ### Fixed
