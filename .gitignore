@@ -18,7 +18,7 @@ syntaxes/*.json
 .DS_Store
 Thumbs.db
 *.log
-CLAUDE.local.md
+*.local.md
 
 # Yarn
 yarn-debug.log*
