@@ -61,5 +61,6 @@
   "engines": {
     "vscode": "^1.75.1"
   },
-  "icon": "assets/icon.png"
+  "icon": "assets/icon.png",
+  "packageManager": "npm@11.8.0"
 }
