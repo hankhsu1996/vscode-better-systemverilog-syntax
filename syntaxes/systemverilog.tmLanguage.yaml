@@ -6685,6 +6685,7 @@ repository:
       - include: "#expression"
   primary-literal:
     patterns:
+      - include: "#triple-quoted-string-literal"
       - include: "#string-literal"
       - include: "#time-literal"
       - include: "#unbased-unsized-literal"
@@ -6843,6 +6844,14 @@ repository:
     patterns:
       - include: "#constant-expression"
   # A.8.8 Strings
+  triple-quoted-string-literal:
+    name: string.quoted.triple.sv
+    begin: '"""'
+    end: '"""'
+    beginCaptures:
+      "0": { name: punctuation.definition.string.begin.sv }
+    endCaptures:
+      "0": { name: punctuation.definition.string.end.sv }
   string-literal:
     name: string.quoted.double.sv
     begin: \"
@@ -7458,6 +7467,7 @@ repository:
           - include: "#pragma-expression"
       - include: "#number"
       - include: "#unary-operator"
+      - include: "#triple-quoted-string-literal"
       - include: "#string-literal"
       - include: "#simple-identifier"
   macro-line:
