@@ -22,8 +22,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version-file: ".nvmrc"
           cache: "npm"
+
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Install Dependencies
         run: npm install
