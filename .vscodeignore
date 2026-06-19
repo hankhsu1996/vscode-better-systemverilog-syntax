@@ -7,6 +7,13 @@ out/test/**
 **/.vscode
 **/.git
 **/.github
+.claude/**
+.nvmrc
+
+AGENTS.md
+CLAUDE.md
+CLAUDE.local.md
+docs/**
 **/*.yml
 **/*.yaml
 **/node_modules/**
