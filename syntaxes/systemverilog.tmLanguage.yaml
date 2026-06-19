@@ -513,7 +513,7 @@ repository:
                   - include: "#dynamic-array-new"
                   - include: "#class-new"
       - name: meta.data-declaration-or-module-instantiation.sv
-        begin: (${identifierNotKeyword})\s*(?=${identifier}\s*\()
+        begin: (${identifierNotKeyword})\s*(?=${identifierNotKeyword}\s*\()
         end: (?=\;)|${bracketsFailSafe}
         beginCaptures:
           "1": { name: entity.name.type.sv }
@@ -3846,7 +3846,7 @@ repository:
           - include: "#hierarchical-instance"
           - include: "#comma"
       - name: meta.module-instantiation.sv
-        begin: (${identifierNotKeyword})\s*(?=${identifier}\s*\()
+        begin: (${identifierNotKeyword})\s*(?=${identifierNotKeyword}\s*\()
         end: (?=\;)|${bracketsFailSafe}
         beginCaptures:
           "1": { name: entity.name.type.sv }
