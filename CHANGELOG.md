@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-06-19
+
+### Fixed
+
+- Fix `with` clause on array methods highlighted as module instantiation in statement position
+
 ## [1.1.0] - 2026-02-23
 
 ### Added
