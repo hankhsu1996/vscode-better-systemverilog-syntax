@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-07-08
+
+### Fixed
+
+- Fix casting type keywords (`void`, `bit`, `logic`, `real`, `string`, `signed`, etc.) not highlighted in cast expressions
+
 ## [1.1.1] - 2026-06-19
 
 ### Fixed
