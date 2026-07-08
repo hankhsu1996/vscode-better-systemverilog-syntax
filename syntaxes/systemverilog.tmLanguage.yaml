@@ -6733,6 +6733,18 @@ repository:
       - include: "#dimension"
       - include: "#dot"
       - include: "#member-identifier"
+  casting-type:
+    patterns:
+      # casting_type ::= simple_type | signing | string | const | void
+      - include: "#integer-type"
+      - include: "#non-integer-type"
+      - include: "#signing"
+      - match: \b(void|string)\b\s*
+        captures:
+          "1": { name: entity.name.type.sv }
+      - match: \b(const)\b\s*
+        captures:
+          "1": { name: storage.modifier.const.sv }
   constant-cast:
     patterns:
       - include: "#casting-type"
