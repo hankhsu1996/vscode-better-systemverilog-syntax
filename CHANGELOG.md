@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.3] - 2026-07-09
+
+### Fixed
+
+- Fix subroutine call not highlighted after a condition's closing paren, e.g. `if (cond) func();`
+
 ## [1.1.2] - 2026-07-08
 
 ### Fixed
