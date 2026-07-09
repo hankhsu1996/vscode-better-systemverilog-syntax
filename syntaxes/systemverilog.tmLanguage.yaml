@@ -6275,7 +6275,7 @@ repository:
       - include: "#function-subroutine-call"
   tf-call:
     name: meta.tf-call.sv
-    begin: (?<!(?:${simpleIdentifier}|\))\s+)(${functionIdentifier}|\bnew\b)\s*(\()\s*
+    begin: (?<!(?:${simpleIdentifier})\s+)(${functionIdentifier}|\bnew\b)\s*(\()\s*
     end: (\))\s*|${bracketsFailSafe}
     beginCaptures:
       "1": { name: entity.name.function.sv }
