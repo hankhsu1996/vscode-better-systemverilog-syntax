@@ -23,4 +23,22 @@ module test;
 //             ^^^^^^ keyword.control.return.sv
     endcase
   endfunction
+
+  // Subroutine call as the single-statement body of a control-flow statement,
+  // i.e. immediately after the closing paren of the condition.
+  initial begin
+    if (flag) do_thing();
+//            ^^^^^^^^ entity.name.function.sv
+    else do_other();
+//       ^^^^^^^^ entity.name.function.sv
+    while (flag) do_thing();
+//               ^^^^^^^^ entity.name.function.sv
+    foreach (arr[i]) do_thing();
+//                   ^^^^^^^^ entity.name.function.sv
+    repeat (3) do_thing();
+//             ^^^^^^^^ entity.name.function.sv
+  end
+
+  always @(posedge clk) do_thing();
+//                      ^^^^^^^^ entity.name.function.sv
 endmodule
