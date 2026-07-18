@@ -6916,7 +6916,7 @@ repository:
         name: variable.other.block.sv
         patterns:
             - match: \`\`
-              name: constant.character.escape.sv
+              name: keyword.operator.macro-concatenation.sv
   bin-identifier:
     patterns:
       - include: "#identifier"
@@ -7059,7 +7059,7 @@ repository:
             name: variable.other.sv
             patterns:
                 - match: \`\`
-                  name: constant.character.escape.sv
+                  name: keyword.operator.macro-concatenation.sv
   index-variable-identifier:
     patterns:
       - include: "#identifier"
@@ -7245,7 +7245,7 @@ repository:
             name: variable.other.sv
             patterns:
                 - match: \`\`
-                  name: constant.character.escape.sv
+                  name: keyword.operator.macro-concatenation.sv
   # Compiler directives
   compiler-directive:
     patterns:
@@ -7351,7 +7351,7 @@ repository:
             name: variable.other.sv
             patterns:
               - match: \`\`
-                name: constant.character.escape.sv
+                name: keyword.operator.macro-concatenation.sv
       - include: "#attribute-instance"
       - include: "#module-item"
       - include: "#interface-item"
@@ -7374,6 +7374,14 @@ repository:
       - include: "#expression"
   text-macro-usage:
     patterns:
+      # Token-paste operator `` and the fragment it pastes on. Consume both
+      # before a lone backtick can start a bogus macro reference, e.g.
+      # PREFIX``_bus. The fragment can't reuse ${simpleIdentifier} because that
+      # rejects a leading backtick, which would leave the suffix unhighlighted.
+      - match: (\`\`)([a-zA-Z_][a-zA-Z0-9_\$]*)?
+        captures:
+          "1": { name: keyword.operator.macro-concatenation.sv }
+          "2": { name: variable.other.sv }
       # Macro function
       - begin: (${macro})\s*(\()\s*
         end: (\))\s*|${bracketsFailSafe}
