@@ -14,7 +14,7 @@
 :type: preprocessing
 */
 `define append(f) f``_master
-//                 ^^ constant.character.escape.sv
+//                 ^^ keyword.operator.macro-concatenation.sv
 module top ();
 initial $display(`append(clock));
 endmodule

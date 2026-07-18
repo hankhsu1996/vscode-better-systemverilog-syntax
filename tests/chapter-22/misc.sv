@@ -29,9 +29,9 @@
   logic \escapeIdentifier``name`` ;
 //^^^^^ entity.name.type.sv
 //      ^^^^^^^^^^^^^^^^^ variable.other.sv
-//                       ^^ constant.character.escape.sv
+//                       ^^ keyword.operator.macro-concatenation.sv
 //                         ^^^^ variable.other.sv
-//                             ^^ constant.character.escape.sv
+//                             ^^ keyword.operator.macro-concatenation.sv
 
 `define msg(x,y) `"x: `\`"y`\`"`"
 //               ^^ constant.character.escape.sv
@@ -47,3 +47,13 @@
 
 `define MY_KEYWORD posedge
 //                 ^^^^^^^ keyword.other.posedge.sv
+
+// Token paste `` on an uppercase macro argument, in an expression. Both the
+// operator and the pasted suffix must be highlighted (no bogus macro ref).
+`define TIE(NAME) assign NAME``_q = NAME``_d;
+//                       ^^^^ variable.other.sv
+//                           ^^ keyword.operator.macro-concatenation.sv
+//                             ^^ variable.other.sv
+//                                  ^^^^ variable.other.constant.sv
+//                                      ^^ keyword.operator.macro-concatenation.sv
+//                                        ^^ variable.other.sv
