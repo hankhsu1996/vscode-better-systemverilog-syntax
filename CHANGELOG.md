@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.4] - 2026-07-18
+
+### Fixed
+
+- Fix the token-paste operator breaking highlighting on uppercase macro arguments, e.g. ``` NAME``_q ```
+
 ## [1.1.3] - 2026-07-09
 
 ### Fixed
