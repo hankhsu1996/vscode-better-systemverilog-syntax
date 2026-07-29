@@ -6858,6 +6858,7 @@ repository:
   # A.8.8 Strings
   triple-quoted-string-literal:
     name: string.quoted.triple.sv
+    contextKind: literal
     begin: '"""'
     end: '"""'
     beginCaptures:
@@ -6866,6 +6867,7 @@ repository:
       "0": { name: punctuation.definition.string.end.sv }
   string-literal:
     name: string.quoted.double.sv
+    contextKind: literal
     begin: \"
     end: \"
     beginCaptures:
@@ -6899,6 +6901,7 @@ repository:
       "3": { name: punctuation.separator.continuation.sv }
   block-comment:
     name: comment.block.sv
+    contextKind: literal
     begin: /\*
     end: \*/
     beginCaptures:
@@ -7322,6 +7325,7 @@ repository:
     patterns:
       # Escaped quotation mark
       - name: string.quoted.macro.sv
+        contextKind: macroString
         begin: \`\"
         end: \`\"
         beginCaptures:

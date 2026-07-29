@@ -48,6 +48,11 @@
 `define MY_KEYWORD posedge
 //                 ^^^^^^^ keyword.other.posedge.sv
 
+// Macros DO expand inside the `define `"..."` string construct, so a macro
+// reference there stays highlighted (unlike an ordinary "..." string).
+`define WRAP(v) `"start `INNER v`"
+//                      ^^^^^^ meta.preprocessor.macro-name.sv
+
 // Token paste `` on an uppercase macro argument, in an expression. Both the
 // operator and the pasted suffix must be highlighted (no bogus macro ref).
 `define TIE(NAME) assign NAME``_q = NAME``_d;

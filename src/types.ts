@@ -7,8 +7,28 @@ export interface TmLanguage {
   repository: Record<string, TmLanguagePattern>;
 }
 
+// Build-only hint (stripped before output) telling IncludePrependVisitor which
+// global rules to inject into a region. Defaults to "code" when absent.
+//   code        - real code: comments, directives, and git markers may appear
+//   literal     - pure text (ordinary strings, comments): inject nothing
+//   macroString - the `define `"..."` construct, where macros do expand
+// See src/includePrepend.ts.
+//
+// The tuple is the single source of truth; the union is derived from it so the
+// two never drift, and isContextKind validates the raw string parsed from YAML.
+export const CONTEXT_KINDS = ["code", "literal", "macroString"] as const;
+export type ContextKind = (typeof CONTEXT_KINDS)[number];
+
+export function isContextKind(value: unknown): value is ContextKind {
+  return (
+    typeof value === "string" &&
+    (CONTEXT_KINDS as readonly string[]).includes(value)
+  );
+}
+
 export type TmLanguagePatternBeginEnd = {
   name?: string;
+  contextKind?: ContextKind;
   begin: string;
   end: string;
   beginCaptures?: {
