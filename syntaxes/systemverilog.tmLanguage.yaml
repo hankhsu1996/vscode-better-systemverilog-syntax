@@ -1974,13 +1974,13 @@ repository:
   variable-decl-assignment:
     patterns:
       - include: "#dimension"
-      - match: (${identifier})\s*(?=\=|\,|\;|(\[[^\[\]]*?\]\s*(\=|\,|\;)))
+      - match: (${identifier})\s*(?=\=|\,|\;|((\[[^\[\]]*?\]\s*)+(\=|\,|\;)))
         captures:
           "1": { name: variable.other.sv }
   tagged-variable-decl-assignment:
     patterns:
       - include: "#dimension"
-      - match: (${identifier})\s*(?=\=|\,|\;|(\[[^\[\]]*?\]\s*(\=|\,|\;)))
+      - match: (${identifier})\s*(?=\=|\,|\;|((\[[^\[\]]*?\]\s*)+(\=|\,|\;)))
         captures:
           "1": { name: variable.other.constant.sv }
   class-new:
