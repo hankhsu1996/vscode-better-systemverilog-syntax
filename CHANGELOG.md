@@ -6,6 +6,14 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.5] - 2026-07-29
+
+### Fixed
+
+- Fix comment symbols (`//`, `/* */`) inside string literals being highlighted as comments
+- Fix a port or parameter connection dropped when a compiler directive (`` `else ``/`` `endif ``) follows a connection with no trailing comma
+- Fix a variable name highlighted as a type when it has two or more unpacked dimensions, e.g. `v[int][$]`
+
 ## [1.1.4] - 2026-07-18
 
 ### Fixed
