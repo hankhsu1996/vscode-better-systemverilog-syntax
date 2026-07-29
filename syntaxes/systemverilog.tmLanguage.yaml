@@ -3876,7 +3876,9 @@ repository:
   named-parameter-assignment:
     name: meta.named-parameter-assignment.sv
     begin: (?<!\w)(\.)\s*(${identifier})\s*
-    end: (?=\)|,)
+    # Also close on a compiler directive (`else/`endif/...) so an assignment
+    # with no trailing comma before the directive does not swallow it.
+    end: (?=\)|,|`)
     beginCaptures:
       "1": { name: punctuation.definition.named-parameter-assignment.sv }
       "2": { name: variable.parameter.sv }
@@ -3922,7 +3924,9 @@ repository:
           "1": { name: punctuation.definition.wildcard.sv }
       - name: meta.named-port-connection.sv
         begin: (?<!\w)(\.)\s*(${identifier})\s*
-        end: (?=\)|,)
+        # Also close on a compiler directive (`else/`endif/...) so a connection
+        # with no trailing comma before the directive does not swallow it.
+        end: (?=\)|,|`)
         beginCaptures:
           "1": { name: punctuation.definition.named-port-connection.sv }
           "2": { name: variable.parameter.sv }
