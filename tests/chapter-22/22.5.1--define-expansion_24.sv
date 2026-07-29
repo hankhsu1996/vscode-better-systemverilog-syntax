@@ -16,11 +16,11 @@
 module top ();
 `define HI Hello
 `define LO "`HI, world"
-//          ^^^ meta.preprocessor.macro-name.sv
+//          ^^^ string.quoted.double.sv
 `define H(x) "Hello, x"
 initial begin
   $display("`HI, world");
-//          ^^^ meta.preprocessor.macro-name.sv
+//          ^^^ string.quoted.double.sv
   $display(`LO);
 //         ^^^ meta.preprocessor.macro-name.sv
   $display(`H(world));

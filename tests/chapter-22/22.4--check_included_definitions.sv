@@ -19,7 +19,7 @@
 module top ();
 initial begin
         $display(":assert:(`TWO_PLUS_TWO == 5)");
-//                         ^^^^^^^^^^^^^ meta.preprocessor.macro-name.sv
+//                         ^^^^^^^^^^^^^ string.quoted.double.sv
   $display(":assert:('%s' == '%s')", `define_var, "define_var");
 //                                   ^^^^^^^^^^^ meta.preprocessor.macro-name.sv
 end
