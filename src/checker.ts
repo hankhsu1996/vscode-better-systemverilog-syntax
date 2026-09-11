@@ -3,9 +3,34 @@ import {
   TmLanguagePatternBeginEnd,
   TmLanguagePatternInclude,
   TmLanguagePatternMatch,
-  TmLanguagePatternPatterns,
   TmLanguageVisitor,
 } from "./types";
+
+// TextMate silently ignores an include whose repository entry does not exist,
+// so a misspelled name disables a rule with no error anywhere. Every include
+// must therefore resolve; this runs after IncludePrependVisitor so the injected
+// includes are checked too.
+export class IncludeResolutionChecker implements TmLanguageVisitor {
+  constructor(private repositoryKeys: ReadonlySet<string>) {}
+
+  visitBeginEnd(): void {}
+  visitMatch(): void {}
+  visitPatterns(): void {}
+  visitInclude(node: TmLanguagePatternInclude): void {
+    if (!node.include.startsWith("#")) {
+      throw new Error(
+        `Include "${node.include}" must name a repository entry as "#name"`
+      );
+    }
+    const key = node.include.substring(1);
+    if (!this.repositoryKeys.has(key)) {
+      throw new Error(
+        `Include "${node.include}" has no repository entry; the rule would be silently ignored`
+      );
+    }
+  }
+  visitNameOnly(): void {}
+}
 
 export class PatternChecker implements TmLanguageVisitor {
   private static waivedNodeNames: string[] = [
@@ -51,9 +76,9 @@ export class PatternChecker implements TmLanguageVisitor {
     this.checkPattern(node.match, /(?<!\\b)\([a-z_\|]+\)/);
   }
 
-  visitPatterns(node: TmLanguagePatternPatterns): void {}
+  visitPatterns(): void {}
 
-  visitInclude(node: TmLanguagePatternInclude): void {}
+  visitInclude(): void {}
 
-  visitNameOnly(node: TmLanguagePattern): void {}
+  visitNameOnly(): void {}
 }

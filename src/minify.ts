@@ -1,11 +1,4 @@
-import {
-  TmLanguageVisitor,
-  TmLanguagePatternBeginEnd,
-  TmLanguagePatternMatch,
-  TmLanguagePatternPatterns,
-  TmLanguagePatternInclude,
-  TmLanguagePatternNameOnly,
-} from "./types";
+import { TmLanguageVisitor, TmLanguagePatternInclude } from "./types";
 
 export class IncludeFrequencyCounter implements TmLanguageVisitor {
   private includeFrequency: Record<string, number>;
@@ -14,19 +7,15 @@ export class IncludeFrequencyCounter implements TmLanguageVisitor {
     this.includeFrequency = includeFrequency;
   }
 
-  visitBeginEnd(node: TmLanguagePatternBeginEnd): void {}
-  visitMatch(node: TmLanguagePatternMatch): void {}
-  visitPatterns(node: TmLanguagePatternPatterns): void {}
+  visitBeginEnd(): void {}
+  visitMatch(): void {}
+  visitPatterns(): void {}
   visitInclude(node: TmLanguagePatternInclude): void {
-    if (node.include.startsWith("#")) {
-      const includeKey = node.include.substring(1);
-      this.includeFrequency[includeKey] =
-        (this.includeFrequency[includeKey] ?? 0) + 1;
-    } else {
-      console.error(`Invalid include format: ${node.include}`);
-    }
+    const includeKey = node.include.substring(1);
+    this.includeFrequency[includeKey] =
+      (this.includeFrequency[includeKey] ?? 0) + 1;
   }
-  visitNameOnly(node: TmLanguagePatternNameOnly): void {}
+  visitNameOnly(): void {}
 
   public printIncludeFrequency(): void {
     console.log(this.includeFrequency);
@@ -39,27 +28,13 @@ export class IncludeFrequencyCounter implements TmLanguageVisitor {
   }
 }
 
+// IncludeResolutionChecker has already established that every include names an
+// existing repository entry, so each one has a minified counterpart here.
 export function getNewInclude(
   include: string,
   patternNameMap: Record<string, string>
 ): string {
-  // Check if the include starts with '#'
-  if (!include.startsWith("#")) {
-    console.error(`Invalid include format: ${include}`);
-    return include;
-  }
-
-  // Extract the key without the '#'
-  const includeKey = include.substring(1);
-  const newIncludeKey = patternNameMap[includeKey];
-
-  // Check if the include key exists in the map
-  if (newIncludeKey === undefined) {
-    console.error(`Invalid include key: ${include}`);
-    return include;
-  }
-
-  return `#${newIncludeKey}`;
+  return `#${patternNameMap[include.substring(1)]}`;
 }
 
 export class PatternRenamer implements TmLanguageVisitor {
@@ -69,13 +44,13 @@ export class PatternRenamer implements TmLanguageVisitor {
     this.patternNameMap = patternNameMap;
   }
 
-  visitBeginEnd(node: TmLanguagePatternBeginEnd): void {}
-  visitMatch(node: TmLanguagePatternMatch): void {}
-  visitPatterns(node: TmLanguagePatternPatterns): void {}
+  visitBeginEnd(): void {}
+  visitMatch(): void {}
+  visitPatterns(): void {}
   visitInclude(node: TmLanguagePatternInclude): void {
     node.include = getNewInclude(node.include, this.patternNameMap);
   }
-  visitNameOnly(node: TmLanguagePatternNameOnly): void {}
+  visitNameOnly(): void {}
 }
 
 export function generateName(index: number): string {

@@ -1,9 +1,6 @@
 import {
   TmLanguagePatternBeginEnd,
-  TmLanguagePatternInclude,
   TmLanguagePatternMatch,
-  TmLanguagePatternNameOnly,
-  TmLanguagePatternPatterns,
   TmLanguageVisitor,
 } from "./types";
 
@@ -29,7 +26,7 @@ export class InterpolationVisitor implements TmLanguageVisitor {
   visitMatch(node: TmLanguagePatternMatch): void {
     node.match = interpolate(node.match, this.symbolTable);
   }
-  visitPatterns(node: TmLanguagePatternPatterns): void {}
-  visitInclude(node: TmLanguagePatternInclude): void {}
-  visitNameOnly(node: TmLanguagePatternNameOnly): void {}
+  visitPatterns(): void {}
+  visitInclude(): void {}
+  visitNameOnly(): void {}
 }

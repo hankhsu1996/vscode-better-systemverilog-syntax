@@ -105,6 +105,10 @@ The YAML grammar uses variables for reusable regex patterns (defined at top of f
 2. Run `npm run test` to build and verify
 3. Add test cases in appropriate `tests/chapter-XX/` directory
 
+Every `include` must name an existing repository entry; the build fails if one
+does not. TextMate itself ignores an unresolved include without any error, so a
+misspelled name would otherwise disable a rule silently.
+
 ## Bug Fix Workflow
 
 When reporting "failing syntax" (incorrect highlighting):
