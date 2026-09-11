@@ -1,10 +1,6 @@
 import {
   TmLanguageVisitor,
   TmLanguagePatternBeginEnd,
-  TmLanguagePatternMatch,
-  TmLanguagePatternPatterns,
-  TmLanguagePatternInclude,
-  TmLanguagePatternNameOnly,
   ContextKind,
   CONTEXT_KINDS,
   isContextKind,
@@ -45,8 +41,8 @@ export class IncludePrependVisitor implements TmLanguageVisitor {
       ];
     }
   }
-  visitMatch(node: TmLanguagePatternMatch): void {}
-  visitPatterns(node: TmLanguagePatternPatterns): void {}
-  visitInclude(node: TmLanguagePatternInclude): void {}
-  visitNameOnly(node: TmLanguagePatternNameOnly): void {}
+  visitMatch(): void {}
+  visitPatterns(): void {}
+  visitInclude(): void {}
+  visitNameOnly(): void {}
 }

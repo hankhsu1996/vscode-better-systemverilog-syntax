@@ -44,7 +44,6 @@ patterns:
   - include: "#module-item"
   - include: "#interface-item"
   - include: "#program-item"
-  - include: "#checker-item"
   - include: "#package-item"
   - include: "#class-item"
   - include: "#interface-class-item"
@@ -55,7 +54,6 @@ repository:
     patterns:
       - include: "#attribute-instance"
       - include: "#module-declaration"
-      - include: "#udp-declaration"
       - include: "#interface-declaration"
       - include: "#program-declaration"
       - include: "#package-declaration"
@@ -464,7 +462,8 @@ repository:
       - include: "#always-construct"
       - include: "#loop-generate-construct"
       - include: "#conditional-generate-construct"
-      - include: "#elaboration-system-task"
+      # An elaboration-time severity task ($fatal, $error, $warning, $info) is
+      # an ordinary system task call textually, so #system-tf-call covers it.
       - include: "#module-or-generate-item-declaration"
   # Hnadle a tricky case:
   # Data (class/interface/program) declaration / module instantiation
@@ -533,7 +532,6 @@ repository:
       - include: "#attribute-instance"
       - include: "#parameter-override"
       - include: "#gate-instantiation"
-      - include: "#udp-instantiation"
       - include: "#module-common-item"
       - include: "#module-instantiation"
   module-or-generate-item-declaration:
@@ -569,7 +567,7 @@ repository:
       - include: "#module-declaration"
       - include: "#interface-declaration"
       - include: "#timeunits-declaration"
-  parameter-overrides:
+  parameter-override:
     begin: ${keywordStart}\b(defparam)\b\s*
     end: (\;)\s*
     beginCaptures:
@@ -792,7 +790,6 @@ repository:
       - include: "#loop-generate-construct"
       - include: "#conditional-generate-construct"
       - include: "#generate-region"
-      - include: "#elaboration-system-task"
   # A.1.8 Checker items
   checker-port-list:
     patterns:
@@ -803,7 +800,7 @@ repository:
       - include: "#attribute-instance"
       - include: "#checker-port-direction"
       - include: "#formal-port-identifier"
-      - include: "#variable-dimension"
+      - include: "#dimension"
       - begin: (\=)\s*(?!\=)
         end: ${assignmentEnd}
         beginCaptures:
@@ -859,7 +856,6 @@ repository:
       - include: "#loop-generate-construct"
       - include: "#conditional-generate-construct"
       - include: "#generate-region"
-      - include: "#elaboration-system-task"
   # A.1.9 Class items
   class-item:
     patterns:
@@ -1010,6 +1006,16 @@ repository:
           "1": { name: punctuation.section.braces.end.sv }
         patterns:
           - include: "#constraint-block-item"
+  constraint-block:
+    name: meta.constraint-block.sv
+    begin: (\{)\s*
+    end: (\})\s*|${bracketsFailSafe}
+    beginCaptures:
+      "1": { name: punctuation.section.braces.begin.sv }
+    endCaptures:
+      "1": { name: punctuation.section.braces.end.sv }
+    patterns:
+      - include: "#constraint-block-item"
   constraint-block-item:
     patterns:
       - begin: ${keywordStart}\b(solve)\b\s*
@@ -1172,7 +1178,7 @@ repository:
       - include: "#function-declaration"
       - include: "#checker-declaration"
       - include: "#dpi-import-export"
-      - include: "#extern-constraint-declaration"
+      - include: "#constraint-declaration"
       - include: "#interface-class-declaration"
       - include: "#class-declaration"
       - include: "#class-constructor-declaration"
@@ -1257,7 +1263,7 @@ repository:
     endCaptures:
       "1": { name: punctuation.terminator.semicolon.sv }
     patterns:
-      - include: "#packed-dimension"
+      - include: "#dimension"
       - include: "#list-of-specparam-assignments"
   # A.2.1.2 Port declarations
   inout-declaration:
@@ -1405,7 +1411,7 @@ repository:
       "1": { name: punctuation.terminator.semicolon.sv }
     patterns:
       - include: "#type-identifier"
-      - include: "#variable-dimension"
+      - include: "#dimension"
       - include: "#semicolon"
       - include: "#interface-instance-identifier"
       - include: "#constant-bit-select"
@@ -1791,7 +1797,7 @@ repository:
       - match: \b(1step)\b\s*
         captures:
           "1": { name: constant.numeric.$1.sv }
-      - include: "#unsigned-number"
+      - include: "#integral-number"
       - include: "#real-number"
       - include: "#ps-identifier"
       - include: "#time-literal"
@@ -1851,12 +1857,12 @@ repository:
     patterns:
       - include: "#comma"
       - include: "#variable-identifier"
-      - include: "#variable-dimension"
+      - include: "#dimension"
   list-of-variable-port-identifiers:
     patterns:
       - include: "#comma"
       - include: "#variable-identifier"
-      - include: "#variable-dimension"
+      - include: "#dimension"
       - name: meta.variable-port-identifier.sv
         begin: (\=)\s*(?!\=)
         end: ${assignmentEnd}
@@ -2024,7 +2030,6 @@ repository:
           "1": { name: constant.numeric.dollar.sv }
       - include: "#expression"
       - include: "#range-expression"
-      - include: "#range"
       - include: "#constant-range-expression"
       - include: "#constant-range"
       - include: "#constant-expression"
@@ -2198,7 +2203,7 @@ repository:
           "1": { name: storage.modifier.var.sv }
       - include: "#tf-port-direction"
       - include: "#port-identifier"
-      - include: "#variable-dimension"
+      - include: "#dimension"
       - begin: (\=)\s*(?!\=)
         end: (?=\,|\))
         beginCaptures:
@@ -2321,9 +2326,9 @@ repository:
     captures:
       "1": { name: keyword.control.$1.sv }
   # A.2.10 Assertion declarations
-  concurrent-assimilation-item:
+  concurrent-assertion-item:
     patterns:
-      - match: (${identifierNotKeyword})\s*(\:\s*)?
+      - match: (?<!\.)(${identifierNotKeyword})\s*(\:)\s*(?!\:)
         captures:
           "1":
             patterns:
@@ -2504,7 +2509,7 @@ repository:
           "1": { name: storage.modifier.local.sv }
       - include: "#property-lvar-port-direction"
       - include: "#formal-port-identifier"
-      - include: "#variable-dimension"
+      - include: "#dimension"
       - begin: (\=)\s*(?!\=)
         end: (?=\,|\))
         beginCaptures:
@@ -2805,7 +2810,7 @@ repository:
           "1": { name: storage.modifier.local.sv }
       - include: "#sequence-lvar-port-direction"
       - include: "#formal-port-identifier"
-      - include: "#variable-dimension"
+      - include: "#dimension"
       - begin: (\=)\s*(?!\=)
         end: (?=\,|\))
         beginCaptures:
@@ -3345,7 +3350,7 @@ repository:
     patterns:
       - include: "#bins-keyword"
       - include: "#bin-identifier"
-      - include: "#equal"
+      - include: "#equals"
       - include: "#select-expression"
       - begin: \b(iff)\b\s*(?:(\()\s*)?
         end: (\))\s*|${bracketsFailSafe}
@@ -3494,7 +3499,7 @@ repository:
           "1": { name: keyword.operator.assignment.sv }
         patterns:
           - include: "#expression"
-      - include: "#variable-dimension"
+      - include: "#dimension"
       - include: "#formal-port-identifier"
       - include: "#let-formal-type"
   let-formal-type:
@@ -3787,13 +3792,13 @@ repository:
   input-terminal:
     patterns:
       - include: "#expression"
-  nc-ontrol-terminal:
+  ncontrol-terminal:
     patterns:
       - include: "#expression"
   output-terminal:
     patterns:
       - include: "#net-lvalue"
-  pc-ontrol-terminal:
+  pcontrol-terminal:
     patterns:
       - include: "#expression"
   # A.3.4 Primitive gate and switch types
@@ -4076,8 +4081,17 @@ repository:
       - include: "#drive-strength"
       - include: "#delay3"
       - include: "#delay-control"
-      - include: "#list-of-net-assignments"
-      - include: "#list-of-variable-assignments"
+  net-alias:
+    name: meta.net-alias.sv
+    begin: ${keywordStart}\b(alias)\b\s*
+    end: (\;)\s*|${itemsFailSafe}
+    beginCaptures:
+      "1": { name: keyword.control.alias.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - include: "#equals"
+      - include: "#net-lvalue"
   # A.6.2 Procedural blocks and assignments
   initial-construct:
     patterns:
@@ -4096,7 +4110,7 @@ repository:
       - match: ${keywordStart}\b(final)\b\s*
         captures:
           "1": { name: keyword.control.final.sv }
-      - include: "#function_statement"
+      - include: "#function-statement"
   blocking-assignment:
     patterns:
       - include: "#equals"
@@ -4109,7 +4123,6 @@ repository:
   operator-assignment:
     patterns:
       - include: "#assignment-operator"
-      - include: "#variable-lvalue"
       - include: "#expression"
   nonblocking-assignment:
     patterns:
@@ -4124,12 +4137,8 @@ repository:
       "1": { name: keyword.control.$1.sv }
     patterns:
       - include: "#variable-assignment"
-      - include: "#net-assignment"
-      - include: "#variable-lvalue"
-      - include: "#net-lvalue"
   variable-assignment:
     patterns:
-      - include: "#variable-lvalue"
       - include: "#equals"
       - include: "#expression"
   # A.6.3 Parallel and sequential blocks
@@ -4653,18 +4662,6 @@ repository:
         patterns:
           - include: "#net-lvalue"
           - include: "#comma"
-  assignment-pattern-variable-lvalue:
-    patterns:
-      - name: meta.assignment-pattern-variable-lvalue.sv
-        begin: (\'\{)\s*
-        end: (\})\s*|${bracketsFailSafe}
-        beginCaptures:
-          "0": { name: punctuation.section.braces.begin.sv }
-        endCaptures:
-          "0": { name: punctuation.section.braces.end.sv }
-        patterns:
-          - include: "#variable-lvalue"
-          - include: "#comma"
   # A.6.8 Looping statements
   loop-statement:
     patterns:
@@ -4720,7 +4717,6 @@ repository:
           - include: "#dimension"
   for-initialization:
     patterns:
-      - include: "#list-of-variable-assignments"
       - include: "#for-variable-declaration"
   for-variable-declaration:
     patterns:
@@ -6387,10 +6383,15 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#identifier-list"
-      - match: \b(with)\b\s*(?=\{)
-        captures:
+      # The constraint block is reached only through 'with', never as a bare
+      # '{': a plain brace here would outrank #concatenation wherever a
+      # subroutine call can appear, stealing streaming concatenations.
+      - begin: \b(with)\b\s*(?=\{)
+        end: (?<=\})|${bracketsFailSafe}
+        beginCaptures:
           "1": { name: keyword.other.with.sv }
-      - include: "#constraint-block"
+        patterns:
+          - include: "#constraint-block"
   method-call-root:
     patterns:
       - include: "#implicit-class-handle"
@@ -6403,7 +6404,6 @@ repository:
     patterns:
       - include: "#attribute-instance"
       - include: "#inc-or-dec-operator"
-      - include: "#variable-lvalue"
   conditional-expression:
     patterns:
       - include: "#cond-predicate"
@@ -6776,6 +6776,13 @@ repository:
           "1": { name: punctuation.section.group.end.sv }
         patterns:
           - include: "#expression"
+  # A.8.5 Lvalues
+  net-lvalue:
+    patterns:
+      - include: "#assignment-pattern-net-lvalue"
+      - include: "#concatenation"
+      - include: "#ps-or-hierarchical-net-identifier"
+      - include: "#constant-select"
   # A.8.6 Operators
   unary-operator:
     match: (~\^|\^~|~&|~\||\+|\-|!|~|&|\||\^)\s*(?!(\+|\-|\=|\:))
@@ -7364,7 +7371,6 @@ repository:
       - include: "#module-item"
       - include: "#interface-item"
       - include: "#program-item"
-      - include: "#checker-item"
       - include: "#package-item"
       - include: "#class-item"
       - include: "#interface-class-item"

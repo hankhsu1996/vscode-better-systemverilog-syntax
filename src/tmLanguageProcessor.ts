@@ -5,7 +5,7 @@ import {
 } from "./minify";
 import { IncludePrependVisitor } from "./includePrepend";
 import { InterpolationVisitor, interpolate } from "./interpolation";
-import { PatternChecker } from "./checker";
+import { IncludeResolutionChecker, PatternChecker } from "./checker";
 import {
   TmLanguage,
   TmLanguagePattern,
@@ -28,6 +28,7 @@ export class TmLanguageProcessor {
     this.applyVisitorsToRepository(new PatternChecker());
     this.applyVisitorsToRepository(new InterpolationVisitor(this.symbolTable));
     this.applyVisitorsToRepository(new IncludePrependVisitor());
+    this.checkIncludesResolve();
     delete this.tmLanguage.variables;
     this.minify();
   }
@@ -83,6 +84,14 @@ export class TmLanguageProcessor {
     } else {
       throw new Error("Invalid pattern type");
     }
+  }
+
+  private checkIncludesResolve(): void {
+    const checker = new IncludeResolutionChecker(
+      new Set(Object.keys(this.tmLanguage.repository))
+    );
+    this.applyVisitorsToPatterns(checker);
+    this.applyVisitorsToRepository(checker);
   }
 
   private minify(): void {

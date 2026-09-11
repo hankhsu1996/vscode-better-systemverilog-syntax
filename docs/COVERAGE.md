@@ -33,7 +33,7 @@ This document tracks grammar implementation and test coverage for each LRM chapt
 | 7   | Aggregate data types                           | Done    | Good (~88)    |                                                                 |
 | 8   | Classes                                        | Done    | Good (~54)    |                                                                 |
 | 9   | Processes                                      | Done    | Good (~46)    |                                                                 |
-| 10  | Assignment statements                          | Done    | Minimal (10)  | See [Chapter 10 gaps](#chapter-10-assignment-statements)        |
+| 10  | Assignment statements                          | Done    | Moderate (13) |                                                                 |
 | 11  | Operators and expressions                      | Done    | Good (~85)    |                                                                 |
 | 12  | Procedural programming statements              | Done    | Good (~25)    |                                                                 |
 | 13  | Tasks and functions                            | Done    | Moderate (14) |                                                                 |
@@ -51,7 +51,7 @@ This document tracks grammar implementation and test coverage for each LRM chapt
 
 | Ch. | Title                                          | Grammar | Tests       | Notes                                                                      |
 | --- | ---------------------------------------------- | ------- | ----------- | -------------------------------------------------------------------------- |
-| 23  | Modules and hierarchy                          | Done    | Minimal (3) | See [Chapter 23 gaps](#chapter-23-modules-and-hierarchy)                   |
+| 23  | Modules and hierarchy                          | Done    | Minimal (4) | See [Chapter 23 gaps](#chapter-23-modules-and-hierarchy)                   |
 | 24  | Programs                                       | Done    | Minimal (1) | See [Chapter 24 gaps](#chapter-24-programs)                                |
 | 25  | Interfaces                                     | Done    | Minimal (6) | See [Chapter 25 gaps](#chapter-25-interfaces)                              |
 | 26  | Packages                                       | Done    | Minimal (3) | See [Chapter 26 gaps](#chapter-26-packages)                                |
@@ -215,16 +215,6 @@ This document tracks grammar implementation and test coverage for each LRM chapt
 
 ## Implemented - Test Gaps
 
-### Chapter 10: Assignment Statements
-
-**Current tests:** 10
-
-**Missing test coverage:**
-
-- 10.9 Assignment patterns (partial)
-- 10.10 Unpacked array concatenation
-- 10.11 Net aliasing (`alias` statement)
-
 ### Chapter 14: Clocking Blocks
 
 **Current tests:** 5
@@ -249,7 +239,7 @@ This document tracks grammar implementation and test coverage for each LRM chapt
 
 ### Chapter 23: Modules and Hierarchy
 
-**Current tests:** 3
+**Current tests:** 4
 
 **Missing test coverage:**
 
@@ -257,7 +247,7 @@ This document tracks grammar implementation and test coverage for each LRM chapt
 - 23.4 Nested modules
 - 23.5 Extern modules
 - 23.6 Hierarchical names
-- 23.10 Overriding module parameters (defparam, #())
+- 23.10.2 Parameter value assignment (`#()`)
 - 23.11 Binding auxiliary code (`bind`)
 
 ### Chapter 24: Programs
