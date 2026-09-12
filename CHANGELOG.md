@@ -6,6 +6,19 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-11
+
+### Added
+
+- Add the net alias statement (`alias a = b;`), including concatenation and part-select targets
+- Add test coverage for assignment patterns and unpacked array concatenation
+
+### Fixed
+
+- Fix `defparam` not being highlighted
+- Fix in-line constraints (`randomize() with { ... }`) being highlighted as a concatenation, so `soft`, `->` and the other constraint keywords are now highlighted
+- Fix out-of-block constraints (`constraint c::c1 { ... }`) not being highlighted at package and module scope
+
 ## [1.1.5] - 2026-07-29
 
 ### Fixed
