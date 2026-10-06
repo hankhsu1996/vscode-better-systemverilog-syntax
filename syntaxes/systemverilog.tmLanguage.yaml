@@ -4421,6 +4421,15 @@ repository:
           - include: "#hierarchical-event-identifier"
   disable-statement:
     patterns:
+      # "disable fork ;" is its own form of the statement, so the fork is an
+      # operand and never opens a block. It has to be matched whole, here:
+      # inside the region below it is unreachable, because that region's
+      # fail-safe end counts fork as the start of the next statement and an end
+      # outranks the region's own patterns.
+      - match: ${keywordStart}\b(disable)\b\s+\b(fork)\b\s*
+        captures:
+          "1": { name: keyword.control.$1.sv }
+          "2": { name: keyword.control.$2.sv }
       - begin: ${keywordStart}\b(disable)\b\s*(?!\s*\biff\b)
         end: (\;)\s*|${statementsFailSafe}
         beginCaptures:
@@ -4428,9 +4437,6 @@ repository:
         endCaptures:
           "1": { name: punctuation.terminator.semicolon.sv }
         patterns:
-          - match: \b(fork)\b\s*
-            captures:
-              "1": { name: keyword.control.$1.sv }
           - include: "#hierarchical-task-identifier"
           - include: "#hierarchical-block-identifier"
   # A.6.6 Conditional statements
