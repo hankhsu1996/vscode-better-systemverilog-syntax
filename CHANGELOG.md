@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-10-05
+
+### Fixed
+
+- Fix `disable fork` leaving the rest of the enclosing block unhighlighted
+
 ## [1.2.0] - 2026-09-11
 
 ### Added
