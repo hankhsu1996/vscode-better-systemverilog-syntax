@@ -29,6 +29,8 @@ variables:
   blocksFailSafe: (?=\b(?:endmodule|endprogram|endinterface|endchecker|endpackage|endprimitive|endconfig)\b)
   # When there is an end of block, the statement should be ended
   itemsFailSafe: (?=\b(?:endmodule|endprimitive|endinterface|endpackage|endconfig|endtask|endfunction|endchecker|endclass|endgroup|endproperty|endsequence|endgenerate|endtable|endclocking|endspecify)\b)|${blocksFailSafe}
+  # Inside a config, the start of the next statement ends an unfinished one
+  configItemsFailSafe: (?=\b(?:design|default|instance|cell|localparam)\b)|${itemsFailSafe}
   statementStart: \b(?:assign|deassign|force|release|case|casez|casex|if|else|disable(?!\s*\biff\b)|forever|repeat|while|for|do|foreach|return|break|continue|fork|begin|wait|wait_order|assert|assume|cover|randsequence|randcase|expect)\b
   statementsFailSafe: ${itemsFailSafe}|(?=${statementStart})
   bracketsFailSafe: (?=\b(?:end|endcase)\b)|${itemsFailSafe}|(?=${statementStart})
@@ -646,21 +648,13 @@ repository:
       - include: "#config-rule-statement"
   design-statement:
     begin: \b(design)\b\s*
-    end: (\;)\s*
+    end: (\;)\s*|${configItemsFailSafe}
     beginCaptures:
       "1": { name: keyword.other.design.sv }
     endCaptures:
       "1": { name: punctuation.terminator.semicolon.sv }
     patterns:
-      # Library identifier
-      - match: (${identifier})\s*(\.)\s*
-        captures:
-          "1": { name: entity.name.type.sv }
-          "2": { name: punctuation.accessor.dot.sv }
-      # Cell identifier
-      - match: (${identifier})\s*
-        captures:
-          "1": { name: entity.name.type.sv }
+      - include: "#library-cell"
   config-rule-statement:
     patterns:
       - include: "#default-clause"
@@ -676,7 +670,7 @@ repository:
   inst-clause:
     name: meta.inst-clause.sv
     begin: \b(instance)\b\s*
-    end: (?=\b(liblist|use|;)\b)
+    end: (?=\b(?:liblist|use)\b|\;)|${configItemsFailSafe}
     beginCaptures:
       "1": { name: keyword.other.instance.sv }
     patterns:
@@ -684,62 +678,59 @@ repository:
   inst-name:
     patterns:
       # Instance identifier
-      - match: (\.)\s*(${identifier})\s*
+      - match: (\.)\s*(?:(${identifierNotKeyword})\s*)?
         captures:
           "1": { name: punctuation.accessor.dot.sv }
           "2": { name: variable.other.sv }
       # Topmodule identifier
-      - match: (${identifier})\s*
+      - match: (${identifierNotKeyword})\s*
         captures:
           "1": { name: variable.other.sv }
   cell-clause:
     name: meta.cell-clause.sv
     begin: \b(cell)\b\s*
-    end: (?=\b(liblist|use|;)\b)
+    end: (?=\b(?:liblist|use)\b|\;)|${configItemsFailSafe}
     beginCaptures:
       "1": { name: keyword.other.cell.sv }
     patterns:
-      # Library identifier
-      - match: (${identifier})\s*(\.)\s*
-        captures:
-          "1": { name: entity.name.type.sv }
-          "2": { name: punctuation.accessor.dot.sv }
-      # Cell identifier
-      - match: (${identifier})\s*
-        captures:
-          "1": { name: entity.name.type.sv }
+      - include: "#library-cell"
   liblist-clause:
     name: meta.liblist-clause.sv
     begin: \b(liblist)\b\s*
-    end: (?=\;)
+    end: (?=\;)|${configItemsFailSafe}
     beginCaptures:
       "1": { name: keyword.other.liblist.sv }
-    endCaptures:
-      "1": { name: punctuation.terminator.semicolon.sv }
     patterns:
       # Library identifier
-      - match: (${identifier})\s*
+      - match: (${identifierNotKeyword})\s*
         captures:
           "1": { name: entity.name.type.sv }
   use-clause:
     name: meta.use-clause.sv
     begin: \b(use)\b\s*
-    end: (?=\;)
+    end: (?=\;)|${configItemsFailSafe}
     beginCaptures:
       "1": { name: keyword.other.use.sv }
     patterns:
-      # Library identifier
-      - match: (${identifier})\s*(\.)\s*
-        captures:
-          "1": { name: entity.name.type.sv }
-          "2": { name: punctuation.accessor.dot.sv }
       - match: (\:)\s*\b(config)\b\s*
         captures:
           "1": { name: punctuation.separator.colon.sv }
           "2": { name: keyword.other.config.sv }
       - include: "#parameter-value-assignment"
       - include: "#comma"
-      - include: "#cell-identifier"
+      - include: "#library-cell"
+  # [ library_identifier . ] cell_identifier
+  library-cell:
+    patterns:
+      # Library identifier
+      - match: (${identifierNotKeyword})\s*(\.)\s*
+        captures:
+          "1": { name: entity.name.type.sv }
+          "2": { name: punctuation.accessor.dot.sv }
+      # Cell identifier
+      - match: (${identifierNotKeyword})\s*
+        captures:
+          "1": { name: entity.name.type.sv }
   # A.1.6 Interface items
   interface-or-generate-item:
     patterns:
