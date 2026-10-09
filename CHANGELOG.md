@@ -6,9 +6,16 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-09
+
 ### Added
 
 - Add highlighting for library map files (`library`, `include`, `-incdir` and `config`), as the language "SystemVerilog Library Map". A file named `lib.map` is recognized automatically
+
+### Fixed
+
+- Fix an unfinished statement in a `config` (`design`, `instance`, `cell`, `liblist`, `use`) leaving `endconfig` and the code after it unhighlighted
+- Fix the cell name in a `use` clause being highlighted as a variable, and not highlighted at all before a parameter override (`use lib.cell #(...)`)
 
 ## [1.2.1] - 2026-10-05
 
