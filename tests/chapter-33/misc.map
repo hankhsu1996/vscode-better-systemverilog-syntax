@@ -1,0 +1,32 @@
+// SYNTAX TEST "library-text.sv"
+
+// A path list can run over several lines, and a directory can be named after
+// a keyword.
+library rtl
+  config/*.v,
+//^^^^^^^^^^ string.unquoted.file-path.sv
+  library/?.v,
+//^^^^^^^^^^^ string.unquoted.file-path.sv
+//        ^ keyword.operator.wildcard.sv
+  include/top.v
+    -incdir include;
+//  ^^^^^^^ keyword.other.incdir.sv
+//          ^^^^^^^ string.unquoted.file-path.sv
+//                 ^ punctuation.terminator.semicolon.sv
+
+// An absolute path can start with the two characters that open a block
+// comment, so nothing inside a declaration is a comment.
+library all /*/rtl/*.v, //server/share/*.v;
+//          ^^^^^^^^^^ string.unquoted.file-path.sv
+//                      ^^^^^^^^^^^^^^^^^^ string.unquoted.file-path.sv
+//                                        ^ punctuation.terminator.semicolon.sv
+include /*/lib.map;
+// <------- keyword.other.include.sv
+//      ^^^^^^^^^^ string.unquoted.file-path.sv
+
+library work_lib $ROOT/src/.../*.sv;
+//      ^^^^^^^^ entity.name.type.sv
+//               ^^^^^^^^^^^^^^^^^^ string.unquoted.file-path.sv
+library \esc.lib a.v;
+//      ^^^^^^^^ entity.name.type.sv
+//               ^^^ string.unquoted.file-path.sv

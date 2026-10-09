@@ -1,0 +1,65 @@
+// SYNTAX TEST "library-text.sv"
+
+library rtlLib *.v;     // matches all files in the current directory with
+// <------- keyword.other.library.sv
+//      ^^^^^^ entity.name.type.sv
+//             ^^^ string.unquoted.file-path.sv
+//             ^ keyword.operator.wildcard.sv
+//                ^ punctuation.terminator.semicolon.sv
+//                      ^^ punctuation.definition.comment.sv
+                        // a .v suffix
+library gateLib ./*.vg; // matches all files in the current directory with
+// <------- keyword.other.library.sv
+//      ^^^^^^^ entity.name.type.sv
+//              ^^^^^^ string.unquoted.file-path.sv
+//                ^ keyword.operator.wildcard.sv
+//                    ^ punctuation.terminator.semicolon.sv
+//                      ^^ punctuation.definition.comment.sv
+                        // a .vg suffix
+
+include ../other/lib.map;
+// <------- keyword.other.include.sv
+//      ^^^^^^^^^^^^^^^^ string.unquoted.file-path.sv
+//                      ^ punctuation.terminator.semicolon.sv
+
+library lib1 "/proj/lib/foo*.v";
+//      ^^^^ entity.name.type.sv
+//           ^^^^^^^^^^^^^^^^^^ string.quoted.double.sv
+//           ^ punctuation.definition.string.begin.sv
+//                         ^ keyword.operator.wildcard.sv
+//                            ^ punctuation.definition.string.end.sv
+//                             ^ punctuation.terminator.semicolon.sv
+library lib2 "/proj/lib/foo.v";
+library lib3 "../lib/";
+library lib4 "/proj/lib/*ver.v";
+
+library gateLib ./*.vg, ../cells/.../*.v -incdir ./inc, /proj/inc;
+//              ^^^^^^ string.unquoted.file-path.sv
+//                    ^ punctuation.separator.comma.sv
+//                      ^^^^^^^^^^^^^^^^ string.unquoted.file-path.sv
+//                               ^^^ keyword.operator.wildcard.sv
+//                                   ^ keyword.operator.wildcard.sv
+//                                       ^^^^^^^ keyword.other.incdir.sv
+//                                               ^^^^^ string.unquoted.file-path.sv
+//                                                    ^ punctuation.separator.comma.sv
+//                                                      ^^^^^^^^^ string.unquoted.file-path.sv
+//                                                               ^ punctuation.terminator.semicolon.sv
+
+/* a block comment between statements */
+// <-- punctuation.definition.comment.sv
+//  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.block.sv
+
+config cfg;
+// <------ storage.type.config.sv
+//     ^^^ entity.name.type.sv
+  design rtlLib.top;
+//^^^^^^ keyword.other.design.sv
+//       ^^^^^^ entity.name.type.sv
+  default liblist rtlLib gateLib;
+//^^^^^^^ keyword.other.default.sv
+//        ^^^^^^^ keyword.other.liblist.sv
+endconfig
+// <--------- storage.type.config.sv
+
+;
+// <- punctuation.terminator.semicolon.sv

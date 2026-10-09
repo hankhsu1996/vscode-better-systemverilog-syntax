@@ -28,13 +28,19 @@ npm run package
 
 ### Grammar Build Pipeline
 
-1. **Source**: `syntaxes/systemverilog.tmLanguage.yaml` - The main grammar definition
-2. **Build**: `npm run build` runs `src/index.ts` which:
+1. **Source**: two grammars in `syntaxes/`
+   - `systemverilog.tmLanguage.yaml` - The main grammar, for SystemVerilog source (`source-text.sv`)
+   - `systemverilog-libmap.tmLanguage.yaml` - Library map files, LRM 33.3 (`library-text.sv`)
+2. **Build**: `npm run build` runs `src/index.ts` which, for each grammar:
    - Reads the YAML grammar
    - Processes variables (interpolation)
    - Validates patterns
    - Minifies repository names for smaller output
-   - Writes `syntaxes/systemverilog.tmLanguage.json`
+   - Writes the `.tmLanguage.json` beside the YAML
+
+Repository names are minified, so one grammar cannot include a single rule of
+another. It can include the other grammar whole, by its scope name, which is how
+the library map grammar gets `config`.
 
 ### Source Files (`src/`)
 
@@ -49,7 +55,7 @@ npm run package
 
 ### Testing
 
-Tests use `vscode-tmgrammar-test` with annotated `.sv` files in `tests/`. Test files contain inline annotations that verify scope assignments:
+Tests use `vscode-tmgrammar-test` with annotated `.sv` files in `tests/`, and `.map` files for the library map grammar. The first line of a test names the scope of the grammar it runs against. Test files contain inline annotations that verify scope assignments:
 
 ```systemverilog
 // SYNTAX TEST "source-text.sv"
@@ -105,7 +111,8 @@ The YAML grammar uses variables for reusable regex patterns (defined at top of f
 2. Run `npm run test` to build and verify
 3. Add test cases in appropriate `tests/chapter-XX/` directory
 
-Every `include` must name an existing repository entry; the build fails if one
+Every `include` must name an existing repository entry, or the scope of the
+other grammar; the build fails if one
 does not. TextMate itself ignores an unresolved include without any error, so a
 misspelled name would otherwise disable a rule silently.
 

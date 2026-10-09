@@ -8,9 +8,10 @@ import {
 
 // Which global rules get prepended into a begin/end region, keyed by the
 // region's declared `contextKind` (default "code"). Inside pure text (ordinary
-// strings and comments) `//`, `/* */`, and git markers are literal characters,
-// not tokens, so nothing is injected. Only the `define `"..."` construct
-// expands macros, so it alone keeps the compiler-directive include.
+// strings, comments, and the file paths of a library map) `//`, `/* */`, and
+// git markers are literal characters, not tokens, so nothing is injected. Only
+// the `define `"..."` construct expands macros, so it alone keeps the
+// compiler-directive include.
 const INJECTED_INCLUDES: Record<ContextKind, string[]> = {
   code: ["#comment", "#compiler-directive", "#git-conflict-marker"],
   literal: [],

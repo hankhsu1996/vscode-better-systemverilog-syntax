@@ -61,7 +61,7 @@ This document tracks grammar implementation and test coverage for each LRM chapt
 | 30  | Specify blocks                                 | Done    | Minimal (4) | See [Chapter 30 gaps](#chapter-30-specify-blocks)                          |
 | 31  | Timing checks                                  | Done    | Minimal (4) | See [Chapter 31 gaps](#chapter-31-timing-checks)                           |
 | 32  | Backannotation using the standard delay format | None    | None        | See [Chapter 32 details](#chapter-32-backannotation)                       |
-| 33  | Configuring the contents of a design           | Done    | Minimal (1) | See [Chapter 33 gaps](#chapter-33-configuration)                           |
+| 33  | Configuring the contents of a design           | Done    | Minimal (5) | See [Chapter 33 notes](#chapter-33-configuration)                          |
 | 34  | Protected envelopes                            | None    | None        | See [Chapter 34 details](#chapter-34-protected-envelopes)                  |
 
 ### Part Three: Application Programming Interfaces
@@ -306,12 +306,15 @@ This document tracks grammar implementation and test coverage for each LRM chapt
 
 ### Chapter 33: Configuration
 
-**Current tests:** 1
+**Current tests:** 5
+
+- 33.3 Library map files are a separate grammar,
+  `syntaxes/systemverilog-libmap.tmLanguage.yaml`, tested by the `.map` files
+- 33.4 and 33.6 Configuration (`config`, `design`, `default`, `instance`, `cell`, `liblist`, `use`)
 
 **Missing test coverage:**
 
-- 33.3 Libraries
-- 33.4 Configuration (`config`, `design`, `default`, `instance`, `cell`, `liblist`, `use`)
+- 33.2 The overview example
 
 ---
 

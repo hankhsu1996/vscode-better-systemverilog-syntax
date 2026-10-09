@@ -52,6 +52,24 @@ Here's a summary of the SystemVerilog syntax support, categorized by chapter:
 | 33      | Configuring the contents of a design           | 🟢 Implemented     |
 | 34      | Protected envelopes                            | 🔴 Not Implemented |
 
+## Library Map Files
+
+Library map files (IEEE 1800 clause 33.3) are highlighted as their own language, _SystemVerilog Library Map_:
+
+```
+library rtlLib *.v;
+library gateLib ./*.vg, ../cells/.../*.v -incdir ./inc;
+include ../other/lib.map;
+```
+
+The standard leaves the name of this file to each tool, so only a file named `lib.map`, the name the standard uses in its examples, is recognized automatically. For any other name, pick the language from the language selector in the status bar, or add an association to your settings:
+
+```json
+"files.associations": {
+  "*.libmap": "systemverilog-libmap"
+}
+```
+
 ## Features
 
 ### Enhanced Syntax Highlighting

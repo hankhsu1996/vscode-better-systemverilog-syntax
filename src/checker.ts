@@ -4,22 +4,28 @@ import {
   TmLanguagePatternInclude,
   TmLanguagePatternMatch,
   TmLanguageVisitor,
+  isRepositoryInclude,
 } from "./types";
 
 // TextMate silently ignores an include whose repository entry does not exist,
 // so a misspelled name disables a rule with no error anywhere. Every include
 // must therefore resolve; this runs after IncludePrependVisitor so the injected
-// includes are checked too.
+// includes are checked too. An include is either "#name", a repository entry
+// of the same grammar, or the scope name of a grammar built alongside it.
 export class IncludeResolutionChecker implements TmLanguageVisitor {
-  constructor(private repositoryKeys: ReadonlySet<string>) {}
+  constructor(
+    private repositoryKeys: ReadonlySet<string>,
+    private scopeNames: ReadonlySet<string>
+  ) {}
 
   visitBeginEnd(): void {}
   visitMatch(): void {}
   visitPatterns(): void {}
   visitInclude(node: TmLanguagePatternInclude): void {
-    if (!node.include.startsWith("#")) {
+    if (!isRepositoryInclude(node.include)) {
+      if (this.scopeNames.has(node.include)) return;
       throw new Error(
-        `Include "${node.include}" must name a repository entry as "#name"`
+        `Include "${node.include}" must name a repository entry as "#name" or the scope of a grammar built here`
       );
     }
     const key = node.include.substring(1);

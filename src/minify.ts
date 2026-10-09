@@ -1,4 +1,11 @@
-import { TmLanguageVisitor, TmLanguagePatternInclude } from "./types";
+import {
+  TmLanguageVisitor,
+  TmLanguagePatternInclude,
+  isRepositoryInclude,
+} from "./types";
+
+// Only repository includes are counted and renamed. An include of another
+// grammar names nothing in this repository.
 
 export class IncludeFrequencyCounter implements TmLanguageVisitor {
   private includeFrequency: Record<string, number>;
@@ -11,6 +18,7 @@ export class IncludeFrequencyCounter implements TmLanguageVisitor {
   visitMatch(): void {}
   visitPatterns(): void {}
   visitInclude(node: TmLanguagePatternInclude): void {
+    if (!isRepositoryInclude(node.include)) return;
     const includeKey = node.include.substring(1);
     this.includeFrequency[includeKey] =
       (this.includeFrequency[includeKey] ?? 0) + 1;
@@ -28,8 +36,8 @@ export class IncludeFrequencyCounter implements TmLanguageVisitor {
   }
 }
 
-// IncludeResolutionChecker has already established that every include names an
-// existing repository entry, so each one has a minified counterpart here.
+// IncludeResolutionChecker has already established that every repository
+// include names an existing entry, so each one has a minified counterpart here.
 export function getNewInclude(
   include: string,
   patternNameMap: Record<string, string>
@@ -48,6 +56,7 @@ export class PatternRenamer implements TmLanguageVisitor {
   visitMatch(): void {}
   visitPatterns(): void {}
   visitInclude(node: TmLanguagePatternInclude): void {
+    if (!isRepositoryInclude(node.include)) return;
     node.include = getNewInclude(node.include, this.patternNameMap);
   }
   visitNameOnly(): void {}
