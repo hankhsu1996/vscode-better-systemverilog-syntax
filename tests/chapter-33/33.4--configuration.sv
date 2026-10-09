@@ -32,7 +32,7 @@ config top;
 //                 ^^^ keyword.other.use.sv
 //                     ^^^^ entity.name.type.sv
 //                         ^ punctuation.accessor.dot.sv
-//                          ^^^ variable.other.sv
+//                          ^^^ entity.name.type.sv
 //                             ^ punctuation.separator.colon.sv
 //                              ^^^^^^ keyword.other.config.sv
   instance top.bot.a1 liblist lib4;
