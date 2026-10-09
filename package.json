@@ -20,8 +20,8 @@
     "build": "ts-node src/index.ts",
     "package": "npm run build && vsce package",
     "publish": "npm run package && vsce publish",
-    "test": "npm run build && vscode-tmgrammar-test -g syntaxes/systemverilog.tmLanguage.json \"tests/**/*.sv\"",
-    "test:only": "npm run build && vscode-tmgrammar-test -g syntaxes/systemverilog.tmLanguage.json",
+    "test": "npm run build && vscode-tmgrammar-test -g syntaxes/systemverilog.tmLanguage.json -g syntaxes/systemverilog-libmap.tmLanguage.json \"tests/**/*.{sv,map}\"",
+    "test:only": "npm run build && vscode-tmgrammar-test -g syntaxes/systemverilog.tmLanguage.json -g syntaxes/systemverilog-libmap.tmLanguage.json",
     "test-watch": "nodemon --watch src --watch syntaxes --watch tests -e ts,yaml,sv --exec \"npm run test\""
   },
   "contributes": {
@@ -31,6 +31,11 @@
         "scopeName": "source-text.sv",
         "path": "./syntaxes/systemverilog.tmLanguage.json",
         "unbalancedBracketScopes": ["variable.other.sv"]
+      },
+      {
+        "language": "systemverilog-libmap",
+        "scopeName": "library-text.sv",
+        "path": "./syntaxes/systemverilog-libmap.tmLanguage.json"
       }
     ],
     "languages": [
@@ -46,6 +51,16 @@
           ".svh",
           ".v",
           ".vh"
+        ],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "systemverilog-libmap",
+        "aliases": [
+          "SystemVerilog Library Map"
+        ],
+        "filenames": [
+          "lib.map"
         ],
         "configuration": "./language-configuration.json"
       }

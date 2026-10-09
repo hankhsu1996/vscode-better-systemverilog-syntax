@@ -21,7 +21,10 @@ export class TmLanguageProcessor {
   private symbolTable: Record<string, string> = {};
   private includeCount: Record<string, number> = {};
 
-  constructor(private tmLanguage: TmLanguage) {}
+  constructor(
+    private tmLanguage: TmLanguage,
+    private scopeNames: ReadonlySet<string>
+  ) {}
 
   public process(): void {
     this.buildSymbolTable();
@@ -88,7 +91,8 @@ export class TmLanguageProcessor {
 
   private checkIncludesResolve(): void {
     const checker = new IncludeResolutionChecker(
-      new Set(Object.keys(this.tmLanguage.repository))
+      new Set(Object.keys(this.tmLanguage.repository)),
+      this.scopeNames
     );
     this.applyVisitorsToPatterns(checker);
     this.applyVisitorsToRepository(checker);

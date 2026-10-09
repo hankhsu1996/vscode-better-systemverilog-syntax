@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+### Added
+
+- Add highlighting for library map files (`library`, `include`, `-incdir` and `config`), as the language "SystemVerilog Library Map". A file named `lib.map` is recognized automatically
+
 ## [1.2.1] - 2026-10-05
 
 ### Fixed

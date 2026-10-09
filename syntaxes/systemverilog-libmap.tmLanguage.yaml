@@ -1,0 +1,78 @@
+name: SystemVerilog Library Map
+scopeName: library-text.sv
+variables:
+  simpleIdentifier: \b[a-zA-Z_][a-zA-Z0-9_\$]*\b
+  escapeIdentifier: \\\S+(?=\s|$)
+  identifier: (?:${simpleIdentifier}|${escapeIdentifier})
+  # A declaration with no semicolon ends where the next one starts. The keyword
+  # has to open a line and be followed by white space, because a path list can
+  # run over several lines and a directory can be named "config" or "library".
+  descriptionsFailSafe: (?=^\s*(?:library|include|config)\s)
+
+patterns:
+  - include: "#library-description"
+repository:
+  # A.1.1 Library source text
+  library-description:
+    patterns:
+      - include: "#library-declaration"
+      - include: "#include-statement"
+      # config_declaration, and the comments between descriptions. The
+      # SystemVerilog grammar is included whole because its rules cannot be
+      # named one at a time from here.
+      - include: source-text.sv
+  # The regions below take contextKind "literal" so that no comment rule is
+  # injected into them. A path can hold "/*" or start with "//", so inside a
+  # declaration those characters are part of a path, never a comment.
+  library-declaration:
+    name: meta.library-declaration.sv
+    contextKind: literal
+    begin: \b(library)\b\s*(?:(${identifier})\s*)?
+    end: (\;)\s*|${descriptionsFailSafe}
+    beginCaptures:
+      "1": { name: keyword.other.library.sv }
+      "2": { name: entity.name.type.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - match: (?<!\S)(\-incdir)\b\s*
+        captures:
+          "1": { name: keyword.other.incdir.sv }
+      - include: "#file-path-spec"
+      - include: "#comma"
+  include-statement:
+    name: meta.include-statement.sv
+    contextKind: literal
+    begin: \b(include)\b\s*
+    end: (\;)\s*|${descriptionsFailSafe}
+    beginCaptures:
+      "1": { name: keyword.other.include.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - include: "#file-path-spec"
+  file-path-spec:
+    patterns:
+      - name: string.quoted.double.sv
+        contextKind: literal
+        begin: \"
+        end: \"|$
+        beginCaptures:
+          "0": { name: punctuation.definition.string.begin.sv }
+        endCaptures:
+          "0": { name: punctuation.definition.string.end.sv }
+        patterns:
+          - include: "#wildcard"
+      - match: '[^\s,;"]+'
+        captures:
+          "0":
+            name: string.unquoted.file-path.sv
+            patterns:
+              - include: "#wildcard"
+  wildcard:
+    match: \.\.\.|\*|\?
+    name: keyword.operator.wildcard.sv
+  comma:
+    match: (\,)\s*
+    captures:
+      "1": { name: punctuation.separator.comma.sv }

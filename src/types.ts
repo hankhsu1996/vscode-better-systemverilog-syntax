@@ -10,7 +10,8 @@ export interface TmLanguage {
 // Build-only hint (stripped before output) telling IncludePrependVisitor which
 // global rules to inject into a region. Defaults to "code" when absent.
 //   code        - real code: comments, directives, and git markers may appear
-//   literal     - pure text (ordinary strings, comments): inject nothing
+//   literal     - pure text (ordinary strings, comments, file paths): inject
+//                 nothing
 //   macroString - the `define `"..."` construct, where macros do expand
 // See src/includePrepend.ts.
 //
@@ -91,6 +92,12 @@ export function isPatternInclude(
   pattern: TmLanguagePattern
 ): pattern is TmLanguagePatternInclude {
   return "include" in pattern;
+}
+
+// An include names either an entry of its own grammar's repository, written
+// "#name", or another grammar whole, by that grammar's scope name.
+export function isRepositoryInclude(include: string): boolean {
+  return include.startsWith("#");
 }
 
 export function isPatternNameOnly(

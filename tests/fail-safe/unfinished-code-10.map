@@ -1,0 +1,37 @@
+// SYNTAX TEST "library-text.sv"
+
+// Fail safe test: test unfinished library map code
+
+library
+// <------- keyword.other.library.sv
+library rtlLib
+// <------- keyword.other.library.sv
+//      ^^^^^^ entity.name.type.sv
+library rtlLib *.v
+// <------- keyword.other.library.sv
+//             ^^^ string.unquoted.file-path.sv
+library gateLib ./*.vg
+// <------- keyword.other.library.sv
+//              ^^^^^^ string.unquoted.file-path.sv
+library gateLib ./*.vg,
+// <------- keyword.other.library.sv
+library gateLib ./*.vg -incdir
+// <------- keyword.other.library.sv
+//                     ^^^^^^^ keyword.other.incdir.sv
+library lib3 "../lib/
+// <------- keyword.other.library.sv
+//           ^^^^^^^^ string.quoted.double.sv
+include
+// <------- keyword.other.include.sv
+include ../other/lib.map
+// <------- keyword.other.include.sv
+//      ^^^^^^^^^^^^^^^^ string.unquoted.file-path.sv
+config cfg;
+// <------ storage.type.config.sv
+  design rtlLib.top
+endconfig
+// <--------- storage.type.config.sv
+library last *.v;
+// <------- keyword.other.library.sv
+//      ^^^^ entity.name.type.sv
+//              ^ punctuation.terminator.semicolon.sv
