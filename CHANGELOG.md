@@ -12,6 +12,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Fix `default clocking cb;` leaving the rest of the module, interface, program or checker unhighlighted
 - Fix the encoded data after `` `pragma protect key_block ``, `digest_block` or `data_block` in an encrypted file being read as code, which could leave the rest of the file unhighlighted. The data is now highlighted as one opaque block
 - Fix `always`, `always_comb`, `always_latch` and `always_ff` not being highlighted inside a checker, and the variable assigned after `always_ff @(...)` being highlighted as a type
+- Fix `extern module`, `extern interface` and `extern program` declarations being read as an extern task or function, leaving their name and ports unhighlighted
+- Fix an `extern` task or function prototype left without its `;` leaving the rest of the file unhighlighted
 
 ## [1.3.0] - 2026-10-09
 

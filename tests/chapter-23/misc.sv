@@ -69,3 +69,42 @@ module Test;
 //                                                      ^^^ variable.other.sv
 //                                                          ^^ variable.other.sv
 endmodule
+
+// An extern declaration of a module, interface or program is a header with no
+// body (LRM 23.5, A.1.2), at the top level or nested in a module or interface
+extern macromodule mm #(parameter W = 4) (input logic [W-1:0] a, output logic y);
+//<------ storage.modifier.extern.sv
+//     ^^^^^^^^^^^ storage.type.macromodule.sv
+//                 ^^ entity.name.type.sv
+//                                        ^^^^^ storage.modifier.input.sv
+extern interface automatic bus_if (input logic clk);
+//     ^^^^^^^^^ storage.type.interface.sv
+//               ^^^^^^^^^ storage.modifier.automatic.sv
+//                         ^^^^^^ entity.name.type.sv
+extern program prog (input logic clk);
+//     ^^^^^^^ storage.type.program.sv
+//             ^^^^ entity.name.type.sv
+extern module pkg_user import pkg::*; (input logic a);
+//            ^^^^^^^^ entity.name.type.sv
+//                     ^^^^^^ keyword.control.import.sv
+module after_externs;
+//<------ storage.type.module.sv
+//     ^^^^^^^^^^^^^ entity.name.type.sv
+  extern module child (input a, output b);
+//^^^^^^ storage.modifier.extern.sv
+//       ^^^^^^ storage.type.module.sv
+//              ^^^^^ entity.name.type.sv
+  logic x;
+//      ^ meta.module-body.sv variable.other.sv
+endmodule
+//<--------- storage.type.module.sv
+
+interface outer_if;
+  extern module child (input a);
+//       ^^^^^^ storage.type.module.sv
+//              ^^^^^ entity.name.type.sv
+  extern forkjoin task count();
+//^^^^^^ storage.modifier.extern.sv
+//       ^^^^^^^^ storage.modifier.forkjoin.sv
+endinterface
+//<------------ storage.type.interface.sv
