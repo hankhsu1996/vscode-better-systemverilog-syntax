@@ -52,6 +52,7 @@ the library map grammar gets `config`.
 - `checker.ts` - Pattern validation
 - `minify.ts` - Minifies repository names to reduce file size
 - `fileOperations.ts` - YAML/JSON file I/O
+- `runTests.mjs` - Runs the test suite once; `npm run test-watch` reruns it on each change
 
 ### Testing
 
