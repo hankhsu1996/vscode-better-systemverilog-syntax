@@ -25,7 +25,7 @@ variables:
   classIdentifierEnd: (?!\s*(\(|\.|\=|:|${identifier}\s*\())
   psIdentifier: (?:(?:${identifier})\s*(?:::)\s*)?(?:${identifier})
   # When there is a new design element, the current design element should be ended
-  designElementsFailSafe: (?=\b(?:module|program|interface|checker|package|primitive|config)\b)
+  designElementsFailSafe: (?=\b(?:module|program|interface(?!\s+class\b)|checker|package|primitive|config)\b)
   blocksFailSafe: (?=\b(?:endmodule|endprogram|endinterface|endchecker|endpackage|endprimitive|endconfig)\b)
   # When there is an end of block, the statement should be ended
   itemsFailSafe: (?=\b(?:endmodule|endprimitive|endinterface|endpackage|endconfig|endtask|endfunction|endchecker|endclass|endgroup|endproperty|endsequence|endgenerate|endtable|endclocking|endspecify)\b)|${blocksFailSafe}
@@ -123,7 +123,8 @@ repository:
           - include: "#interface-item"
           - include: "#non-port-interface-item"
   program-declaration:
-    begin: (?=\b(program)\b)
+    # `program;` is an anonymous program, a package item
+    begin: (?=\b(program)\b(?!\s*\;))
     end: \b(endprogram)\b\s*(?:(\:)\s*(${identifier})\s*)?
     endCaptures:
       "1": { name: storage.type.program.sv }
@@ -1181,11 +1182,11 @@ repository:
   anonymous-program:
     name: meta.anonymous-program.sv
     begin: \b(program)\b\s*
-    end: \b(endprogram)\b\s*
+    end: \b(endprogram)\b\s*|${blocksFailSafe}|${designElementsFailSafe}
     beginCaptures:
-      "1": { name: storage.type.$1.sv }
+      "1": { name: storage.type.program.sv }
     endCaptures:
-      "1": { name: storage.type.$1.sv }
+      "1": { name: storage.type.program.sv }
     patterns:
       - include: "#semicolon"
       - include: "#anonymous-program-item"
@@ -1971,13 +1972,13 @@ repository:
   variable-decl-assignment:
     patterns:
       - include: "#dimension"
-      - match: (${identifier})\s*(?=\=|\,|\;|((\[[^\[\]]*?\]\s*)+(\=|\,|\;)))
+      - match: (${identifierNotKeyword})\s*(?=\=|\,|\;|((\[[^\[\]]*?\]\s*)+(\=|\,|\;)))
         captures:
           "1": { name: variable.other.sv }
   tagged-variable-decl-assignment:
     patterns:
       - include: "#dimension"
-      - match: (${identifier})\s*(?=\=|\,|\;|((\[[^\[\]]*?\]\s*)+(\=|\,|\;)))
+      - match: (${identifierNotKeyword})\s*(?=\=|\,|\;|((\[[^\[\]]*?\]\s*)+(\=|\,|\;)))
         captures:
           "1": { name: variable.other.constant.sv }
   class-new:
