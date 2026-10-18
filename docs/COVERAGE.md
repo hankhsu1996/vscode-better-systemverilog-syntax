@@ -52,7 +52,7 @@ This document tracks grammar implementation and test coverage for each LRM chapt
 | Ch. | Title                                          | Grammar | Tests       | Notes                                                                      |
 | --- | ---------------------------------------------- | ------- | ----------- | -------------------------------------------------------------------------- |
 | 23  | Modules and hierarchy                          | Done    | Minimal (4) | See [Chapter 23 gaps](#chapter-23-modules-and-hierarchy)                   |
-| 24  | Programs                                       | Done    | Minimal (1) | See [Chapter 24 gaps](#chapter-24-programs)                                |
+| 24  | Programs                                       | Done    | Minimal (2) | See [Chapter 24 gaps](#chapter-24-programs)                                |
 | 25  | Interfaces                                     | Done    | Minimal (6) | See [Chapter 25 gaps](#chapter-25-interfaces)                              |
 | 26  | Packages                                       | Done    | Minimal (3) | See [Chapter 26 gaps](#chapter-26-packages)                                |
 | 27  | Generate constructs                            | None    | None        | See [Chapter 27 details](#chapter-27-generate-constructs)                  |
@@ -252,12 +252,11 @@ This document tracks grammar implementation and test coverage for each LRM chapt
 
 ### Chapter 24: Programs
 
-**Current tests:** 1
+**Current tests:** 2
 
 **Missing test coverage:**
 
 - 24.3 Program construct (more examples)
-- 24.6 Anonymous programs
 - 24.7 Program control tasks (`$exit`)
 
 ### Chapter 25: Interfaces
