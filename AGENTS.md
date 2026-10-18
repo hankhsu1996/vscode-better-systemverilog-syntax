@@ -111,6 +111,9 @@ The YAML grammar uses variables for reusable regex patterns (defined at top of f
 2. Run `npm run test` to build and verify
 3. Add test cases in appropriate `tests/chapter-XX/` directory
 
+A change that adds or completes support for a chapter also updates that chapter's
+row in the README's Supported Syntax table, which is otherwise never revisited.
+
 Every `include` must name an existing repository entry, or the scope of the
 other grammar; the build fails if one
 does not. TextMate itself ignores an unresolved include without any error, so a
