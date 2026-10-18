@@ -812,12 +812,16 @@ repository:
           "1": { name: storage.modifier.$1.sv }
   checker-or-generate-item:
     patterns:
-      - include: "#checker-or-generate-item-declaration"
+      # The statement after initial, always or final is not enclosed in a region,
+      # so these come before the declarations, which would read `x <= y` as a
+      # declaration of type x
       - include: "#initial-construct"
+      - include: "#always-construct"
       - include: "#final-construct"
-      - include: "#concurrent-assertion-item"
+      - include: "#assertion-item"
       - include: "#continuous-assign"
       - include: "#checker-generate-item"
+      - include: "#checker-or-generate-item-declaration"
   checker-or-generate-item-declaration:
     patterns:
       - match: ${keywordStart}\b(rand)\b\s*
