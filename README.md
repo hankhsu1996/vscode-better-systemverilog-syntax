@@ -50,7 +50,7 @@ Here's a summary of the SystemVerilog syntax support, by chapter of IEEE 1800-20
 | 31      | Timing checks                                  | 🟢 Supported     |
 | 32      | Backannotation using the standard delay format | 🟢 Supported     |
 | 33      | Configuring the contents of a design           | 🟢 Supported     |
-| 34      | Protected envelopes                            | 🟡 Partial       |
+| 34      | Protected envelopes                            | 🟢 Supported     |
 
 ## Library Map Files
 
