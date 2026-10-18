@@ -17,40 +17,40 @@ Welcome to _Better SystemVerilog Syntax_! This extension enhances your coding ex
 
 ## Supported Syntax
 
-Here's a summary of the SystemVerilog syntax support, categorized by chapter:
+Here's a summary of the SystemVerilog syntax support, by chapter of IEEE 1800-2023:
 
-| Chapter | Title                                          | Status             |
-| ------- | ---------------------------------------------- | ------------------ |
-| 5       | Lexical conventions                            | 🟢 Implemented     |
-| 6       | Data types                                     | 🟢 Implemented     |
-| 7       | Aggregate data types                           | 🟢 Implemented     |
-| 8       | Classes                                        | 🟢 Implemented     |
-| 9       | Processes                                      | 🟢 Implemented     |
-| 10      | Assignment statements                          | 🟢 Implemented     |
-| 11      | Operators and expressions                      | 🟢 Implemented     |
-| 12      | Procedural programming statements              | 🟢 Implemented     |
-| 13      | Tasks and functions (subroutines)              | 🟢 Implemented     |
-| 14      | Clocking blocks                                | 🟢 Implemented     |
-| 15      | Interprocess synchronization and communication | 🟢 Implemented     |
-| 16      | Assertions                                     | 🟢 Implemented     |
-| 17      | Checkers                                       | 🔴 Not Implemented |
-| 18      | Constrained random value generation            | 🟢 Implemented     |
-| 19      | Functional coverage                            | 🔴 Not Implemented |
-| 20      | Utility system tasks and system functions      | 🟢 Implemented     |
-| 21      | Input/output system tasks and system functions | 🟢 Implemented     |
-| 22      | Compiler directives                            | 🟢 Implemented     |
-| 23      | Modules and hierarchy                          | 🟢 Implemented     |
-| 24      | Programs                                       | 🟢 Implemented     |
-| 25      | Interfaces                                     | 🟢 Implemented     |
-| 26      | Packages                                       | 🟢 Implemented     |
-| 27      | Generate constructs                            | 🔴 Not Implemented |
-| 28      | Gate-level and switch-level modeling           | 🔴 Not Implemented |
-| 29      | User-defined primitives                        | 🔴 Not Implemented |
-| 30      | Specify blocks                                 | 🟢 Implemented     |
-| 31      | Timing checks                                  | 🟢 Implemented     |
-| 32      | Backannotation using the standard delay format | 🔴 Not Implemented |
-| 33      | Configuring the contents of a design           | 🟢 Implemented     |
-| 34      | Protected envelopes                            | 🔴 Not Implemented |
+| Chapter | Title                                          | Status           |
+| ------- | ---------------------------------------------- | ---------------- |
+| 5       | Lexical conventions                            | 🟢 Supported     |
+| 6       | Data types                                     | 🟢 Supported     |
+| 7       | Aggregate data types                           | 🟢 Supported     |
+| 8       | Classes                                        | 🟢 Supported     |
+| 9       | Processes                                      | 🟢 Supported     |
+| 10      | Assignment statements                          | 🟢 Supported     |
+| 11      | Operators and expressions                      | 🟢 Supported     |
+| 12      | Procedural programming statements              | 🟢 Supported     |
+| 13      | Tasks and functions (subroutines)              | 🟢 Supported     |
+| 14      | Clocking blocks                                | 🟢 Supported     |
+| 15      | Interprocess synchronization and communication | 🟢 Supported     |
+| 16      | Assertions                                     | 🟢 Supported     |
+| 17      | Checkers                                       | 🟡 Partial       |
+| 18      | Constrained random value generation            | 🟢 Supported     |
+| 19      | Functional coverage                            | 🟢 Supported     |
+| 20      | Utility system tasks and system functions      | 🟢 Supported     |
+| 21      | Input/output system tasks and system functions | 🟢 Supported     |
+| 22      | Compiler directives                            | 🟢 Supported     |
+| 23      | Modules and hierarchy                          | 🟢 Supported     |
+| 24      | Programs                                       | 🟢 Supported     |
+| 25      | Interfaces                                     | 🟢 Supported     |
+| 26      | Packages                                       | 🟢 Supported     |
+| 27      | Generate constructs                            | 🟢 Supported     |
+| 28      | Gate-level and switch-level modeling           | 🟢 Supported     |
+| 29      | User-defined primitives                        | 🔴 Not supported |
+| 30      | Specify blocks                                 | 🟢 Supported     |
+| 31      | Timing checks                                  | 🟢 Supported     |
+| 32      | Backannotation using the standard delay format | 🟢 Supported     |
+| 33      | Configuring the contents of a design           | 🟢 Supported     |
+| 34      | Protected envelopes                            | 🟡 Partial       |
 
 ## Library Map Files
 
@@ -82,8 +82,8 @@ The standard leaves the name of this file to each tool, so only a file named `li
 
 Your contributions are essential for ongoing improvements! Here’s how you can help:
 
-- **Issue Reporting**: If you encounter incorrect syntax highlighting, please [open an issue](https://github.com/hankhsu1996/vscode-better-systemverilog-syntax/issues).
-- **Pull Requests**: For those looking to contribute code, especially for unimplemented chapters, feel free to submit a pull request. Be sure to include tests!
+- **Issue Reporting**: If you encounter incorrect syntax highlighting, please [open an issue](https://github.com/hankhsu1996/vscode-better-systemverilog-syntax/issues/new/choose) with the code.
+- **Pull Requests**: For those looking to contribute code, especially for unsupported chapters, feel free to submit a pull request. Be sure to include tests!
 
 ## License
 

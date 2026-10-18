@@ -1,0 +1,30 @@
+name: Wrong highlighting
+description: Code that is highlighted wrongly, or not at all
+labels: [bug]
+body:
+  - type: textarea
+    id: code
+    attributes:
+      label: Code
+      description: The smallest piece of SystemVerilog that shows the problem.
+      render: systemverilog
+    validations:
+      required: true
+  - type: textarea
+    id: wrong
+    attributes:
+      label: What is wrong
+      description: Which token looks wrong, and what you expected. If the code after it also loses its colors, say so.
+    validations:
+      required: true
+  - type: textarea
+    id: scopes
+    attributes:
+      label: Scopes (optional)
+      description: 'Run "Developer: Inspect Editor Tokens and Scopes" from the command palette, click the token, and paste the textmate scopes shown.'
+  - type: input
+    id: version
+    attributes:
+      label: Extension version
+    validations:
+      required: true
