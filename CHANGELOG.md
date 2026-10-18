@@ -10,6 +10,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - Fix an anonymous program (`program; ... endprogram`, in a package or at the top level of a file) being highlighted as a variable or as a program without a name, and a half-typed one leaving the rest of the file unhighlighted
 - Fix `default clocking cb;` leaving the rest of the module, interface, program or checker unhighlighted
+- Fix the encoded data after `` `pragma protect key_block ``, `digest_block` or `data_block` in an encrypted file being read as code, which could leave the rest of the file unhighlighted. The data is now highlighted as one opaque block
 
 ## [1.3.0] - 2026-10-09
 

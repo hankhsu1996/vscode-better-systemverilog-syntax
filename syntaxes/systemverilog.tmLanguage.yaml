@@ -7269,6 +7269,7 @@ repository:
       - include: "#macro-nounconnected-drive"
       - include: "#macro-celldefine"
       - include: "#macro-endcelldefine"
+      - include: "#protect-encoded-block"
       - include: "#macro-pragma"
       - include: "#macro-line"
       - include: "#macro-begin-keywords"
@@ -7458,6 +7459,25 @@ repository:
   macro-endcelldefine:
     match: (`endcelldefine)\b
     name: keyword.control.endcelldefine.sv
+  # The encoded data of a key_block, digest_block or data_block begins on the next
+  # line (LRM 34.5.15, 34.5.22, 34.5.27) and runs up to the next pragma. Any
+  # character can appear in it, so none of it is read as code.
+  protect-encoded-block:
+    name: meta.encoded-block.sv
+    contextKind: literal
+    begin: (`pragma)\b\s*\b(protect)\b(?=.*\b(?:key_block|digest_block|data_block)\b\s*(?:\,|$))
+    beginCaptures:
+      "1": { name: keyword.control.pragma.sv }
+      "2": { name: entity.other.attribute-name.sv }
+    end: ^(?=\s*`pragma\b)
+    patterns:
+      - begin: \G
+        end: $
+        patterns:
+          - include: "#comma"
+          - include: "#pragma-expression"
+      - match: .+
+        name: string.unquoted.encoded.sv
   macro-pragma:
     begin: (`pragma)\b\s*(?:\b([a-zA-Z_][a-zA-Z0-9_$]*)\b\s*)?
     beginCaptures:
