@@ -33,7 +33,7 @@ Here's a summary of the SystemVerilog syntax support, by chapter of IEEE 1800-20
 | 14      | Clocking blocks                                | 🟢 Supported     |
 | 15      | Interprocess synchronization and communication | 🟢 Supported     |
 | 16      | Assertions                                     | 🟢 Supported     |
-| 17      | Checkers                                       | 🟡 Partial       |
+| 17      | Checkers                                       | 🟢 Supported     |
 | 18      | Constrained random value generation            | 🟢 Supported     |
 | 19      | Functional coverage                            | 🟢 Supported     |
 | 20      | Utility system tasks and system functions      | 🟢 Supported     |
