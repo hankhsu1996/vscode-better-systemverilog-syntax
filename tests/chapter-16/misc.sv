@@ -431,3 +431,23 @@ sequence e2;
   ##1 branch_back;
 //    ^^^^^^^^^^^ variable.other.sv
 endsequence
+
+// Every bounded temporal operator takes its range as a cycle range, not as a
+// dimension (LRM 16.12.11, 16.12.13)
+property bounded_ops;
+  eventually [1:3] a and
+//^^^^^^^^^^ keyword.other.eventually.sv
+//           ^ punctuation.section.brackets.begin.sv - meta.dimension.sv
+//            ^ constant.numeric.integer.sv - meta.dimension.sv
+//              ^ constant.numeric.integer.sv - meta.dimension.sv
+//               ^ punctuation.section.brackets.end.sv - meta.dimension.sv
+  nexttime [2] a and
+//^^^^^^^^ keyword.other.nexttime.sv
+//         ^ punctuation.section.brackets.begin.sv - meta.dimension.sv
+  always [1:3] a and
+//^^^^^^ keyword.other.always.sv
+//       ^ punctuation.section.brackets.begin.sv - meta.dimension.sv
+  s_eventually [1:$] a;
+//^^^^^^^^^^^^ keyword.other.s_eventually.sv
+//             ^ punctuation.section.brackets.begin.sv - meta.dimension.sv
+endproperty

@@ -289,7 +289,7 @@ repository:
       - include: "#semicolon"
   interface-class-method:
     begin: \b(pure)\b\s+\b(virtual)\b\s*
-    end: (\;)\s*
+    end: (\;)\s*|${itemsFailSafe}
     beginCaptures:
       "1": { name: storage.modifier.pure.sv }
       "2": { name: storage.modifier.virtual.sv }
@@ -911,9 +911,9 @@ repository:
       - include: "#method-qualifier"
       - include: "#task-declaration"
       - include: "#function-declaration"
-      - name: meta.abstract-class-function-protoype.sv
+      - name: meta.abstract-class-function-prototype.sv
         begin: ${keywordStart}\b(pure)\b\s+\b(virtual)\b\s*
-        end: (\;)\s*
+        end: (\;)\s*|${itemsFailSafe}
         beginCaptures:
           "1": { name: storage.modifier.pure.sv }
           "2": { name: storage.modifier.virtual.sv }
@@ -923,7 +923,7 @@ repository:
           - include: "#class-item-qualifier"
           - include: "#method-prototype"
       - begin: ${keywordStart}\b(extern)\b\s*(?!\s*\b(constraint)\b)
-        end: (\;)\s*
+        end: (\;)\s*|${itemsFailSafe}
         beginCaptures:
           "1": { name: storage.modifier.extern.sv }
         endCaptures:
@@ -935,14 +935,13 @@ repository:
       - include: "#method-qualifier"
       - include: "#class-constructor-declaration"
   class-constructor-prototype:
-    name: meta.class-constructor-protoype.sv
+    name: meta.class-constructor-prototype.sv
     begin: \b(function)\b\s+\b(new)\b\s*
-    end: (\;)\s*|${blocksFailSafe}
+    # The `;` belongs to the enclosing extern declaration
+    end: (?=\;)|${itemsFailSafe}
     beginCaptures:
       "1": { name: storage.type.function.sv }
       "2": { name: entity.name.function.sv }
-    endCaptures:
-      "1": { name: punctuation.terminator.semicolon.sv }
     patterns:
       - begin: (\()\s*
         end: (\))\s*|${bracketsFailSafe}
@@ -2105,7 +2104,8 @@ repository:
           - include: "#block-item-declaration"
   function-prototype:
     name: meta.function-prototype.sv
-    begin: \b(function)\b\s*
+    # `function new` is class-constructor-prototype
+    begin: \b(function)\b(?!\s+\bnew\b)\s*
     end: (?=\;|\)|\{)|${itemsFailSafe}
     beginCaptures:
       "1": { name: storage.type.function.sv }
@@ -2688,9 +2688,6 @@ repository:
       - match: \b(s_eventually)\b\s*
         captures:
           "1": { name: keyword.other.s_eventually.sv }
-      - match: \b(eventually)\b\s*
-        captures:
-          "1": { name: keyword.other.eventually.sv }
       - begin: \b(eventually)\b\s*(\[)\s*
         end: (\])\s*|${bracketsFailSafe}
         beginCaptures:
@@ -2700,6 +2697,9 @@ repository:
           "1": { name: punctuation.section.brackets.end.sv }
         patterns:
           - include: "#constant-range"
+      - match: \b(eventually)\b\s*
+        captures:
+          "1": { name: keyword.other.eventually.sv }
       - match: \b(until)\b\s*
         captures:
           "1": { name: keyword.other.until.sv }

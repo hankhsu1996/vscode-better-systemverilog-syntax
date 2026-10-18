@@ -39,3 +39,24 @@ endinterface
 module next5;
 //<------ storage.type.module.sv
 endmodule
+
+// Extern and pure virtual method prototypes in a class, left without their `;`
+class with_extern_new;
+  extern function new(int a)
+endclass
+//<-------- storage.type.class.sv
+class with_extern_method;
+  extern function void f()
+endclass
+//<-------- storage.type.class.sv
+virtual class with_pure_method;
+  pure virtual function void g()
+endclass
+//<-------- storage.type.class.sv
+interface class with_interface_method;
+  pure virtual function void h()
+endclass
+//<-------- storage.type.class.sv
+module next6;
+//<------ storage.type.module.sv
+endmodule

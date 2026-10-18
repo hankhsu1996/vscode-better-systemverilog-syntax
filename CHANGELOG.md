@@ -14,6 +14,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Fix `always`, `always_comb`, `always_latch` and `always_ff` not being highlighted inside a checker, and the variable assigned after `always_ff @(...)` being highlighted as a type
 - Fix `extern module`, `extern interface` and `extern program` declarations being read as an extern task or function, leaving their name and ports unhighlighted
 - Fix an `extern` task or function prototype left without its `;` leaving the rest of the file unhighlighted
+- Fix the range of `eventually [m:n]` being highlighted as a dimension
+- Fix `new` not being highlighted in an `extern function new(...)` constructor prototype
+- Fix an `extern` or `pure virtual` method prototype in a class or interface class, left without its `;`, leaving the rest of the file unhighlighted
 
 ## [1.3.0] - 2026-10-09
 
