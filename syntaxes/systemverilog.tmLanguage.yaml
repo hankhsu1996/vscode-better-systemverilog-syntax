@@ -55,6 +55,7 @@ repository:
   description:
     patterns:
       - include: "#attribute-instance"
+      - include: "#extern-header-declaration"
       - include: "#module-declaration"
       - include: "#interface-declaration"
       - include: "#program-declaration"
@@ -65,6 +66,23 @@ repository:
       # data-declaration-or-module-instantiation before the package item.
       - include: "#data-declaration-or-module-instantiation"
       - include: "#package-item"
+  # The extern form of a module, interface or program declaration is its header
+  # alone (A.1.2, 23.5)
+  extern-header-declaration:
+    name: meta.extern-header-declaration.sv
+    begin: ${keywordStart}\b(extern)\b\s+\b(module|macromodule|interface|program)\b\s+(?:\b(static|automatic)\b\s+)?(?:(${identifier})\s*)?
+    end: (\;)\s*|${designElementsFailSafe}|${blocksFailSafe}
+    beginCaptures:
+      "1": { name: storage.modifier.extern.sv }
+      "2": { name: storage.type.$2.sv }
+      "3": { name: storage.modifier.$3.sv }
+      "4": { name: entity.name.type.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - include: "#package-import-declaration"
+      - include: "#parameter-port-list"
+      - include: "#list-of-port-declarations"
   module-declaration:
     name: meta.module-declaration.sv
     begin: (?=\b(module|macromodule)\b)
@@ -571,6 +589,7 @@ repository:
       - include: "#module-or-generate-item"
       - include: "#specify-block"
       - include: "#specparam-declaration"
+      - include: "#extern-header-declaration"
       - include: "#program-declaration"
       - include: "#module-declaration"
       - include: "#interface-declaration"
@@ -745,8 +764,9 @@ repository:
       - include: "#extern-tf-declaration"
   extern-tf-declaration:
     name: meta.extern-tf-declaration.sv
-    begin: ${keywordStart}\b(extern)\b\s*(?:\b(forkjoin)\b\s+)?
-    end: (\;)\s*
+    # `extern module ...;` and the like are extern-header-declaration
+    begin: ${keywordStart}\b(extern)\b(?!\s*\b(?:module|macromodule|interface|program)\b)\s*(?:\b(forkjoin)\b\s+)?
+    end: (\;)\s*|${itemsFailSafe}
     beginCaptures:
       "1": { name: storage.modifier.extern.sv }
       "2": { name: storage.modifier.forkjoin.sv }
@@ -763,6 +783,7 @@ repository:
     patterns:
       - include: "#generate-region"
       - include: "#interface-or-generate-item"
+      - include: "#extern-header-declaration"
       - include: "#program-declaration"
       - include: "#modport-declaration"
       - include: "#interface-declaration"
@@ -2085,7 +2106,7 @@ repository:
   function-prototype:
     name: meta.function-prototype.sv
     begin: \b(function)\b\s*
-    end: (?=\;|\)|\{)
+    end: (?=\;|\)|\{)|${itemsFailSafe}
     beginCaptures:
       "1": { name: storage.type.function.sv }
     patterns:
@@ -2219,7 +2240,7 @@ repository:
   task-prototype:
     name: meta.task-prototype.sv
     begin: \b(task)\b\s*
-    end: (?=\;|\)|\{|\,)
+    end: (?=\;|\)|\{|\,)|${itemsFailSafe}
     beginCaptures:
       "1": { name: storage.type.$1.sv }
     patterns:
