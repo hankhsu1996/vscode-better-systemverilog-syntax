@@ -542,24 +542,29 @@ repository:
       - include: "#package-or-generate-item-declaration"
       - include: "#genvar-declaration"
       - include: "#clocking-declaration"
-      - match: ${keywordStart}\b(default)\b\s+\b(clocking)\b\s+(${identifier})\s*\;
-        captures:
-          "1": { name: keyword.other.default.sv }
-          "2": { name: storage.type.clocking.sv }
-          "3":
-            patterns:
-              - include: "#clocking-identifier"
-      - name: meta.default-disable.sv
-        begin: ${keywordStart}\b(default)\b\s+\b(disable)\b\s+\b(iff)\b\s*
-        end: (\;)\s*
-        beginCaptures:
-          "1": { name: keyword.control.default.sv }
-          "2": { name: keyword.control.disable.sv }
-          "3": { name: keyword.control.iff.sv }
-        endCaptures:
-          "1": { name: punctuation.terminator.semicolon.sv }
+      - include: "#default-clocking-specification"
+      - include: "#default-disable-declaration"
+  default-clocking-specification:
+    match: ${keywordStart}\b(default)\b\s+\b(clocking)\b\s+(${identifier})\s*(\;)\s*
+    captures:
+      "1": { name: keyword.other.default.sv }
+      "2": { name: storage.type.clocking.sv }
+      "3":
         patterns:
-          - include: "#expression-or-dist"
+          - include: "#clocking-identifier"
+      "4": { name: punctuation.terminator.semicolon.sv }
+  default-disable-declaration:
+    name: meta.default-disable.sv
+    begin: ${keywordStart}\b(default)\b\s+\b(disable)\b\s+\b(iff)\b\s*
+    end: (\;)\s*
+    beginCaptures:
+      "1": { name: keyword.control.default.sv }
+      "2": { name: keyword.control.disable.sv }
+      "3": { name: keyword.control.iff.sv }
+    endCaptures:
+      "1": { name: punctuation.terminator.semicolon.sv }
+    patterns:
+      - include: "#expression-or-dist"
   non-port-module-item:
     patterns:
       - include: "#generate-region"
@@ -825,23 +830,8 @@ repository:
       - include: "#covergroup-declaration"
       - include: "#genvar-declaration"
       - include: "#clocking-declaration"
-      - match: ${keywordStart}\b(default)\b\s*(?:\b(clocking)\b\s*)?:(?:(${identifier})\s*)?(?:(\;)\s*)?
-        captures:
-          "1": { name: keyword.other.default.sv }
-          "2": { name: storage.type.clocking.sv }
-          "3": { name: entity.name.type.sv }
-          "4": { name: punctuation.terminator.semicolon.sv }
-      - name: meta.default-disable.sv
-        begin: ${keywordStart}\b(default)\b\s*\b(disable)\b\s*(?:\b(iff)\b\s*)?
-        end: (\;)\s*
-        beginCaptures:
-          "1": { name: keyword.control.default.sv }
-          "2": { name: keyword.control.disable.sv }
-          "3": { name: keyword.control.iff.sv }
-        endCaptures:
-          "1": { name: punctuation.terminator.semicolon.sv }
-        patterns:
-          - include: "#expression-or-dist"
+      - include: "#default-clocking-specification"
+      - include: "#default-disable-declaration"
       - include: "#semicolon"
   checker-generate-item:
     patterns:
@@ -4894,8 +4884,9 @@ repository:
   # A.6.11 Clocking block
   clocking-declaration:
     patterns:
+      # `default clocking id;` names an existing block, see default-clocking-specification
       - name: meta.clocking-declaration.sv
-        begin: (?:\b(default)\b\s+)?\b(clocking)\b\s*(?:(\b${identifier}\b)\s*)?
+        begin: (?:\b(default)\b\s+)?\b(clocking)\b(?!\s*${identifier}\s*\;)\s*(?:(\b${identifier}\b)\s*)?
         end: \b(endclocking)\b\s*(?:(\:)\s*(${identifier})\s*)?|${blocksFailSafe}
         beginCaptures:
           "1": { name: keyword.other.default.sv }
