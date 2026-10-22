@@ -168,3 +168,21 @@ class test_constraint_braces;
 //                ^^^^^^ keyword.other.inside.sv
     }
 endclass
+
+// Inline constraint block followed by more of the expression
+module inline_constraint_then_more;
+  initial begin
+    if (pkt.randomize() with { len < 4; } == 1)
+//                                        ^^ keyword.operator.binary.sv
+//                                            ^ punctuation.section.group.end.sv
+      ok = 1;
+//    ^^ variable.other.sv
+    void'(pkt.randomize() with {
+      len < 4;
+    }
+    );
+//  ^ punctuation.section.group.end.sv
+    ok = 2;
+//  ^^ variable.other.sv
+  end
+endmodule

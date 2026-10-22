@@ -6,6 +6,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix code after `randomize() with { ... }` going unhighlighted when the closing brace is followed by a space or a line break, as in `if (obj.randomize() with { ... } == 1)`
+- Fix `specparam PATHPULSE$ = (1, 2) ;` with a space before the semicolon leaving the rest of the specify block unhighlighted
+
 ## [1.4.0] - 2026-10-17
 
 ### Fixed
