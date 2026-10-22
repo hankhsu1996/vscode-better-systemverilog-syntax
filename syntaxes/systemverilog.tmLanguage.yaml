@@ -1929,7 +1929,7 @@ repository:
     patterns:
     - name: meta.pulse-control-specparam.sv
       begin: \b(PATHPULSE\$[^$]*?\$[^$=]*?)\s*(?=\s*(?:\=|$))
-      end: (?<=\))|${bracketsFailSafe}
+      end: ${assignmentEnd}
       beginCaptures:
         "1": { name: variable.other.constant.sv }
       patterns:
@@ -1949,7 +1949,7 @@ repository:
         - include: "#limit-value"
     - name: meta.pulse-control-specparam.sv
       begin: \b(PATHPULSE\$)\s*
-      end: (?<=\))|${bracketsFailSafe}
+      end: ${assignmentEnd}
       beginCaptures:
         "1": { name: variable.other.constant.sv }
         "2":
@@ -6399,9 +6399,11 @@ repository:
           - include: "#identifier-list"
       # The constraint block is reached only through 'with', never as a bare
       # '{': a plain brace here would outrank #concatenation wherever a
-      # subroutine call can appear, stealing streaming concatenations.
+      # subroutine call can appear, stealing streaming concatenations. The
+      # region holds only that block, so it ends as soon as the block does,
+      # whatever whitespace the block's own end took with it.
       - begin: \b(with)\b\s*(?=\{)
-        end: (?<=\})|${bracketsFailSafe}
+        end: (?!\G)|${bracketsFailSafe}
         beginCaptures:
           "1": { name: keyword.other.with.sv }
         patterns:
